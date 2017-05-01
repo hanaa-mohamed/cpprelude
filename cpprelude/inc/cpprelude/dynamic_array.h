@@ -9,8 +9,8 @@
 namespace cpprelude
 {
 	//configurations
-	 r32 grow_factor = 1.5f;
-	 usize starting_count = 64;
+	#define grow_factor 1.5f
+	#define starting_count 64
 
 	template<typename T>
 	struct dynamic_array
