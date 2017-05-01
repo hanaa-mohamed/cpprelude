@@ -1,0 +1,21 @@
+This file is used for management. it consists of 3 parts:
+1- The backlog part which contains all of the to-do tasks
+2- A dev section that contains all of the tasks that's assigned to a dev.
+3- The done section
+
+all the above sections behave like a stack except the backlog which behaves like a queue.
+
+# Backlog:
+- COURSE STUFF GOES HERE
+- implement thread safe handle wrapper
+
+# Mostafa:
+
+# Nora:
+
+
+# Done:
+- Prepare the project
+- Provide a memory allocation/deallocation service
+- implement static array
+- implement dynamic array
