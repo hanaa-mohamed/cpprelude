@@ -6,12 +6,12 @@ This file is used for management. it consists of 3 parts:
 all the above sections behave like a stack except the backlog which behaves like a queue.
 
 # Backlog:
-- COURSE STUFF GOES HERE
+- improvement on QU, QF
 - implement thread safe handle wrapper
-- Quick union
 
 
 # Mostafa:
+- Quick union
 
 # Nora:
 - Quick find
