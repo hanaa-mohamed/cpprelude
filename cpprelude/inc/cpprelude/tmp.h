@@ -19,7 +19,7 @@ namespace cpprelude
 		{ typedef T type; };
 
 		template<typename T>
-		constexpr typename remove_reference<T>::type&&
+		 typename remove_reference<T>::type&&
 		move(T&& value)
 		{
 			return static_cast<typename remove_reference<T>::type&&>(value);
