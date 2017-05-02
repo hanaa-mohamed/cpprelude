@@ -203,6 +203,19 @@ namespace cpprelude
 		}
 
 		void
+		clear()
+		{
+			_count = 0;
+		}
+
+		void
+		reset()
+		{
+			_count = 0;
+			_data_block.~owner_mem_block();
+		}
+
+		void
 		_mem_resize(usize new_size)
 		{
 			if(_data_block.size >= new_size)

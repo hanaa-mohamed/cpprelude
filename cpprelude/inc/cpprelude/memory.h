@@ -74,6 +74,9 @@ namespace cpprelude
 		weak_mem_block
 		sub_block(usize offset = 0);
 
+		weak_mem_block
+		release();
+
 		template<typename T>
 		T*
 		at(usize index)

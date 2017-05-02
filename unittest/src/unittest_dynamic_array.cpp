@@ -205,4 +205,35 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		for(usize i = 0; i < array.count(); ++i)
 			CHECK(array[i] == i+1);
 	}
+
+	SECTION("Case 11")
+	{
+		array.insert_back({1, 2, 3, 4, 5});
+
+		CHECK(array.count() == 5);
+		CHECK(array.capacity() == 5);
+		for(usize i = 0; i < array.count(); ++i)
+			CHECK(array[i] == i+1);
+
+		array.insert_back({6, 7, 8, 9});
+		array.insert_back(10);
+
+		CHECK(array.count() == 10);
+		CHECK(array.capacity() >= 10);
+		for(usize i = 0; i < array.count(); ++i)
+			CHECK(array[i] == i+1);
+
+		array.clear();
+		CHECK(array.count() == 0);
+		CHECK(array.capacity() >= 10);
+
+		array.insert_back({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+		CHECK(array.count() == 10);
+		CHECK(array.capacity() >= 10);
+
+		array.reset();
+		CHECK(array.count() == 0);
+		CHECK(array.capacity() == 0);
+
+	}
 }

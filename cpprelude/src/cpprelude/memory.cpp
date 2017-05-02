@@ -65,6 +65,16 @@ namespace cpprelude
 		return weak_mem_block();
 	}
 
+	weak_mem_block
+	owner_mem_block::release()
+	{
+		auto result = sub_block(0);
+		ptr = nullptr;
+		size = 0;
+		return result;
+	}
+
+
 	//mem api
 	owner_mem_block
 	alloc(usize size, ubyte alignment)
