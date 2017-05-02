@@ -4,13 +4,14 @@
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
 #include <initializer_list>
+#include <iterator>
 
 
 namespace cpprelude
 {
-	//configurations
-	 r32 grow_factor = 1.5f;
-	 usize starting_count = 64;
+//configurations
+#define grow_factor 1.5f
+#define starting_count 64
 
 	template<typename T>
 	struct dynamic_array
