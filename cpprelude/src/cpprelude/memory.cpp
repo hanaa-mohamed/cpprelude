@@ -13,6 +13,18 @@ namespace cpprelude
 		:ptr(nullptr), size(0)
 	{}
 
+	bool
+	weak_mem_block::operator==(const weak_mem_block& other) const
+	{
+		return ptr == other.ptr && size == other.size;
+	}
+
+	bool
+	weak_mem_block::operator!=(const weak_mem_block& other) const
+	{
+		return !operator==(other);
+	}
+
 	//owner_mem_block
 	owner_mem_block::owner_mem_block(void* ptr_, usize size_)
 		:ptr(ptr_), size(size_)
@@ -45,6 +57,18 @@ namespace cpprelude
 		other.ptr = nullptr;
 		other.size = 0;
 		return *this;
+	}
+
+	bool
+	owner_mem_block::operator==(const owner_mem_block& other) const
+	{
+		return ptr == other.ptr && size == other.size;
+	}
+
+	bool
+	owner_mem_block::operator!=(const owner_mem_block& other) const
+	{
+		return !operator==(other);
 	}
 
 	weak_mem_block

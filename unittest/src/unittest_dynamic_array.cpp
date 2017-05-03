@@ -236,4 +236,28 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		CHECK(array.capacity() == 0);
 
 	}
+
+	SECTION("Case 12")
+	{
+		array.insert_back({1, 2, 3, 4, 5, 6, 7, 8, 9});
+
+		usize i = 1;
+		for(auto number: array)
+			CHECK(number == i++);
+
+		i = 1;
+		for(auto& number: array)
+			CHECK(number == i++);
+
+		i = 1;
+		for(const auto& number: array)
+			CHECK(number == i++);
+
+		for(auto& number: array)
+			number++;
+
+		i = 2;
+		for(const auto& number: array)
+			CHECK(number == i++);
+	}
 }
