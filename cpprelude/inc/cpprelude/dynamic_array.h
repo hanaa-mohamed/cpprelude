@@ -4,6 +4,7 @@
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
 #include <initializer_list>
+#include <new>
 
 
 namespace cpprelude
