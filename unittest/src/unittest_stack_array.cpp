@@ -10,7 +10,7 @@ TEST_CASE("stack_array test", "[stack_array]")
 	SECTION("Case 01")
 	{
 
-		stack_array arr;
+		stack_array<usize> arr;
 		CHECK(arr.isEmpty() == true);
 		CHECK(arr.size() == 0);
 
@@ -25,7 +25,7 @@ TEST_CASE("stack_array test", "[stack_array]")
 	SECTION("Case 02")
 	{
 
-		stack_array arr(5);
+		stack_array<usize> arr(5);
 		CHECK(arr.isEmpty() == true);
 		CHECK(arr.size() == 0);
 		CHECK(arr.capacity() == 5);
@@ -45,7 +45,7 @@ TEST_CASE("stack_array test", "[stack_array]")
 	SECTION("Case 03")
 	{
 
-		stack_array arr(5);
+		stack_array<usize> arr(5);
 		CHECK(arr.isEmpty() == true);
 		CHECK(arr.size() == 0);
 		CHECK(arr.capacity() == 5);
@@ -69,7 +69,7 @@ TEST_CASE("stack_array test", "[stack_array]")
 	SECTION("Case 03")
 	{
 
-		stack_array arr(5);
+		stack_array<usize> arr(5);
 		CHECK(arr.isEmpty() == true);
 		CHECK(arr.size() == 0);
 		CHECK(arr.capacity() == 5);

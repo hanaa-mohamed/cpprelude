@@ -5,10 +5,10 @@
 
 namespace cpprelude
 {
-
+	template<typename T>
 	struct  stack_array
 	{
-		dynamic_array <usize> _array;
+		dynamic_array <T> _array;
 		usize _count;
 
 		stack_array() :_count(0)
@@ -21,7 +21,7 @@ namespace cpprelude
 		}
 		
 		void
-		push(usize item) 
+		push(T item) 
 		{
 			if (_count == _array.count())
 				_array.insert_back(item);
@@ -31,11 +31,11 @@ namespace cpprelude
 			_count++;
 		}
 
-		usize
+		T
 		pop() 
 		{
 
-			usize x;
+			T x;
 			if (_count > 0) {
 				x = _array[_count - 1];
 				//Shrinking array size with factor 25%,
@@ -45,8 +45,7 @@ namespace cpprelude
 				if (_count == _array.count() / 4.0)
 					_array.resize(_array.count() / 2);
 			}
-			else
-				x = usize();
+			
 
 			_count--;
 			return x;
