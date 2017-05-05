@@ -6,7 +6,6 @@ using namespace cpprelude;
 TEST_CASE("quick_find test", "[quick_find]")
 {
 	
-	
 	SECTION("Case 01")
 	{
 		
@@ -30,8 +29,6 @@ TEST_CASE("quick_find test", "[quick_find]")
 		array.connect(2, 1);		CHECK(array.is_connected(2, 1) == true);
 		array.connect(5, 0);		CHECK(array.is_connected(5, 0) == true);
 		array.connect(7, 2);		CHECK(array.is_connected(7, 2) == true);
-
-
 
 
 		CHECK(array.is_connected(4, 3) == true);
@@ -61,7 +58,5 @@ TEST_CASE("quick_find test", "[quick_find]")
 		CHECK(array.is_connected(0, 9) == false);
 
 	}
-
-
 	
 }

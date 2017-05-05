@@ -6,68 +6,76 @@
 namespace cpprelude
 {
 	template<typename T>
-	struct  stack_array
+	struct stack_array
 	{
-		dynamic_array <T> _array;
+		dynamic_array<T> _array;
 		usize _count;
 
-		stack_array() :_count(0)
-		{
-		}
+		stack_array()
+			:_count(0)
+		{}
 
-		stack_array(usize count) :_count(0)
-		{
-			_array.resize(count);
-		}
-		
+		stack_array(usize count)
+			:_count(0), _array(count)
+		{}
+
 		void
-		push(T item) 
+		push(const T& item)
 		{
 			if (_count == _array.count())
 				_array.insert_back(item);
 			else
 				_array[_count] = item;
 
-			_count++;
+			++_count;
 		}
 
-		T
-		pop() 
+		void
+		push(T&& item)
 		{
+			if (_count == _array.count())
+				_array.insert_back(tmp::move(item));
+			else
+				_array[_count] = tmp::move(item);
 
-			T x;
-			if (_count > 0) {
-				x = _array[_count - 1];
-				//Shrinking array size with factor 25%,
-				//Most probably it will never enter this case! due to increase factor 
-				//in dynamic_array 1.5
-
-				if (_count == _array.count() / 4.0)
-					_array.resize(_array.count() / 2);
-			}
-			
-
-			_count--;
-			return x;
+			++_count;
+		}
+		
+		const T&
+		top() const
+		{
+			return _array[_count-1];
 		}
 
+		T&
+		top()
+		{
+			return _array[_count-1];
+		}
 
 		bool
-		isEmpty() 
+		pop()
+		{
+			if(_count > 0)
+			{
+				--_count;
+				//maybe shrink the array here
+				return true;
+			}
+
+			return false;
+		}
+
+		bool
+		empty()
 		{
 			return (_count == 0);
 		}
 
 		usize
-		size() 
+		count()
 		{
 			return _count;
-		}
-
-		usize
-		capacity() 
-		{
-			return _array.capacity();
 		}
 
 	};

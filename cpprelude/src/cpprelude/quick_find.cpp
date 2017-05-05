@@ -7,37 +7,33 @@ namespace cpprelude{
 
 	quick_find::quick_find(usize count)
 	{
-		_arr.resize(count);
+		_nodes.resize(count);
 		for (usize i = 0; i < count; ++i)
-			_arr[i] = i;
+			_nodes[i] = i;
 	}
 
 	bool
 	quick_find::is_connected(usize x, usize y)
 	{
-			if (_arr[x] == _arr[y])
-				return true;
-
-			return false;
-		}
+		return _nodes[x] == _nodes[y];
+	}
 
 	void
 	quick_find::connect(usize x, usize y)
 	{
+		if (_nodes[x] != _nodes[y])
+		{
+			auto temp = _nodes[y];
+			for (usize i = 0; i < _nodes.count(); ++i)
+				if (_nodes[i] == temp)
+					_nodes[i] = _nodes[x];
 
-			if (_arr[x] != _arr[y])
-			{
-				usize temp = _arr[y];
-				for (usize i = 0; i < _arr.count(); ++i)
-				if (_arr[i] == temp)
-					_arr[i] = _arr[x];
-
-			}
+		}
 	}
 
 	usize 
 	quick_find::count() const
 	{
-			return _arr.count();
+		return _nodes.count();
 	}
 }

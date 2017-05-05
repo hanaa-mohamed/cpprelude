@@ -8,7 +8,7 @@ namespace cpprelude
 	
 	struct API quick_find
 	{
-		dynamic_array<usize> _arr;
+		dynamic_array<usize> _nodes;
 
 		quick_find();
 

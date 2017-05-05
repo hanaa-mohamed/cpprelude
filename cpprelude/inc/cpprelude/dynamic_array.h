@@ -5,13 +5,13 @@
 #include "cpprelude/tmp.h"
 #include <initializer_list>
 #include <new>
-
+#include <iterator>
 
 namespace cpprelude
 {
 	//configurations
-	#define grow_factor 1.5f
-	#define starting_count 64
+	constexpr r32 grow_factor = 1.5f;
+	constexpr usize starting_count = 64;
 
 	template<typename T>
 	struct dynamic_array
