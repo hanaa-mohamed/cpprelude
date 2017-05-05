@@ -216,6 +216,12 @@ namespace cpprelude
 			_data_block.~owner_mem_block();
 		}
 
+		bool
+		empty() const
+		{
+			return _count == 0;
+		}
+
 		sequential_iterator<const T>
 		begin() const
 		{

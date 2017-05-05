@@ -260,4 +260,32 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		for(const auto& number: array)
 			CHECK(number == i++);
 	}
+
+	SECTION("Case 13")
+	{
+		CHECK(array.begin() == array.end());
+		CHECK(array.empty() == true);
+
+		array.insert_back({1, 2, 3, 4});
+
+		CHECK(array.empty() == false);
+		CHECK(array.begin() != array.end());
+
+		auto it = array.begin();
+		CHECK(it == array.begin());
+		it = next(it);
+		CHECK(it != array.begin());
+		it = prev(it);
+		CHECK(it == array.begin());
+
+		it = next(it);
+		it = next(it);
+		it = next(it);
+		CHECK(it != array.begin());
+		it = next(it);
+		it = next(it);
+		it = next(it);
+		it = next(it);
+		CHECK(it == array.end());
+	}
 }

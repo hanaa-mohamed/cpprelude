@@ -53,7 +53,15 @@ namespace cpprelude
 		bool
 		operator==(const sequential_iterator<T>& other) const
 		{
-			return _data_block == other._data_block && _count == other._count;
+			if(_data_block == other._data_block)
+			{
+				//if the two iterator is out of memory region then they are equal 
+				if(_count >= _data_block.size / sizeof(T) && other._count >= other._data_block.size / sizeof(T))
+					return true;
+				else if(_count == other._count)
+					return true;
+			}
+			return false;
 		}
 
 		bool
@@ -65,8 +73,7 @@ namespace cpprelude
 		const T&
 		operator*() const
 		{
-			if(_count < _data_block.size / sizeof(T))
-				return *_data_block.template at<const T>(_count);
+			return *_data_block.template at<const T>(_count);
 		}
 
 		T&
@@ -75,4 +82,69 @@ namespace cpprelude
 			return *_data_block.template at<T>(_count);
 		}
 	};
+
+	template<typename T>
+	struct forward_iterator
+	{
+		weak_mem_block _node_block;
+
+		forward_iterator(){}
+
+		forward_iterator(weak_mem_block node_block)
+			:_node_block(node_block)
+		{}
+
+		forward_iterator<T>&
+		operator++()
+		{
+			if(_node_block.ptr != nullptr && _node_block.size > 0)
+				_node_block = *_node_block.template as<weak_mem_block>();
+			return *this;
+		}
+
+		sequential_iterator<T>&
+		operator++(int)
+		{
+			auto result = *this;
+			if(_node_block.ptr != nullptr && _node_block.size > 0)
+				_node_block = *_node_block.template as<weak_mem_block>();
+			return result;
+		}
+
+		bool
+		operator==(const forward_iterator<T>& other) const
+		{
+			return _node_block == other._node_block;
+		}
+
+		bool
+		operator!=(const forward_iterator<T>& other) const
+		{
+			return !operator==(other);
+		}
+
+		const T&
+		operator*() const
+		{
+			return *_node_block.template as<const T>(sizeof(weak_mem_block));
+		}
+
+		T&
+		operator*()
+		{
+			return *_node_block.template as<T>(sizeof(weak_mem_block));
+		}
+	};
+
+	template<typename T>
+	T next(T it)
+	{
+		return ++it;
+	}
+
+	template<typename T>
+	T prev(T it)
+	{
+		return --it;
+	}
 }

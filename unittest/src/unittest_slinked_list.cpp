@@ -187,4 +187,46 @@ TEST_CASE("slinked_list test", "[slinked_list]")
 		CHECK(array.count() == 0);
 
 	}
+
+	SECTION("Case 11")
+	{
+		array.insert_front({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+
+		usize i = 1;
+		for(auto number: array)
+			CHECK(number == i++);
+
+		i=1;
+		for(auto& number: array)
+			CHECK(number == i++);
+
+		i=1;
+		for(const auto& number: array)
+			CHECK(number == i++);
+	}
+
+	SECTION("Case 12")
+	{
+		CHECK(array.begin() == array.end());
+		CHECK(array.empty() == true);
+
+		array.insert_front({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+
+		CHECK(array.empty() == false);
+
+		auto it = array.begin();
+		auto count = array.count();
+		usize i = 1;
+		while(count--)
+		{
+			CHECK(*it == i++);
+			it = next(it);
+		}
+
+		CHECK(it == array.end());
+		it = next(it);
+		it = next(it);
+		CHECK(it == array.end());
+		CHECK(array.begin() != array.end());
+	}
 }

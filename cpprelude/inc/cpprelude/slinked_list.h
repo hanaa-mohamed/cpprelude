@@ -3,6 +3,7 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
+#include "cpprelude/iterator.h"
 #include <initializer_list>
 #include <iterator>
 
@@ -205,6 +206,36 @@ namespace cpprelude
 				it = tmp::move(next_block);
 				--_count;
 			}
+		}
+
+		bool
+		empty() const
+		{
+			return _count == 0;
+		}
+
+		forward_iterator<const T>
+		begin() const
+		{
+			return forward_iterator<const T>(_head.sub_block());
+		}
+
+		forward_iterator<T>
+		begin()
+		{
+			return forward_iterator<T>(_head.sub_block());
+		}
+
+		forward_iterator<const T>
+		end() const
+		{
+			return forward_iterator<const T>();
+		}
+
+		forward_iterator<T>
+		end()
+		{
+			return forward_iterator<T>();
 		}
 	};
 }
