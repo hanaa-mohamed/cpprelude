@@ -6,12 +6,17 @@ This file is used for management. it consists of 3 parts:
 all the above sections behave like a stack except the backlog which behaves like a queue.
 
 # Backlog:
-- improvement on QU, QF
+- implement doubly-linked list
+- implement ring buffer
+- implement queue API on top of doubly linked list and dynamic_array
+- implement stack API on top of linked list and dynamic_array
 - implement thread safe handle wrapper
 
 
 # Mostafa:
-- Quick union
+- implement clear and reset functions in dynamic_array
+- implement Linked list
+- implement iterators system
 
 # Nora:
 - Quick find
@@ -21,3 +26,5 @@ all the above sections behave like a stack except the backlog which behaves like
 - Provide a memory allocation/deallocation service
 - implement static array
 - implement dynamic array
+- Quick union
+- improvement on QU, QF

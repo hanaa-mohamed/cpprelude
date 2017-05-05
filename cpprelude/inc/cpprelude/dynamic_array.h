@@ -3,6 +3,7 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
+#include "cpprelude/iterator.h"
 #include <initializer_list>
 #include <new>
 #include <iterator>
@@ -200,6 +201,49 @@ namespace cpprelude
 			}
 
 			new (_data_block.template at<T>(_count++)) T(tmp::move(value));
+		}
+
+		void
+		clear()
+		{
+			_count = 0;
+		}
+
+		void
+		reset()
+		{
+			_count = 0;
+			_data_block.~owner_mem_block();
+		}
+
+		bool
+		empty() const
+		{
+			return _count == 0;
+		}
+
+		sequential_iterator<const T>
+		begin() const
+		{
+			return sequential_iterator<const T>(_data_block.sub_block(), 0);
+		}
+
+		sequential_iterator<T>
+		begin()
+		{
+			return sequential_iterator<T>(_data_block.sub_block(), 0);
+		}
+
+		sequential_iterator<const T>
+		end() const
+		{
+			return sequential_iterator<const T>(_data_block.sub_block(), _count);
+		}
+
+		sequential_iterator<T>
+		end()
+		{
+			return sequential_iterator<T>(_data_block.sub_block(), _count);
 		}
 
 		void

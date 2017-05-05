@@ -12,6 +12,12 @@ namespace cpprelude
 		weak_mem_block(void* ptr, usize size);
 		weak_mem_block();
 
+		bool
+		operator==(const weak_mem_block& other) const;
+
+		bool
+		operator!=(const weak_mem_block& other) const;
+
 		template<typename T>
 		T*
 		at(usize index)
@@ -68,11 +74,20 @@ namespace cpprelude
 		owner_mem_block&
 		operator=(owner_mem_block&& other);
 
+		bool
+		operator==(const owner_mem_block& other) const;
+
+		bool
+		operator!=(const owner_mem_block& other) const;
+
 		weak_mem_block
 		sub_block(usize offset, usize size);
 
 		weak_mem_block
 		sub_block(usize offset = 0);
+
+		weak_mem_block
+		release();
 
 		template<typename T>
 		T*

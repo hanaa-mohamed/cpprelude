@@ -205,4 +205,87 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		for(usize i = 0; i < array.count(); ++i)
 			CHECK(array[i] == i+1);
 	}
+
+	SECTION("Case 11")
+	{
+		array.insert_back({1, 2, 3, 4, 5});
+
+		CHECK(array.count() == 5);
+		CHECK(array.capacity() == 5);
+		for(usize i = 0; i < array.count(); ++i)
+			CHECK(array[i] == i+1);
+
+		array.insert_back({6, 7, 8, 9});
+		array.insert_back(10);
+
+		CHECK(array.count() == 10);
+		CHECK(array.capacity() >= 10);
+		for(usize i = 0; i < array.count(); ++i)
+			CHECK(array[i] == i+1);
+
+		array.clear();
+		CHECK(array.count() == 0);
+		CHECK(array.capacity() >= 10);
+
+		array.insert_back({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+		CHECK(array.count() == 10);
+		CHECK(array.capacity() >= 10);
+
+		array.reset();
+		CHECK(array.count() == 0);
+		CHECK(array.capacity() == 0);
+
+	}
+
+	SECTION("Case 12")
+	{
+		array.insert_back({1, 2, 3, 4, 5, 6, 7, 8, 9});
+
+		usize i = 1;
+		for(auto number: array)
+			CHECK(number == i++);
+
+		i = 1;
+		for(auto& number: array)
+			CHECK(number == i++);
+
+		i = 1;
+		for(const auto& number: array)
+			CHECK(number == i++);
+
+		for(auto& number: array)
+			number++;
+
+		i = 2;
+		for(const auto& number: array)
+			CHECK(number == i++);
+	}
+
+	SECTION("Case 13")
+	{
+		CHECK(array.begin() == array.end());
+		CHECK(array.empty() == true);
+
+		array.insert_back({1, 2, 3, 4});
+
+		CHECK(array.empty() == false);
+		CHECK(array.begin() != array.end());
+
+		auto it = array.begin();
+		CHECK(it == array.begin());
+		it = next(it);
+		CHECK(it != array.begin());
+		it = prev(it);
+		CHECK(it == array.begin());
+
+		it = next(it);
+		it = next(it);
+		it = next(it);
+		CHECK(it != array.begin());
+		it = next(it);
+		it = next(it);
+		it = next(it);
+		it = next(it);
+		CHECK(it == array.end());
+	}
 }
