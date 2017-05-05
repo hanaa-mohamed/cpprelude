@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include <cpprelude\stack_array.h>
+#include <cpprelude/stack_array.h>
 
 using namespace cpprelude;
 

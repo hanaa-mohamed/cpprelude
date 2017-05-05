@@ -1,6 +1,6 @@
 #pragma once
-#include "cpprelude\defines.h"
-#include "cpprelude\dynamic_array.h"
+#include "cpprelude/defines.h"
+#include "cpprelude/dynamic_array.h"
 
 
 namespace cpprelude
