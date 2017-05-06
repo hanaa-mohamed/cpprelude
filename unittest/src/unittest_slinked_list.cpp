@@ -23,7 +23,7 @@ TEST_CASE("slinked_list test", "[slinked_list]")
 	{
 		CHECK(array.count() == 0);
 
-		array.resize(100, -5);
+		array.expand_front(100, -5);
 
 		for(usize i = 0; i < array.count(); ++i)
 			CHECK(array[i] == -5);
@@ -228,5 +228,20 @@ TEST_CASE("slinked_list test", "[slinked_list]")
 		it = next(it);
 		CHECK(it == array.end());
 		CHECK(array.begin() != array.end());
+	}
+
+	SECTION("Case 13")
+	{
+		array.insert_front({1, 2, 3, 4, 5});
+
+		CHECK(array.count() == 5);
+
+		array.remove_front(2);
+		
+		CHECK(array.count() == 3);
+
+		usize i = 3;
+		for(auto number: array)
+			CHECK(number == i++);
 	}
 }

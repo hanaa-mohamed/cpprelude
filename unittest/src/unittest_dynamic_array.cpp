@@ -27,7 +27,7 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		array.reserve(100);
 		CHECK(array.capacity() >= 100);
 
-		array.resize(100, -5);
+		array.expand_back(100, -5);
 
 		for(usize i = 0; i < array.count(); ++i)
 			CHECK(array[i] == -5);
@@ -53,7 +53,7 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		CHECK(array.count() == 0);
 		CHECK(array.capacity() == 0);
 
-		array.resize(64, -1);
+		array.expand_back(64, -1);
 
 		auto it = array.data();
 		for(usize i = 0; i < array.count(); ++i)
@@ -287,5 +287,38 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		it = next(it);
 		it = next(it);
 		CHECK(it == array.end());
+	}
+
+	SECTION("Case 14")
+	{
+		for(usize i = 0; i < 64; i++)
+			array.insert_back(i);
+
+		auto old_capacity = array.capacity();
+		array.shrink_to_fit();
+		CHECK(old_capacity >= array.capacity());
+		CHECK(array.capacity() == 64);
+
+		usize i = 0;
+		for(auto number: array)
+			CHECK(number == i++);
+
+		array.shrink_back(32);
+		CHECK(array.count() == 32);
+		CHECK(array.capacity() == 32);
+
+		i = 0;
+		for(auto number: array)
+			CHECK(number == i++);
+	}
+
+	SECTION("Case 15")
+	{
+		array.insert_back({1, 2, 3, 4, 5});
+		array.remove_back(2);
+		CHECK(array.count() == 3);
+		usize i = 1;
+		for(auto number: array)
+			CHECK(number == i++);
 	}
 }
