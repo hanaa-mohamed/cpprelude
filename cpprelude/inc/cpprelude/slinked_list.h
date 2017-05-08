@@ -19,6 +19,9 @@ namespace cpprelude
 	template<typename T>
 	struct slinked_list
 	{
+		using iterator = forward_iterator<T>;
+		using const_iterator = forward_iterator<const T>;
+
 		owner_mem_block _head;
 		usize _count;
 
@@ -235,6 +238,18 @@ namespace cpprelude
 		empty() const
 		{
 			return _count == 0;
+		}
+
+		forward_iterator<const T>
+		front() const
+		{
+			return forward_iterator<const T>(_head.sub_block());
+		}
+
+		forward_iterator<T>
+		front()
+		{
+			return forward_iterator<T>(_head.sub_block());
 		}
 
 		forward_iterator<const T>

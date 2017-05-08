@@ -27,7 +27,7 @@ namespace cpprelude
 			return *this;
 		}
 
-		sequential_iterator<T>&
+		sequential_iterator<T>
 		operator++(int)
 		{
 			auto result = *this;
@@ -42,7 +42,7 @@ namespace cpprelude
 			return *this;
 		}
 
-		sequential_iterator<T>&
+		sequential_iterator<T>
 		operator--(int)
 		{
 			auto result = *this;
@@ -102,7 +102,7 @@ namespace cpprelude
 			return *this;
 		}
 
-		sequential_iterator<T>&
+		forward_iterator<T>
 		operator++(int)
 		{
 			auto result = *this;
@@ -133,6 +133,94 @@ namespace cpprelude
 		operator*()
 		{
 			return *_node_block.template as<T>(sizeof(weak_mem_block));
+		}
+	};
+
+	template<typename T>
+	struct bidirectional_iterator
+	{
+		weak_mem_block _node_block;
+
+		bidirectional_iterator(){}
+
+		bidirectional_iterator(weak_mem_block node_block)
+			:_node_block(node_block)
+		{}
+
+		bidirectional_iterator<T>&
+		operator++()
+		{
+			if(_node_block.ptr != nullptr && _node_block.size > 0)
+			{
+				auto next_block = *_node_block.template as<weak_mem_block>(sizeof(weak_mem_block));
+				if(next_block.ptr != nullptr && next_block.size > 0)
+					_node_block = next_block;
+			}
+			return *this;
+		}
+
+		bidirectional_iterator<T>
+		operator++(int)
+		{
+			auto result = *this;
+
+			if(_node_block.ptr != nullptr && _node_block.size > 0)
+			{
+				auto next_block = *_node_block.template as<weak_mem_block>(sizeof(weak_mem_block));
+				if(next_block.ptr != nullptr && next_block.size > 0)
+					_node_block = next_block;
+			}
+
+			return result;
+		}
+
+		bidirectional_iterator<T>&
+		operator--()
+		{
+			if(_node_block.ptr != nullptr && _node_block.size > 0)
+			{
+				auto prev_block = *_node_block.template as<weak_mem_block>();
+				if(prev_block.ptr != nullptr && prev_block.size > 0)
+					_node_block = prev_block;
+			}
+			return *this;
+		}
+
+		bidirectional_iterator<T>
+		operator--(int)
+		{
+			auto result = *this;
+			if(_node_block.ptr != nullptr && _node_block.size > 0)
+			{
+				auto prev_block = *_node_block.template as<weak_mem_block>();
+				if(prev_block.ptr != nullptr && prev_block.size > 0)
+					_node_block = prev_block;
+			}
+			return result;
+		}
+
+		bool
+		operator==(const bidirectional_iterator<T>& other) const
+		{
+			return _node_block == other._node_block;
+		}
+
+		bool
+		operator!=(const bidirectional_iterator<T>& other) const
+		{
+			return !operator==(other);
+		}
+
+		const T&
+		operator*() const
+		{
+			return *_node_block.template as<const T>(2*sizeof(weak_mem_block));
+		}
+
+		T&
+		operator*()
+		{
+			return *_node_block.template as<T>(2*sizeof(weak_mem_block));
 		}
 	};
 

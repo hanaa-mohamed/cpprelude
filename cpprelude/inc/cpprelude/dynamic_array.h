@@ -17,6 +17,9 @@ namespace cpprelude
 	template<typename T>
 	struct dynamic_array
 	{
+		using iterator = sequential_iterator<T>;
+		using const_iterator = sequential_iterator<const T>;
+
 		owner_mem_block _data_block;
 		usize _count;
 
@@ -250,6 +253,30 @@ namespace cpprelude
 		empty() const
 		{
 			return _count == 0;
+		}
+
+		sequential_iterator<const T>
+		front() const
+		{
+			return sequential_iterator<const T>(_data_block.sub_block(), 0);
+		}
+
+		sequential_iterator<T>
+		front()
+		{
+			return sequential_iterator<T>(_data_block.sub_block(), 0);
+		}
+
+		sequential_iterator<const T>
+		back() const
+		{
+			return sequential_iterator<const T>(_data_block.sub_block(), _count-1);
+		}
+
+		sequential_iterator<T>
+		back()
+		{
+			return sequential_iterator<T>(_data_block.sub_block(), _count - 1);
 		}
 
 		sequential_iterator<const T>

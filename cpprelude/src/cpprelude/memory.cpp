@@ -13,6 +13,12 @@ namespace cpprelude
 		:ptr(nullptr), size(0)
 	{}
 
+	weak_mem_block::~weak_mem_block()
+	{
+		ptr = nullptr;
+		size = 0;
+	}
+
 	bool
 	weak_mem_block::operator==(const weak_mem_block& other) const
 	{
@@ -50,7 +56,8 @@ namespace cpprelude
 	owner_mem_block&
 	owner_mem_block::operator=(owner_mem_block&& other)
 	{
-		owner_mem_block::~owner_mem_block();
+		if(ptr != nullptr && size > 0)
+			free(*this);
 
 		ptr = other.ptr;
 		size = other.size;
@@ -72,7 +79,7 @@ namespace cpprelude
 	}
 
 	weak_mem_block
-	owner_mem_block::sub_block(usize offset, usize size_)
+	owner_mem_block::sub_block(usize offset, usize size_) const
 	{
 		if(offset + size_ <= size)
 			return weak_mem_block(reinterpret_cast<ubyte*>(ptr)+offset, size_);
@@ -81,7 +88,7 @@ namespace cpprelude
 	}
 
 	weak_mem_block
-	owner_mem_block::sub_block(usize offset)
+	owner_mem_block::sub_block(usize offset) const
 	{
 		if(offset < size)
 			return weak_mem_block(reinterpret_cast<ubyte*>(ptr)+offset, size-offset);
@@ -96,6 +103,14 @@ namespace cpprelude
 		ptr = nullptr;
 		size = 0;
 		return result;
+	}
+
+	void
+	swap(owner_mem_block& a, owner_mem_block& b)
+	{
+		owner_mem_block temp(tmp::move(b));
+		b = tmp::move(a);
+		a = tmp::move(temp);
 	}
 
 
