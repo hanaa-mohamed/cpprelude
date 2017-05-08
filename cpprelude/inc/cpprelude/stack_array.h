@@ -19,6 +19,14 @@ namespace cpprelude
 			:_count(0), _array(count)
 		{}
 
+		stack_array(const stack_array<T>& other)
+			:_count(other._count), _array(other._array)
+		{}
+
+		stack_array(stack_array<T>&& other)
+			:_count(other._count), _array(tmp::move(other._array))
+		{}
+
 		void
 		push(const T& item)
 		{
