@@ -6,19 +6,11 @@
 namespace cpprelude
 {
 	template<typename T>
-	struct stack_sLL
+	struct stack_list
 	{
 		slinked_list<T> _list;
 		
-		stack_sLL()
-		{}
-
-		stack_sLL(const stack_sLL<T>& other)
-			:_list(other._list)
-		{}
-
-		stack_sLL(stack_sLL<T>&& other)
-			:_list(tmd::move(other._list))
+		stack_list()
 		{}
 
 		void
@@ -56,8 +48,7 @@ namespace cpprelude
 
 			return false;
 		}
-		//Maybe remove it as you can type stack_sLLObj._list.count();
-		//But for unifying between stack_array and stack_sLL we can leave it like this.
+		
 		bool
 		empty()
 		{

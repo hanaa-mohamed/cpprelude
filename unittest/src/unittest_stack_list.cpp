@@ -1,14 +1,14 @@
 #include "catch.hpp"
-#include <cpprelude/stack_sLL.h>
+#include <cpprelude/stack_list.h>
 
 using namespace cpprelude;
 
-TEST_CASE("stack_sLL test", "[stack_sLL]")
+TEST_CASE("stack_list test", "[stack_list]")
 {
 
 	SECTION("Case 01")
 	{
-		stack_sLL<usize> arr;
+		stack_list<usize> arr;
 		CHECK(arr.empty() == true);
 		CHECK(arr.count() == 0);
 
@@ -23,7 +23,7 @@ TEST_CASE("stack_sLL test", "[stack_sLL]")
 
 	SECTION("Case 02")
 	{
-		stack_sLL<usize> arr;
+		stack_list<usize> arr;
 		CHECK(arr.empty() == true);
 		CHECK(arr.count() == 0);
 
@@ -41,7 +41,7 @@ TEST_CASE("stack_sLL test", "[stack_sLL]")
 	SECTION("Case 03")
 	{
 
-		stack_sLL<usize> arr;
+		stack_list<usize> arr;
 		CHECK(arr.empty() == true);
 		CHECK(arr.count() == 0);
 
@@ -63,7 +63,7 @@ TEST_CASE("stack_sLL test", "[stack_sLL]")
 	SECTION("Case 03")
 	{
 
-		stack_sLL<usize> arr;
+		stack_list<usize> arr;
 		CHECK(arr.empty() == true);
 		CHECK(arr.count() == 0);
 
