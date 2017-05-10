@@ -196,7 +196,7 @@ namespace cpprelude
 		}
 
 		void
-			remove_front(usize removal_count = 1)
+		remove_front(usize removal_count = 1)
 		{
 			auto it = tmp::move(_head);
 			for (usize i = 0; i < removal_count; ++i)
