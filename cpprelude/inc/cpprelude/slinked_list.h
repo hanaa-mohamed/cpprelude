@@ -196,6 +196,21 @@ namespace cpprelude
 		}
 
 		void
+		remove_front(usize removal_count = 1)
+		{
+			auto it = tmp::move(_head);
+			for (usize i = 0; i < removal_count; ++i)
+			{
+				auto next_block = tmp::move(*it.template as<owner_mem_block>());
+
+				it.template as<T>(sizeof(owner_mem_block))->~T();
+				it = tmp::move(next_block);
+				--_count;
+			}
+			_head = tmp::move(it);
+		}
+
+		void
 		reset()
 		{
 			auto it = tmp::move(_head);
