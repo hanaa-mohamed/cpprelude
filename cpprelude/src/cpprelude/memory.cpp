@@ -118,6 +118,8 @@ namespace cpprelude
 	owner_mem_block
 	alloc(usize size, ubyte alignment)
 	{
+		if(size == 0)
+			return owner_mem_block();
 		return owner_mem_block(std::malloc(size), size);
 	}
 
