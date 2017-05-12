@@ -19,6 +19,9 @@ namespace cpprelude
 	template<typename T>
 	struct slinked_list
 	{
+		using iterator = forward_iterator<T>;
+		using const_iterator = forward_iterator<const T>;
+
 		owner_mem_block _head;
 		usize _count;
 
@@ -125,10 +128,17 @@ namespace cpprelude
 		}
 
 		void
-		resize(usize new_count, const T& fill_value)
+		expand_front(usize additional_count, const T& fill_value)
 		{
+			auto new_count = _count + additional_count;
 			for(usize i = _count; i < new_count; ++i)
 				insert_front(fill_value);
+		}
+
+		void
+		shrink_front(usize shrinkage_count)
+		{
+			remove_front(shrinkage_count);
 		}
 
 		T&
@@ -217,7 +227,8 @@ namespace cpprelude
 			while(_count)
 			{
 				auto next_block = tmp::move(*it.template as<owner_mem_block>());
-				it.~owner_mem_block();
+
+				it.template as<T>(sizeof(owner_mem_block))->~T();
 				it = tmp::move(next_block);
 				--_count;
 			}
@@ -227,6 +238,18 @@ namespace cpprelude
 		empty() const
 		{
 			return _count == 0;
+		}
+
+		forward_iterator<const T>
+		front() const
+		{
+			return forward_iterator<const T>(_head.sub_block());
+		}
+
+		forward_iterator<T>
+		front()
+		{
+			return forward_iterator<T>(_head.sub_block());
 		}
 
 		forward_iterator<const T>

@@ -7,7 +7,7 @@ namespace cpprelude{
 
 	quick_find::quick_find(usize count)
 	{
-		_nodes.resize(count);
+		_nodes.expand_back(count);
 		for (usize i = 0; i < count; ++i)
 			_nodes[i] = i;
 	}

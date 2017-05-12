@@ -13,11 +13,11 @@ namespace cpprelude
 	void
 	quick_union::init(usize count)
 	{
-		_nodes.resize(count);
+		_nodes.expand_back(count);
 		for(usize i = 0; i < count; ++i)
 			_nodes[i] = i;
 
-		_sizes.resize(count);
+		_sizes.expand_back(count);
 		for(usize i = 0; i < count; ++i)
 			_sizes[i] = 1;
 	}

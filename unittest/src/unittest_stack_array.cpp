@@ -19,6 +19,22 @@ TEST_CASE("stack_array test", "[stack_array]")
 		CHECK(arr.pop());
 		CHECK(arr.empty() == true);
 		CHECK(arr.count() == 0);
+
+		for(usize i = 0; i < 10; ++i)
+			arr.push(i);
+
+		CHECK(arr.empty() == false);
+		CHECK(arr.count() == 10);
+
+		usize i = 9;
+		while(!arr.empty())
+		{
+			CHECK(arr.top() == i--);
+			arr.pop();
+		}
+
+		CHECK(arr.empty() == true);
+		CHECK(arr.count() == 0);		
 	}
 
 	SECTION("Case 02")
