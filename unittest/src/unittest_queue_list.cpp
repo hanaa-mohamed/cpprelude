@@ -15,7 +15,6 @@ TEST_CASE("queue_list test", "[queue_list]")
 		for (usize i = 0; i < 100; i++)
 		{
 			queue.enqueue(i);
-			CHECK(queue.back() == i);
 			CHECK(queue.front() == 0);
 		}
 
@@ -24,7 +23,6 @@ TEST_CASE("queue_list test", "[queue_list]")
 		for (usize i = 0; i < 100; i++)
 		{
 			CHECK(queue.front() == i);
-			CHECK(queue.back() == 99);
 			CHECK(queue.dequeue());
 		}
 

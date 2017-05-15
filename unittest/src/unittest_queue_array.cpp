@@ -16,7 +16,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 		for (usize i = 0; i < 100; i++)
 		{
 			queue.enqueue(i);
-			CHECK(queue.back() == i);
 			CHECK(queue.front() == 0);
 		}
 		
@@ -25,7 +24,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 		for (usize i = 0; i < 100; i++)
 		{
 			CHECK(queue.front() == i);
-			CHECK(queue.back() == 99);
 			CHECK(queue.dequeue());
 		}
 
@@ -43,7 +41,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 		for (usize i = 0; i < 100; i++)
 		{
 			queue.enqueue(i);
-			CHECK(queue.back() == i);
 			CHECK(queue.front() == 0);
 		}
 
@@ -52,7 +49,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 		for (usize i = 0; i < 100; i++)
 		{
 			CHECK(queue.front() == i);
-			CHECK(queue.back() == 99);
 			CHECK(queue.dequeue());
 		}
 
@@ -70,7 +66,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 		for (usize i = 0; i < 100; i++)
 		{
 			queue.enqueue(i);
-			CHECK(queue.back() == i);
 			CHECK(queue.front() == 0);
 		}
 
@@ -79,7 +74,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 		for (usize i = 0; i < 50; i++)
 		{
 			CHECK(queue.front() == i);
-			CHECK(queue.back() == 99);
 			CHECK(queue.dequeue());
 		}
 
@@ -88,7 +82,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 		for (usize i = 0; i < 10; i++)
 		{
 			queue.enqueue(i);
-			CHECK(queue.back() == i);
 			CHECK(queue.front() == 50);
 		}
 
@@ -100,7 +93,6 @@ TEST_CASE("queue_array test", "[queue_array]")
 			temp = queue.front();
 			j = i < 50 ? i + 50 : i;
 			CHECK( temp == j);
-			CHECK(queue.back() == 9);
 			CHECK(queue.dequeue());
 		}
 	}

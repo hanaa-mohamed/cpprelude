@@ -1,4 +1,5 @@
 #pragma once
+#include "cpprelude/defines.h"
 #include "cpprelude/dlinked_list.h"
 
 namespace cpprelude
@@ -7,9 +8,6 @@ namespace cpprelude
 	struct queue_list
 	{
 		dlinked_list<T> _list;
-
-		queue_list()
-		{}
 
 		void
 		enqueue(const T& item)
@@ -45,18 +43,6 @@ namespace cpprelude
 		front() 
 		{
 			return *_list.front();
-		}
-
-		const T&
-		back() const
-		{
-			return *_list.back();
-		}
-
-		T&
-		back() 
-		{
-			return *_list.back();
 		}
 
 		bool

@@ -1,4 +1,5 @@
 #pragma once
+#include "cpprelude/defines.h"
 #include "cpprelude/dynamic_array.h"
 
 namespace cpprelude
@@ -113,18 +114,6 @@ namespace cpprelude
 		front()
 		{
 			return _array[_first];
-		}
-
-		const T&
-		back() const
-		{
-			return _array[_last-1];
-		}
-
-		T&
-		back()
-		{
-			return _array[_last-1];
 		}
 
 		bool
