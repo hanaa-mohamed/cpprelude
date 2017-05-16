@@ -1,36 +1,92 @@
 #include <iostream>
-#include <cpprelude/memory.h>
+#include "benchmark.h"
+#include <cpprelude/dynamic_array.h>
+#include <vector>
+#include <cstdlib>
 
-struct vec3
+struct screamer
 {
-	float x,y,z;
+	screamer()
+	{
+		std::cout << "ctor" << std::endl;
+	}
+
+	~screamer()
+	{
+		std::cout << "dtor" << std::endl;
+	}
+
+	screamer(const screamer& other)
+	{
+		std::cout << "copy ctor" << std::endl;
+	}
+
+	screamer(screamer&& other)
+	{
+		std::cout << "move ctor" << std::endl;
+	}
+
+	screamer&
+	operator=(const screamer& other)
+	{
+		std::cout << "= copy" << std::endl;
+		return *this;
+	}
+
+	screamer&
+	operator=(screamer&& other)
+	{
+		std::cout << "= move" << std::endl;
+		return *this;
+	}
 };
+
+void
+vec()
+{
+	std::vector<screamer> vec;
+	for(int i = 0; i < 2; ++i)
+		vec.push_back(screamer());
+}
+
+void
+darr()
+{
+	cpprelude::dynamic_array<screamer> darr;
+	for(int i = 0; i < 2; ++i)
+		darr.insert_back(screamer());
+}
+
+void
+scratch()
+{
+	vec();
+	std::cout <<"============================================================"<< std::endl;
+	darr();
+
+	std::cout <<"============================================================"<< std::endl;
+
+	screamer* arr = (screamer*) malloc(sizeof(screamer) * 2);
+	new (arr+0) screamer();
+	new (arr+1) screamer();
+
+	std::cout << arr << std::endl;
+
+	arr = (screamer*) realloc(arr, sizeof(screamer)*4);
+
+	std::cout << arr << std::endl;
+
+	new (arr+2) screamer();
+	new (arr+3) screamer();
+
+	free(arr);
+}
 
 int
 main(int argc, char** argv)
 {
 	std::cout << "Hello, World!" << std::endl;
-	cpprelude::handle<vec3> v = cpprelude::alloc<vec3>();
-	v->x = 1;
-	v->y = 2;
-	v->z = 3;
-
-	cpprelude::handle<vec3> v2 = cpprelude::tmp::move(v);
-	v2->x = 4;
-	v2->y = 5;
-	v2->z = 6;
-
-	vec3& v3 = *v2;
-	v3.x = 7;
-	v3.y = 8;
-	v3.z = 9;
-
-	{
-		auto weak_k = v2.to_weak();
-		weak_k->x = 10;
-		weak_k->y = 11;
-		weak_k->z = 12;
-	}
-
+	benchmark();
+	scratch();
 	return 0;
 }

@@ -1,22 +1,22 @@
 #pragma once
 #include "cpprelude/defines.h"
 #include "cpprelude/dynamic_array.h"
-
+#include "cpprelude/allocator.h"
 
 namespace cpprelude
 {
-	template<typename T>
+	template<typename T, typename AllocatorT = global_allocator>
 	struct stack_array
 	{
-		dynamic_array<T> _array;
+		dynamic_array<T, AllocatorT> _array;
 		usize _count;
 
-		stack_array()
-			:_count(0)
+		stack_array(const AllocatorT& allocator = AllocatorT())
+			:_count(0), _array(allocator)
 		{}
 
-		stack_array(usize count)
-			:_count(0), _array(count)
+		stack_array(usize count, const AllocatorT& allocator = AllocatorT())
+			:_count(0), _array(count, allocator)
 		{}
 
 		void
