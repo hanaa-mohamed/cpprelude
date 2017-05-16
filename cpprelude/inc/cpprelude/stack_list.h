@@ -14,6 +14,18 @@ namespace cpprelude
 			:_list(allocator)
 		{}
 
+		stack_list(const stack_list&) = default;
+
+		stack_list(stack_list&&) = default;
+
+		stack_list(const stack_list& other, const AllocatorT& allocator)
+			:_list(other._list, allocator)
+		{}
+
+		stack_list(stack_list&& other, const AllocatorT& allocator)
+			:_list(tmp::move(other), allocator)
+		{}
+
 		void
 		push(const T& item)
 		{

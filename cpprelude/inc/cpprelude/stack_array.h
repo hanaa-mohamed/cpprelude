@@ -15,8 +15,20 @@ namespace cpprelude
 			:_count(0), _array(allocator)
 		{}
 
+		stack_array(const stack_array&) = default;
+
+		stack_array(stack_array&&) = default;
+
 		stack_array(usize count, const AllocatorT& allocator = AllocatorT())
 			:_count(0), _array(count, allocator)
+		{}
+
+		stack_array(const stack_array& other, const AllocatorT& allocator)
+			:_array(other._array, allocator), _count(other._count)
+		{}
+
+		stack_array(stack_array&& other, const AllocatorT& allocator)
+			:_array(tmp::move(other._array), allocator), _count(other._count)
 		{}
 
 		void

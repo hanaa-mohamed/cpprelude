@@ -14,6 +14,9 @@
 #include <deque>
 #include <forward_list>
 
+#include <cpprelude/queue_list.h>
+#include <queue>
+
 #include <iostream>
 
 void
@@ -228,6 +231,49 @@ benchmark_custom_stack_list(cpprelude::usize limit)
 	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
 }
 
+void
+benchmark_queue_list(cpprelude::usize limit)
+{
+	stopwatch w;
+	cpprelude::queue_list<cpprelude::usize> array;
+
+	w.start();
+	for(cpprelude::usize i = 0; i < limit; ++i)
+		array.enqueue(i);
+	w.stop();
+
+	std::cout << "benchmark queue_list" << std::endl;
+	std::cout << "seconds: " << w.seconds() << std::endl;
+	std::cout << "milliseconds: " << w.milliseconds() << std::endl;
+	std::cout << "microseconds: " << w.microseconds() << std::endl;
+	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
+}
+
+void
+benchmark_custom_queue_list(cpprelude::usize limit)
+{
+	cpprelude::owner_mem_block mem_block;
+	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
+
+	stopwatch w;
+
+	{
+		cpprelude::queue_list<cpprelude::usize, cpprelude::linear_allocator> array(arena_allocator);
+
+		w.start();
+		for(cpprelude::usize i = 0; i < limit; ++i)
+			array.enqueue(i);
+		w.stop();
+	}
+
+	std::cout << "benchmark custom queue_list" << std::endl;
+	std::cout << "seconds: " << w.seconds() << std::endl;
+	std::cout << "milliseconds: " << w.milliseconds() << std::endl;
+	std::cout << "microseconds: " << w.microseconds() << std::endl;
+	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
+	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
+}
+
 //STD
 
 void
@@ -320,6 +366,24 @@ benchmark_forward_list(std::size_t limit)
 	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
 }
 
+void
+benchmark_queue(std::size_t limit)
+{
+	stopwatch w;
+	std::queue<std::size_t> array;
+
+	w.start();
+	for(std::size_t i = 0; i < limit; ++i)
+		array.push(i);
+	w.stop();
+
+	std::cout << "benchmark queue" << std::endl;
+	std::cout << "seconds: " << w.seconds() << std::endl;
+	std::cout << "milliseconds: " << w.milliseconds() << std::endl;
+	std::cout << "microseconds: " << w.microseconds() << std::endl;
+	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
+}
+
 void 
 benchmark()
 {
@@ -361,4 +425,12 @@ benchmark()
 	benchmark_dlinked_list(limit);
 	std::cout << std::endl;
 	benchmark_custom_dlinked_list(limit);
+
+	std::cout <<"============================================================"<< std::endl;
+
+	benchmark_queue(limit);
+	std::cout << std::endl;
+	benchmark_queue_list(limit);
+	std::cout << std::endl;
+	benchmark_custom_queue_list(limit);
 }
