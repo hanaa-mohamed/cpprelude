@@ -4,6 +4,7 @@
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
 #include "cpprelude/iterator.h"
+#include "cpprelude/allocator.h"
 #include <initializer_list>
 #include <iterator>
 
@@ -16,7 +17,7 @@ namespace cpprelude
 	 * this has two parts a next owner_mem_block which has the next element
 	 * and a T which houses the data
 	 */
-	template<typename T>
+	template<typename T, typename AllocatorT = global_allocator>
 	struct slinked_list
 	{
 		using iterator = forward_iterator<T>;
@@ -24,13 +25,14 @@ namespace cpprelude
 
 		owner_mem_block _head;
 		usize _count;
+		AllocatorT _allocator;
 
-		slinked_list()
-			:_count(0)
+		slinked_list(const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{}
 
-		slinked_list(std::initializer_list<T> list)
-			:_count(0)
+		slinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{
 			auto it = list.end();
 			it = std::prev(it);
@@ -41,15 +43,15 @@ namespace cpprelude
 			}
 		}
 
-		slinked_list(usize count, const T& fill_value)
-			:_count(0)
+		slinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{
 			for(usize i = 0; i < count; ++i)
 				insert_front(fill_value);
 		}
 
 		slinked_list(const slinked_list<T>& other)
-			:_count(0)
+			:_count(0), _allocator(other._allocator)
 		{
 			//pointer to the other data
 			auto other_it = &other._head;
@@ -58,7 +60,30 @@ namespace cpprelude
 			for(usize i = 0; i < other._count; ++i)
 			{
 				//allocate a node
-				*it = alloc(sizeof(owner_mem_block) + sizeof(T));
+				*it = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
+				//init the next field
+				new (it->template as<owner_mem_block>()) owner_mem_block();
+				//copy the content from the other list
+				new (it->template as<T>(sizeof(owner_mem_block))) T(*other_it->template as<T>(sizeof(owner_mem_block)));
+
+				//get the next node in both lists
+				it = it->template as<owner_mem_block>();
+				other_it = other_it->template as<owner_mem_block>();
+				++_count;
+			}
+		}
+
+		slinked_list(const slinked_list<T>& other, const AllocatorT& allocator)
+			:_count(0), _allocator(allocator)
+		{
+			//pointer to the other data
+			auto other_it = &other._head;
+			//have to pointers to iterate
+			auto it = &_head;
+			for(usize i = 0; i < other._count; ++i)
+			{
+				//allocate a node
+				*it = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
 				//init the next field
 				new (it->template as<owner_mem_block>()) owner_mem_block();
 				//copy the content from the other list
@@ -73,7 +98,16 @@ namespace cpprelude
 
 		slinked_list(slinked_list<T>&& other)
 			:_count(other._count),
-			 _head(tmp::move(other._head))
+			 _head(tmp::move(other._head)),
+			 _allocator(tmp::move(other._allocator))
+		{
+			other._count = 0;
+		}
+
+		slinked_list(slinked_list<T>&& other, const AllocatorT& allocator)
+			:_count(other._count),
+			 _head(tmp::move(other._head)),
+			 _allocator(allocator)
 		{
 			other._count = 0;
 		}
@@ -88,6 +122,7 @@ namespace cpprelude
 		{
 			reset();
 			
+			_allocator = other._allocator;
 			//pointer to the other data
 			auto other_it = &other._head;
 			//have to pointers to iterate
@@ -95,7 +130,7 @@ namespace cpprelude
 			for(usize i = 0; i < other._count; ++i)
 			{
 				//allocate a node
-				*it = alloc(sizeof(owner_mem_block) + sizeof(T));
+				*it = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
 				//init the next field
 				new (it->template as<owner_mem_block>()) owner_mem_block();
 				//copy the content from the other list
@@ -116,6 +151,7 @@ namespace cpprelude
 			reset();
 			_count = other._count;
 			_head = tmp::move(other._head);
+			_allocator = tmp::move(other._allocator);
 			other._count = 0;
 
 			return *this;
@@ -180,7 +216,7 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			auto new_memory_block = alloc(sizeof(owner_mem_block) + sizeof(T));
+			auto new_memory_block = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
 			//move the current head to the next field in memory
 			new (new_memory_block.template as<owner_mem_block>()) owner_mem_block(tmp::move(_head));
 			//move the value to it's corresponding field
@@ -194,7 +230,7 @@ namespace cpprelude
 		void
 		insert_front(T&& value)
 		{
-			auto new_memory_block = alloc(sizeof(owner_mem_block) + sizeof(T));
+			auto new_memory_block = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
 			//move the current head to the next field in memory
 			new (new_memory_block.template as<owner_mem_block>()) owner_mem_block(tmp::move(_head));
 			//move the value to it's corresponding field
@@ -214,6 +250,10 @@ namespace cpprelude
 				auto next_block = tmp::move(*it.template as<owner_mem_block>());
 
 				it.template as<T>(sizeof(owner_mem_block))->~T();
+
+				//free the current block
+				_allocator.free(it);
+
 				it = tmp::move(next_block);
 				--_count;
 			}
@@ -229,6 +269,10 @@ namespace cpprelude
 				auto next_block = tmp::move(*it.template as<owner_mem_block>());
 
 				it.template as<T>(sizeof(owner_mem_block))->~T();
+
+				//free the current block
+				_allocator.free(it);
+				
 				it = tmp::move(next_block);
 				--_count;
 			}

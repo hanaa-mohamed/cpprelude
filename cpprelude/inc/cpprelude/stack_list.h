@@ -1,16 +1,29 @@
 #pragma once
 #include "cpprelude/defines.h"
 #include "cpprelude/slinked_list.h"
-
+#include "cpprelude/allocator.h"
 
 namespace cpprelude
 {
-	template<typename T>
+	template<typename T, typename AllocatorT = global_allocator>
 	struct stack_list
 	{
-		slinked_list<T> _list;
+		slinked_list<T, AllocatorT> _list;
 		
-		stack_list()
+		stack_list(const AllocatorT& allocator = AllocatorT())
+			:_list(allocator)
+		{}
+
+		stack_list(const stack_list&) = default;
+
+		stack_list(stack_list&&) = default;
+
+		stack_list(const stack_list& other, const AllocatorT& allocator)
+			:_list(other._list, allocator)
+		{}
+
+		stack_list(stack_list&& other, const AllocatorT& allocator)
+			:_list(tmp::move(other), allocator)
 		{}
 
 		void

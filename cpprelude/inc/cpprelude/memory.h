@@ -38,20 +38,14 @@ namespace cpprelude
 		T*
 		as(usize offset = 0)
 		{
-			if(ptr != nullptr && size > 0 && offset + sizeof(T) <= size)
-				return reinterpret_cast<T*>(reinterpret_cast<ubyte*>(ptr)+offset);
-
-			return nullptr;
+			return reinterpret_cast<T*>(reinterpret_cast<ubyte*>(ptr)+offset);
 		}
 
 		template<typename T>
 		const T*
 		as(usize offset = 0) const
 		{
-			if(ptr != nullptr && size > 0 && offset + sizeof(T) <= size)
-				return reinterpret_cast<const T*>(reinterpret_cast<ubyte*>(ptr)+offset);
-
-			return nullptr;
+			return reinterpret_cast<const T*>(reinterpret_cast<ubyte*>(ptr)+offset);
 		}
 	};
 
@@ -109,20 +103,14 @@ namespace cpprelude
 		T*
 		as(usize offset = 0)
 		{
-			if(ptr != nullptr && size > 0 && offset + sizeof(T) <= size)
-				return reinterpret_cast<T*>(reinterpret_cast<ubyte*>(ptr)+offset);
-
-			return nullptr;
+			return reinterpret_cast<T*>(reinterpret_cast<ubyte*>(ptr)+offset);
 		}
 
 		template<typename T>
 		const T*
 		as(usize offset = 0) const
 		{
-			if(ptr != nullptr && size > 0 && offset + sizeof(T) <= size)
-				return reinterpret_cast<const T*>(reinterpret_cast<ubyte*>(ptr)+offset);
-
-			return nullptr;
+			return reinterpret_cast<const T*>(reinterpret_cast<ubyte*>(ptr)+offset);
 		}
 	};
 
@@ -248,7 +236,13 @@ namespace cpprelude
 	};
 
 	API owner_mem_block
+	virtual_alloc(usize size);
+
+	API owner_mem_block
 	alloc(usize size, ubyte alignment = 4);
+
+	API void
+	realloc(owner_mem_block& block, usize size);
 
 	API void
 	free(owner_mem_block& block);

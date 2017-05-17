@@ -4,6 +4,7 @@
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
 #include "cpprelude/iterator.h"
+#include "cpprelude/allocator.h"
 #include <initializer_list>
 #include <iterator>
 
@@ -15,7 +16,7 @@ namespace cpprelude
 	 * this has three parts a previous owner_mem_block which has the previous element, a next owner_mem_block which has the next element and a T which houses the data
 	 */
 
-	template<typename T>
+	template<typename T, typename AllocatorT = global_allocator>
 	struct dlinked_list
 	{
 		using iterator = bidirectional_iterator<T>;
@@ -24,15 +25,16 @@ namespace cpprelude
 		owner_mem_block _head;
 		owner_mem_block _tail;
 		usize _count;
+		AllocatorT _allocator;
 
-		dlinked_list()
-			:_count(0)
+		dlinked_list(const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 		}
 
-		dlinked_list(std::initializer_list<T> list)
-			:_count(0)
+		dlinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 
@@ -40,8 +42,8 @@ namespace cpprelude
 				insert_back(value);
 		}
 
-		dlinked_list(usize count, const T& fill_value)
-			:_count(0)
+		dlinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 
@@ -50,7 +52,20 @@ namespace cpprelude
 		}
 
 		dlinked_list(const dlinked_list<T>& other)
-			:_count(0)
+			:_count(0), _allocator(other._allocator)
+		{
+			_init_sentinels();
+
+			auto other_it = other._head.template as<owner_mem_block>(sizeof(owner_mem_block));
+			for(usize i = 0; i < other.count(); ++i)
+			{
+				insert_back(*other_it->template as<T>(2*sizeof(owner_mem_block)));
+				other_it = other_it->template as<owner_mem_block>(sizeof(owner_mem_block));
+			}
+		}
+
+		dlinked_list(const dlinked_list<T>& other, const AllocatorT& allocator)
+			:_count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 
@@ -65,7 +80,17 @@ namespace cpprelude
 		dlinked_list(dlinked_list<T>&& other)
 			:_count(other._count),
 			 _head(tmp::move(other._head)),
-			 _tail(tmp::move(other._tail))
+			 _tail(tmp::move(other._tail)),
+			 _allocator(other._allocator)
+		{
+			other._count = 0;
+		}
+
+		dlinked_list(dlinked_list<T>&& other, const AllocatorT& allocator)
+			:_count(other._count),
+			 _head(tmp::move(other._head)),
+			 _tail(tmp::move(other._tail)),
+			 _allocator(allocator)
 		{
 			other._count = 0;
 		}
@@ -73,12 +98,16 @@ namespace cpprelude
 		~dlinked_list()
 		{
 			reset();
+			_allocator.free(_head);
+			_allocator.free(_tail);
+			_count = 0;
 		}
 
 		dlinked_list<T>&
 		operator=(const dlinked_list<T>& other)
 		{
 			reset();
+			_allocator = other._allocator;
 
 			auto other_it = other._head.template as<owner_mem_block>(sizeof(owner_mem_block));
 			for(usize i = 0; i < other.count(); ++i)
@@ -94,6 +123,7 @@ namespace cpprelude
 		operator=(dlinked_list<T>&& other)
 		{
 			reset();
+			_allocator = other._allocator;
 
 			_count = other._count;
 			_head = tmp::move(other._head);
@@ -208,7 +238,7 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			auto new_memory_block = alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
 
 			//get the first node in the list
 			auto first_node = _head.template as<owner_mem_block>(sizeof(owner_mem_block));
@@ -233,7 +263,7 @@ namespace cpprelude
 		void
 		insert_front(T&& value)
 		{
-			auto new_memory_block = alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
 
 			//get the first node in the list
 			auto first_node = _head.template as<owner_mem_block>(sizeof(owner_mem_block));
@@ -265,7 +295,7 @@ namespace cpprelude
 		void
 		insert_back(const T& value)
 		{
-			auto new_memory_block = alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
 
 			//get the last node in the list
 			auto last_node = _tail.template as<owner_mem_block>();
@@ -290,7 +320,7 @@ namespace cpprelude
 		void
 		insert_back(T&& value)
 		{
-			auto new_memory_block = alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
 
 			//get the last node in the list
 			auto last_node = _tail.template as<owner_mem_block>();
@@ -322,6 +352,8 @@ namespace cpprelude
 				auto next_block = tmp::move(*it.template as<owner_mem_block>(sizeof(owner_mem_block)));
 
 				it.template as<T>(2*sizeof(owner_mem_block))->~T();
+
+				_allocator.free(it);
 				it = tmp::move(next_block);
 				--_count;
 			}
@@ -340,6 +372,8 @@ namespace cpprelude
 				auto next_block = tmp::move(*it.template as<owner_mem_block>());
 
 				it.template as<T>(2*sizeof(owner_mem_block))->~T();
+
+				_allocator.free(it);
 				it = tmp::move(next_block);
 				--_count;
 			}
@@ -361,6 +395,7 @@ namespace cpprelude
 				auto next_block = tmp::move(*it.template as<owner_mem_block>(sizeof(owner_mem_block)));
 
 				it.template as<T>(2*sizeof(owner_mem_block))->~T();
+				_allocator.free(it);
 				it = tmp::move(next_block);
 				--_count;
 			}
@@ -435,8 +470,8 @@ namespace cpprelude
 		void
 		_init_sentinels()
 		{
-			_head = alloc(2*sizeof(owner_mem_block));
-			_tail = alloc(2*sizeof(owner_mem_block));
+			_head = _allocator.alloc(2*sizeof(owner_mem_block));
+			_tail = _allocator.alloc(2*sizeof(owner_mem_block));
 
 			//make _tail prev -> _head
 			*_tail.template as<weak_mem_block>() = _head.sub_block();

@@ -1,13 +1,30 @@
 #pragma once
 #include "cpprelude/defines.h"
 #include "cpprelude/dlinked_list.h"
+#include "cpprelude/allocator.h"
 
 namespace cpprelude
 {
-	template<typename T>
+	template<typename T, typename AllocatorT = global_allocator>
 	struct queue_list
 	{
-		dlinked_list<T> _list;
+		dlinked_list<T, AllocatorT> _list;
+
+		queue_list(const AllocatorT& allocator = AllocatorT())
+			:_list(allocator)
+		{}
+
+		queue_list(const queue_list&) = default;
+
+		queue_list(queue_list&&) = default;
+
+		queue_list(const queue_list& other, const AllocatorT& allocator)
+			:_list(other._list, allocator)
+		{}
+
+		queue_list(queue_list&& other, const AllocatorT& allocator)
+			:_list(tmp::move(other._list), allocator)
+		{}
 
 		void
 		enqueue(const T& item)

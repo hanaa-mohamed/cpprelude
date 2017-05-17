@@ -4,6 +4,7 @@
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
 #include "cpprelude/iterator.h"
+#include "cpprelude/allocator.h"
 #include <initializer_list>
 #include <new>
 #include <iterator>
@@ -11,10 +12,10 @@
 namespace cpprelude
 {
 	//configurations
-	constexpr r32 grow_factor = 1.5f;
+	constexpr r32 grow_factor = 2.0f;
 	constexpr usize starting_count = 64;
 
-	template<typename T>
+	template<typename T, typename AllocatorT = global_allocator>
 	struct dynamic_array
 	{
 		using iterator = sequential_iterator<T>;
@@ -22,15 +23,16 @@ namespace cpprelude
 
 		owner_mem_block _data_block;
 		usize _count;
+		AllocatorT _allocator;
 
-		dynamic_array()
-			:_count(0)
+		dynamic_array(const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{}
 
-		dynamic_array(std::initializer_list<T> list)
-			:_count(list.size())
+		dynamic_array(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
+			:_count(list.size()), _allocator(allocator)
 		{
-			_data_block = alloc(_count*sizeof(T));
+			_data_block = _allocator.alloc(_count*sizeof(T));
 			auto it = list.begin();
 			for(usize i = 0; i < _count; ++i)
 			{
@@ -39,55 +41,86 @@ namespace cpprelude
 			}
 		}
 
-		dynamic_array(usize count)
-			:_data_block(alloc(count*sizeof(T))),
-			 _count(count)
-		{}
+		dynamic_array(usize count, const AllocatorT& allocator = AllocatorT())
+			:_count(count), _allocator(allocator)
+		{ _data_block = _allocator.alloc(count*sizeof(T)); }
 
-		dynamic_array(usize count, const T& fill_value)
-			:_count(0)
+		dynamic_array(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
+			:_count(0), _allocator(allocator)
 		{
 			expand_back(count, fill_value);
 		}
 
-		dynamic_array(const dynamic_array<T>& other)
+		dynamic_array(const dynamic_array<T, AllocatorT>& other)
 			:_count(other._count),
-			 _data_block(alloc(other._data_block.size))
+			 _allocator(other._allocator)
 		{
+			_data_block = _allocator.alloc(other._data_block.size);
+
 			for(usize i = 0; i < _count; ++i)
 				new (_data_block.template at<T>(i)) T(*other._data_block.template at<T>(i));
 		}
 
-		dynamic_array(dynamic_array<T>&& other)
+		dynamic_array(const dynamic_array<T, AllocatorT>& other, const AllocatorT& allocator)
 			:_count(other._count),
-			_data_block(tmp::move(other._data_block))
+			 _allocator(allocator)
+		{
+			_data_block = _allocator.alloc(other._data_block.size);
+
+			for(usize i = 0; i < _count; ++i)
+				new (_data_block.template at<T>(i)) T(*other._data_block.template at<T>(i));
+		}
+
+		dynamic_array(dynamic_array<T, AllocatorT>&& other)
+			:_count(other._count),
+			 _data_block(tmp::move(other._data_block)),
+			 _allocator(tmp::move(other._allocator))
+		{
+			other._count = 0;
+		}
+
+		dynamic_array(dynamic_array<T, AllocatorT>&& other, const AllocatorT& allocator)
+			:_count(other._count),
+			 _data_block(tmp::move(other._data_block)),
+			 _allocator(allocator)
 		{
 			other._count = 0;
 		}
 
 		~dynamic_array()
 		{
+			for(usize i = 0; i < _count; ++i)
+				_data_block.template at<T>(i)->~T();
 			_count = 0;
+
+			_allocator.free(_data_block);
 		}
 
-		dynamic_array<T>&
-		operator=(const dynamic_array<T>& other)
+		dynamic_array<T, AllocatorT>&
+		operator=(const dynamic_array<T, AllocatorT>& other)
 		{
-			auto tmp_data_block = alloc(other._data_block.size);
+			auto tmp_data_block = _allocator.alloc(other._data_block.size);
 			for(usize i = 0; i < other._count; ++i)
 				new (tmp_data_block.template at<T>(i)) T(*other._data_block.template at<T>(i));
 
+			_allocator.free(_data_block);
 			_data_block = tmp::move(tmp_data_block);
 			_count = other._count;
+			_allocator = other._allocator;
 
 			return *this;
 		}
 
-		dynamic_array<T>&
-		operator=(dynamic_array<T>&& other)
+		dynamic_array<T, AllocatorT>&
+		operator=(dynamic_array<T, AllocatorT>&& other)
 		{
+			for(usize i = 0; i < _count; ++i)
+				_data_block.template at<T>(i)->~T();
+			_allocator.free(_data_block);
+
 			_data_block = tmp::move(other._data_block);
 			_count = other._count;
+			_allocator = tmp::move(other._allocator);
 			other._count = 0;
 
 			return *this;
@@ -246,7 +279,7 @@ namespace cpprelude
 			for(usize i = 0; i < _count; ++i)
 				_data_block.template at<T>(i)->~T();
 			_count = 0;
-			_data_block.~owner_mem_block();
+			_allocator.free(_data_block);
 		}
 
 		bool
@@ -309,11 +342,10 @@ namespace cpprelude
 			if(_data_block.size >= new_size)
 				return;
 
-			auto tmp_data_block = alloc(new_size);
-			for(usize i = 0; i < _count; ++i)
-				new (tmp_data_block.template at<T>(i)) T(tmp::move(*_data_block.template at<T>(i)));
-
-			_data_block = tmp::move(tmp_data_block);
+			if(_data_block.ptr != nullptr && _data_block.size > 0)
+				_allocator.realloc(_data_block, new_size);
+			else
+				_data_block = _allocator.alloc(new_size);
 		}
 
 		void
@@ -322,13 +354,10 @@ namespace cpprelude
 			if(_data_block.size <= new_size)
 				return;
 
-			auto tmp_data_block = alloc(new_size);
-			auto migration_count = new_size / sizeof(T);
-
-			for(usize i = 0; i < migration_count; ++i)
-				new (tmp_data_block.template at<T>(i)) T(tmp::move(*_data_block.template at<T>(i)));
-
-			_data_block = tmp::move(tmp_data_block);
+			if(_data_block.ptr != nullptr && _data_block.size > 0)
+				_allocator.realloc(_data_block, new_size);
+			else
+				_data_block = _allocator.alloc(new_size);
 		}
 	};
 }

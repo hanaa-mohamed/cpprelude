@@ -1,6 +1,7 @@
 #include "cpprelude/memory.h"
 
 #include <cstdlib>
+#include <iostream>
 
 namespace cpprelude
 {
@@ -113,20 +114,41 @@ namespace cpprelude
 		a = tmp::move(temp);
 	}
 
-
 	//mem api
+	owner_mem_block
+	virtual_alloc(usize size)
+	{
+		if(size == 0)
+			return owner_mem_block();
+
+		return owner_mem_block(std::malloc(size), size);
+	}
+
 	owner_mem_block
 	alloc(usize size, ubyte alignment)
 	{
 		if(size == 0)
 			return owner_mem_block();
+
 		return owner_mem_block(std::malloc(size), size);
+	}
+
+	void
+	realloc(owner_mem_block& block, usize size)
+	{
+		if(size == 0)
+			free(block);
+
+		block.ptr = std::realloc(block.ptr, size);
+		block.size = size;
 	}
 
 	void
 	free(owner_mem_block& block)
 	{
-		std::free(block.ptr);
+		if(block.ptr != nullptr)	
+			std::free(block.ptr);
+
 		block.ptr = nullptr;
 		block.size = 0;
 	}
