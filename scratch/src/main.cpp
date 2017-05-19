@@ -1,6 +1,9 @@
 #include <iostream>
 #include "benchmark.h"
 #include <cpprelude/dynamic_array.h>
+#include <cpprelude/slinked_list.h>
+#include <cpprelude/dlinked_list.h>
+#include <cpprelude/algorithm.h>
 #include <vector>
 #include <cstdlib>
 
@@ -57,6 +60,54 @@ darr()
 		darr.insert_back(screamer());
 }
 
+//shuffle_test
+void
+shuffle_dynamic_array()
+{
+	cpprelude::dynamic_array<int> array;
+	for(int i = 0; i < 10; ++i)
+		array.insert_back(i);
+
+	cpprelude::shuffle(array.begin(), array.count());
+	for(auto& n: array)
+		std::cout << n << " ";
+}
+
+void
+shuffle_slinked_list()
+{
+	cpprelude::slinked_list<int> array;
+	for(int i = 0; i < 10; ++i)
+		array.insert_front(i);
+
+	cpprelude::shuffle(array.begin(), array.count());
+	for(auto& n: array)
+		std::cout << n << " ";
+}
+
+void
+shuffle_dlinked_list()
+{
+	cpprelude::dlinked_list<int> array;
+	for(int i = 0; i < 10; ++i)
+		array.insert_back(i);
+
+	cpprelude::shuffle(array.begin(), array.count());
+	for(auto& n: array)
+		std::cout << n << " ";
+}
+
+void
+shuffle_test()
+{
+	shuffle_dynamic_array();
+	std::cout << std::endl;
+	shuffle_slinked_list();
+	std::cout << std::endl;
+	shuffle_dlinked_list();
+	std::cout << std::endl;
+}
+
 void
 scratch()
 {
@@ -94,6 +145,7 @@ main(int argc, char** argv)
 {
 	std::cout << "Hello, World!" << std::endl;
 	benchmark();
+	shuffle_test();
 	scratch();
 	return 0;
 }
