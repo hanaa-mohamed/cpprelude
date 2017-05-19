@@ -26,12 +26,12 @@ namespace cpprelude
 	shuffle(iterator_type start, usize size)
 	{
 		iterator_type it = start;
-		for(usize i = 0; i < size; ++i)
+		for(usize i = 1; i < size; ++i)
 		{
 			usize random_index = details::_get_random_index(i);
 			iterator_type random_iterator = next(start, random_index);
 			
-		    auto temp = tmp::move(*it);
+			auto temp = tmp::move(*it);
 			*it = tmp::move(*random_iterator);
 			*random_iterator = tmp::move(temp);
 			
