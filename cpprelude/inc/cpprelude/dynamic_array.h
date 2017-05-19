@@ -12,7 +12,7 @@
 namespace cpprelude
 {
 	//configurations
-	constexpr r32 grow_factor = 2.0f;
+	constexpr usize grow_factor = 2;
 	constexpr usize starting_count = 64;
 
 	template<typename T, typename AllocatorT = global_allocator>

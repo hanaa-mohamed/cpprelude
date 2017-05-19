@@ -238,6 +238,9 @@ namespace cpprelude
 	API owner_mem_block
 	virtual_alloc(usize size);
 
+	API void
+	virtual_free(owner_mem_block& block);
+
 	API owner_mem_block
 	alloc(usize size, ubyte alignment = 4);
 

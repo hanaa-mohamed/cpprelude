@@ -49,10 +49,10 @@ namespace cpprelude
 
 			//else just allocate and copy data
 			owner_mem_block new_block = linear_allocator::alloc(size);
-			auto limit = block.size < size ? block.size : size;
+			usize limit = block.size < size ? block.size : size;
 
 			//copy the data from the old to the new
-			for(auto i = 0; i < limit; ++i)
+			for(usize i = 0; i < limit; ++i)
 				*new_block.template at<ubyte>(i) = *block.template at<ubyte>(i);
 
 			//now free the old

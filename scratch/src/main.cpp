@@ -80,6 +80,13 @@ scratch()
 	new (arr+3) screamer();
 
 	free(arr);
+
+	//this is just a comment
+	auto virtual_block = cpprelude::virtual_alloc(GIGABYTES(1));
+	auto int_arr = virtual_block.template as<int>();
+	int_arr[0] = 1;
+	std::cout << "2" << std::endl;
+	cpprelude::virtual_free(virtual_block);
 }
 
 int

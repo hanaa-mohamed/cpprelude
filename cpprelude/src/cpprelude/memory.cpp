@@ -1,4 +1,8 @@
 #include "cpprelude/memory.h"
+#ifdef OS_WINDOWS
+#include <Windows.h>
+#endif // OS_WINDOWS
+
 
 #include <cstdlib>
 #include <iostream>
@@ -118,26 +122,48 @@ namespace cpprelude
 	owner_mem_block
 	virtual_alloc(usize size)
 	{
-		if(size == 0)
+		if (size == 0)
 			return owner_mem_block();
 
-		return owner_mem_block(std::malloc(size), size);
+#if defined(OS_WINDOWS)
+		void* ptr = VirtualAlloc(NULL, size, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+#elif defined(OS_LINUX)
+		void* ptr = std::malloc(size);
+#endif
+
+		return owner_mem_block(ptr, ptr ? size : 0);
+	}
+
+	void
+	virtual_free(owner_mem_block& block)
+	{
+#if defined(OS_WINDOWS)
+		VirtualFree(block.ptr, block.size, MEM_RELEASE);
+
+		block.ptr = nullptr;
+		block.size = 0;
+#elif defined(OS_LINUX)
+		free(block);
+#endif
 	}
 
 	owner_mem_block
 	alloc(usize size, ubyte alignment)
 	{
-		if(size == 0)
+		if (size == 0)
 			return owner_mem_block();
-
-		return owner_mem_block(std::malloc(size), size);
+		void* ptr = std::malloc(size);
+		return owner_mem_block(ptr, ptr ? size : 0);
 	}
 
 	void
 	realloc(owner_mem_block& block, usize size)
 	{
 		if(size == 0)
+		{
 			free(block);
+			return;
+		}
 
 		block.ptr = std::realloc(block.ptr, size);
 		block.size = size;

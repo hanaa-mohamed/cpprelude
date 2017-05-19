@@ -35,10 +35,10 @@ namespace cpprelude
 		free(owner_mem_block& block);
 	};
 
-	linear_allocator
+	API linear_allocator
 	make_arena_allocator(usize arena_size, owner_mem_block& mem_block);
 
-	linear_allocator
+	API linear_allocator
 	make_stack_allocator(ubyte* ptr, usize size);
 
 

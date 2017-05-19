@@ -59,6 +59,8 @@ benchmark_custom_dynamic_array(cpprelude::usize limit)
 	std::cout << "microseconds: " << w.microseconds() << std::endl;
 	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
 	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
+
+	cpprelude::virtual_free(mem_block);
 }
 
 void
@@ -101,6 +103,8 @@ benchmark_custom_slinked_list(cpprelude::usize limit)
 	std::cout << "microseconds: " << w.microseconds() << std::endl;
 	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
 	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
+
+	cpprelude::virtual_free(mem_block);
 }
 
 void
@@ -143,6 +147,8 @@ benchmark_custom_dlinked_list(cpprelude::usize limit)
 	std::cout << "microseconds: " << w.microseconds() << std::endl;
 	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
 	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
+
+	cpprelude::virtual_free(mem_block);
 }
 
 void
@@ -186,6 +192,8 @@ benchmark_custom_stack_array(cpprelude::usize limit)
 	std::cout << "microseconds: " << w.microseconds() << std::endl;
 	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
 	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
+
+	cpprelude::virtual_free(mem_block);
 }
 
 void
@@ -229,6 +237,8 @@ benchmark_custom_stack_list(cpprelude::usize limit)
 	std::cout << "microseconds: " << w.microseconds() << std::endl;
 	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
 	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
+
+	cpprelude::virtual_free(mem_block);
 }
 
 void
@@ -272,6 +282,8 @@ benchmark_custom_queue_list(cpprelude::usize limit)
 	std::cout << "microseconds: " << w.microseconds() << std::endl;
 	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
 	std::cout << "alive allocation: " << arena_allocator._alloc_count << std::endl;
+
+	cpprelude::virtual_free(mem_block);
 }
 
 //STD
