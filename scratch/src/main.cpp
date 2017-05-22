@@ -2,6 +2,7 @@
 #include "benchmark.h"
 #include <cpprelude/dynamic_array.h>
 #include <cpprelude/slinked_list.h>
+#include <cpprelude/bucket_array.h>
 #include <cpprelude/dlinked_list.h>
 #include <cpprelude/algorithm.h>
 #include <vector>
@@ -117,27 +118,12 @@ scratch()
 
 	std::cout <<"============================================================"<< std::endl;
 
-	screamer* arr = (screamer*) malloc(sizeof(screamer) * 2);
-	new (arr+0) screamer();
-	new (arr+1) screamer();
-
-	std::cout << arr << std::endl;
-
-	arr = (screamer*) realloc(arr, sizeof(screamer)*4);
-
-	std::cout << arr << std::endl;
-
-	new (arr+2) screamer();
-	new (arr+3) screamer();
-
-	free(arr);
-
-	//this is just a comment
-	auto virtual_block = cpprelude::virtual_alloc(GIGABYTES(1));
-	auto int_arr = virtual_block.template as<int>();
-	int_arr[0] = 1;
-	std::cout << "2" << std::endl;
-	cpprelude::virtual_free(virtual_block);
+	cpprelude::bucket_array<cpprelude::usize, 16> array;
+	for(cpprelude::usize i = 0; i < 16; i++)
+		array[i] = i;
+	array.expand();
+	for(cpprelude::usize i = 16; i < 32; i++)
+		array[i] = i;
 }
 
 int
@@ -145,7 +131,7 @@ main(int argc, char** argv)
 {
 	std::cout << "Hello, World!" << std::endl;
 	benchmark();
-	shuffle_test();
+	//shuffle_test();
 	scratch();
 	return 0;
 }
