@@ -225,14 +225,36 @@ namespace cpprelude
 	};
 
 	template<typename T>
-	T next(T it)
+	T
+	next(T it, usize n = 1)
 	{
-		return ++it;
+		while(n--)
+			++it;
+		return it;
 	}
 
 	template<typename T>
-	T prev(T it)
+	T
+	prev(T it, usize n = 1)
 	{
-		return --it;
+		while(n--)
+			--it;
+		return it;
+	}
+
+	template<typename T>
+	sequential_iterator<T>
+	next(sequential_iterator<T> it, usize n = 1)
+	{
+		it._count += n;
+		return it;
+	}
+
+	template<typename T>
+	sequential_iterator<T>
+	prev(sequential_iterator<T> it, usize n = 1)
+	{
+		it._count -= n;
+		return it;
 	}
 }
