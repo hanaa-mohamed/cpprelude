@@ -12,6 +12,16 @@ namespace cpprelude
 	namespace details
 	{
 		inline usize
+		_get_random_index(usize from, usize to)
+		{
+			std::random_device device;
+			std::mt19937 generator(device());
+			std::uniform_int_distribution<usize> distribution(from, to);
+
+			return distribution(generator);
+		}
+
+		inline usize
 		_get_random_index(usize n)
 		{
 			std::random_device device;
@@ -67,6 +77,7 @@ namespace cpprelude
 	merge_sort(dynamic_array<T>& arr)
 	{
 		usize hi = 0;
+		usize mid = 0;
 		usize count = arr.count();
 		dynamic_array<T> aux(arr);
 		
@@ -74,8 +85,11 @@ namespace cpprelude
 		{
 			for (usize lo = 0; lo < count - range; lo += (range + range))
 			{
-				hi = (lo + range + range-1 > count - 1) ? count - 1 : lo + range + range-1;
-				merge(arr, aux, lo, lo + range-1, hi);
+				mid = lo + range - 1;
+				hi = (mid + range  > count - 1) ? count - 1 : mid + range;
+
+				if(aux[mid] > aux[mid+1])
+					merge(arr, aux, lo, mid, hi);
 			}
 			arr = aux;
 		}
@@ -83,7 +97,7 @@ namespace cpprelude
 
 	template<typename T>
 	void
-	merge(const dynamic_array<T>& arr, dynamic_array<T>& aux, usize lo, usize mid, usize hi,
+	_merge(const dynamic_array<T>& arr, dynamic_array<T>& aux, usize lo, usize mid, usize hi,
 		  std::function <isize(const T&, const T&)> compareTo)
 	{
 		usize i = lo;
@@ -116,7 +130,7 @@ namespace cpprelude
 			for (usize lo = 0; lo < count - range; lo += (range + range))
 			{
 				hi = (lo + range + range - 1 > count - 1) ? count - 1 : lo + range + range - 1;
-				merge(arr, aux, lo, lo + range - 1, hi , compareTo);
+				_merge(arr, aux, lo, lo + range - 1, hi , compareTo);
 			}
 			arr = aux;
 		}
@@ -132,6 +146,56 @@ namespace cpprelude
 				return false;
 		}
 		return true;
+	}
+
+	template<typename T>
+	void
+	_partition(dynamic_array<T>& arr, usize start, usize end)
+	{
+		//Stoping condiction
+		if (end <= start) return;
+
+		usize lt = start;
+		usize i = start;
+		usize gt = end;
+
+		//Chosing pivot randomly		
+		usize index_pivot = start;// details::_get_random_index(start, end);
+		T pivot = arr[index_pivot];
+		T temp;
+		//Partitioning 
+		while (i <= gt)
+		{
+			if (arr[i] < pivot)
+			{
+				//swap(arr[lt++], arr[i++]);
+				temp = arr[lt];
+				arr[lt] = arr[i];
+				arr[i] = temp;
+				++lt;
+				++i;
+			}
+			else if (arr[i] > pivot)
+			{
+				//swap(arr[i], arr[gt--]);
+				temp = arr[gt];
+				arr[gt] = arr[i];
+				arr[i] = temp;
+				--gt;
+			}
+			else 
+				++i;
+		}
+
+		_partition(arr, start, lt - 1);
+		_partition(arr, gt + 1, end);
+	}
+
+	template<typename T>
+	void 
+	quick_sort(dynamic_array<T>& arr)
+	{
+		_partition(arr, 0, arr.count() - 1);		
 	}
 	
 }
