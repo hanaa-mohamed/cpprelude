@@ -336,6 +336,22 @@ namespace cpprelude
 			return iterator(_data_block.sub_block(), _count);
 		}
 
+		owner_mem_block
+		decay()
+		{
+			owner_mem_block result = tmp::move(_data_block);
+			_count = 0;
+			return result;
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			owner_mem_block result = tmp::move(_data_block);
+			_count = 0;
+			return result;	
+		}
+
 		void
 		_mem_expand(usize new_size)
 		{

@@ -47,10 +47,17 @@ namespace cpprelude
 		{
 			return reinterpret_cast<const T*>(reinterpret_cast<ubyte*>(ptr)+offset);
 		}
-	};
 
-	template<typename T>
-	struct typed_mem_block;
+		template<typename T>
+		T*
+		decay()
+		{
+			auto result_ptr = reinterpret_cast<T*>(ptr);
+			ptr = nullptr;
+			size = 0;
+			return result_ptr;
+		}
+	};
 
 	struct API owner_mem_block
 	{
@@ -66,15 +73,6 @@ namespace cpprelude
 		owner_mem_block(owner_mem_block&& other);
 
 		~owner_mem_block();
-
-		template<typename T>
-		operator typed_mem_block<T>()
-		{
-			typed_mem_block<T> result(reinterpret_cast<T*>(ptr), size);
-			ptr = nullptr;
-			size = 0;
-			return result;
-		}
 
 		owner_mem_block&
 		operator=(const owner_mem_block&) = delete;
@@ -144,13 +142,39 @@ namespace cpprelude
 		handle()
 			:value_ptr(nullptr)
 		{}
+
+		handle(const handle&) = default;
+
+		handle(handle&& other)
+			:value_ptr(other.value_ptr)
+		{ other.value_ptr = nullptr; }
+
+		handle&
+		operator=(const handle&) = default;
+
+		handle&
+		operator=(handle&& other)
+		{
+			value_ptr = other.value_ptr;
+			other.value_ptr = nullptr;
+
+			return *this;
+		}
 		
 		template<typename ... ArgT>
 		void
 		construct(T* ptr, ArgT&& ... args)
 		{
 			value_ptr = ptr;
-			new (value_ptr) T(args...);
+			new (value_ptr) T(tmp::forward<ArgT>(args)...);
+		}
+
+		template<typename ... ArgT>
+		void
+		construct(owner_mem_block&& block, ArgT&& ... args)
+		{
+			value_ptr = block.template decay<T>();
+			new (value_ptr) T(tmp::forward<ArgT>(args)...);
 		}
 
 		void
@@ -205,6 +229,13 @@ namespace cpprelude
 		operator!=(const handle& other) const
 		{
 			return ~operator==(other);
+		}
+
+		template<typename R = T>
+		R*
+		decay()
+		{
+			return reinterpret_cast<R*>(value_ptr);
 		}
 	};
 

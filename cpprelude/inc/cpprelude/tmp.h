@@ -24,5 +24,19 @@ namespace cpprelude
 		{
 			return static_cast<typename remove_reference<T>::type&&>(value);
 		}
+
+		template<typename T>
+		constexpr inline T&&
+		forward(typename remove_reference<T>::type& value) noexcept
+		{
+			return static_cast<T&&>(value);
+		}
+
+		template<typename T>
+		constexpr inline T&&
+		forward(typename remove_reference<T>::type&& value) noexcept
+		{
+			return static_cast<T&&>(value);
+		}
 	}
 }

@@ -87,5 +87,27 @@ namespace cpprelude
 			_capacity += bucket_size;
 			return true;
 		}
+
+		owner_mem_block
+		decay_continuous(usize count)
+		{
+			if(count == 0)
+				return owner_mem_block();
+
+			//allocate the memory of the supplied allocator
+			owner_mem_block result = _array._allocator.alloc(count * sizeof(T));
+
+			//move the first element
+			usize i = 0;
+			new (result.template at<T>(i++)) T(tmp::move(front()));
+
+			//while has something to pop then add it
+			while(pop())
+			{
+				new (result.template at<T>(i++)) T(tmp::move(front()));
+			}
+
+			return result;
+		}
 	};
 }

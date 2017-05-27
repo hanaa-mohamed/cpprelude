@@ -73,5 +73,18 @@ namespace cpprelude
 			return _count;
 		}
 
+		owner_mem_block
+		decay()
+		{
+			return decay_continuous();
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			auto result = _buffer.decay_continuous(_count);
+			_count = 0;
+			return result;
+		}
 	};
 }

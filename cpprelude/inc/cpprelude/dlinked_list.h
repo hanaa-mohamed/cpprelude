@@ -426,6 +426,34 @@ namespace cpprelude
 			return iterator(_tail);
 		}
 
+		owner_mem_block
+		decay()
+		{
+			owner_mem_block result = resurrect(_head);
+			_head.value_ptr = nullptr;
+			_tail.value_ptr = nullptr;
+			_count = 0;
+			return result;
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			//allocate the memory of supplied allocator
+			owner_mem_block result = _allocator.alloc(_count*sizeof(T));
+
+			//move the elements over
+			usize i = 0;
+			for(auto&& value: *this)
+				new (result.template at<T>(i++)) T(tmp::move(value));
+
+			//reset this linked list
+			reset();
+
+			//return the piece of memory
+			return result;
+		}
+
 		void
 		_init_sentinels()
 		{

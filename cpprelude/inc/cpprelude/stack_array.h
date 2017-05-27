@@ -93,6 +93,20 @@ namespace cpprelude
 			return _count;
 		}
 
+		owner_mem_block
+		decay()
+		{
+			_count = 0;
+			return _array.decay();
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			_count = 0;
+			return _array.decay_continuous();
+		}
+
 	};
 
 }
