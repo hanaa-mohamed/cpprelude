@@ -11,6 +11,7 @@ namespace cpprelude
 		usize _alloc_head, _alloc_count;
 
 		explicit linear_allocator(const mem_block& memory);
+		explicit linear_allocator(mem_block&& memory);
 		~linear_allocator();
 
 		owner_mem_block

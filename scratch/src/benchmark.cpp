@@ -94,41 +94,6 @@ benchmark_custom_dynamic_array(cpprelude::usize limit)
 }
 
 void
-benchmark_r_list(cpprelude::usize limit)
-{
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
-	stopwatch w;
-
-	for(cpprelude::usize j = 0; j < 100; ++j)
-	{
-		cpprelude::r_list<cpprelude::usize> array;
-
-		w.start();
-		for(cpprelude::usize i = 0; i < limit; ++i)
-			array.insert_front(i);
-		w.stop();
-
-		avg_sec += w.seconds();
-		avg_milli += w.milliseconds();
-		avg_micro += w.microseconds();
-		avg_nano += w.nanoseconds();
-
-	}
-
-	avg_sec /= 100;
-	avg_milli /= 100;
-	avg_micro /= 100;
-	avg_nano /= 100;
-
-	std::cout << "benchmark r_list" << std::endl;
-	std::cout << "seconds: " << avg_sec << std::endl;
-	std::cout << "milliseconds: " << avg_milli << std::endl;
-	std::cout << "microseconds: " << avg_micro << std::endl;
-	std::cout << "nanoseconds: " << avg_nano << std::endl;
-}
-
-void
 benchmark_slinked_list(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;

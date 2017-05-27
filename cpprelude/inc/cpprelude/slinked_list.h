@@ -334,37 +334,4 @@ namespace cpprelude
 			return iterator();
 		}
 	};
-
-	template<typename T>
-	struct r_node
-	{
-		r_node* next;
-		T data;
-
-		r_node()
-			:next(nullptr)
-		{}
-	};
-
-	template<typename T>
-	struct r_list
-	{
-		r_node<T>* _head;
-
-		r_list()
-			:_head(nullptr)
-		{}
-
-		void
-		insert_front(const T& value)
-		{
-			r_node<T>* new_node = new r_node<T>();
-
-			new (&new_node->data) T(value);
-
-			new_node->next = _head;
-
-			_head = new_node;
-		}
-	};
 }

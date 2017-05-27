@@ -6,6 +6,10 @@ namespace cpprelude
 		:_memory(memory), _alloc_head(0), _alloc_count(0)
 	{}
 
+	linear_allocator::linear_allocator(mem_block&& memory)
+		:_memory(tmp::move(memory)), _alloc_head(0), _alloc_count(0)
+	{}
+
 	linear_allocator::~linear_allocator()
 	{
 		_alloc_head = 0;
