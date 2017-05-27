@@ -5,85 +5,20 @@
 
 namespace cpprelude
 {
-	struct API weak_mem_block
+	struct API mem_block
 	{
 		void* ptr;
 		usize size;
 
-		weak_mem_block(void* ptr, usize size);
-		weak_mem_block();
-		~weak_mem_block();
+		mem_block(void* ptr, usize size);
+	    mem_block();
+		~mem_block();
 
 		bool
-		operator==(const weak_mem_block& other) const;
+		operator==(const mem_block& other) const;
 
 		bool
-		operator!=(const weak_mem_block& other) const;
-
-		template<typename T>
-		T*
-		at(usize index)
-		{
-			return as<T>(index*sizeof(T));
-		}
-
-		template<typename T>
-		const T*
-		at(usize index) const
-		{
-			return as<T>(index*sizeof(T));
-		}
-
-		template<typename T>
-		T*
-		as(usize offset = 0)
-		{
-			return reinterpret_cast<T*>(reinterpret_cast<ubyte*>(ptr)+offset);
-		}
-
-		template<typename T>
-		const T*
-		as(usize offset = 0) const
-		{
-			return reinterpret_cast<const T*>(reinterpret_cast<ubyte*>(ptr)+offset);
-		}
-	};
-
-	struct API owner_mem_block
-	{
-		void* ptr;
-		usize size;
-
-		owner_mem_block(void* ptr, usize size);
-
-		owner_mem_block();
-
-		owner_mem_block(const owner_mem_block&) = delete;
-
-		owner_mem_block(owner_mem_block&& other);
-
-		~owner_mem_block();
-
-		owner_mem_block&
-		operator=(const owner_mem_block&) = delete;
-
-		owner_mem_block&
-		operator=(owner_mem_block&& other);
-
-		bool
-		operator==(const owner_mem_block& other) const;
-
-		bool
-		operator!=(const owner_mem_block& other) const;
-
-		weak_mem_block
-		sub_block(usize offset, usize size) const;
-
-		weak_mem_block
-		sub_block(usize offset = 0) const;
-
-		weak_mem_block
-		release();
+		operator!=(const mem_block& other) const;
 
 		template<typename T>
 		T*
@@ -115,66 +50,137 @@ namespace cpprelude
 	};
 
 	template<typename T>
+	struct typed_mem_block;
+
+	struct API owner_mem_block
+	{
+		void* ptr;
+		usize size;
+
+		owner_mem_block(void* ptr, usize size);
+
+		owner_mem_block();
+
+		owner_mem_block(const owner_mem_block&) = delete;
+
+		owner_mem_block(owner_mem_block&& other);
+
+		~owner_mem_block();
+
+		template<typename T>
+		operator typed_mem_block<T>()
+		{
+			typed_mem_block<T> result(reinterpret_cast<T*>(ptr), size);
+			ptr = nullptr;
+			size = 0;
+			return result;
+		}
+
+		owner_mem_block&
+		operator=(const owner_mem_block&) = delete;
+
+		owner_mem_block&
+		operator=(owner_mem_block&& other);
+
+		bool
+		operator==(const owner_mem_block& other) const;
+
+		bool
+		operator!=(const owner_mem_block& other) const;
+
+		mem_block
+		sub_block(usize offset, usize size) const;
+
+		mem_block
+		sub_block(usize offset = 0) const;
+
+		mem_block
+		release();
+
+		template<typename T>
+		T*
+		at(usize index)
+		{
+			return as<T>(index*sizeof(T));
+		}
+
+		template<typename T>
+		const T*
+		at(usize index) const
+		{
+			return as<T>(index*sizeof(T));
+		}
+
+		template<typename T>
+		T*
+		as(usize offset = 0)
+		{
+			return reinterpret_cast<T*>(reinterpret_cast<ubyte*>(ptr)+offset);
+		}
+
+		template<typename T>
+		const T*
+		as(usize offset = 0) const
+		{
+			return reinterpret_cast<const T*>(reinterpret_cast<ubyte*>(ptr)+offset);
+		}
+
+		template<typename T>
+		T*
+		decay()
+		{
+			auto result_ptr = reinterpret_cast<T*>(ptr);
+			ptr = nullptr;
+			size = 0;
+			return result_ptr;
+		}
+	};
+
+	template<typename T>
 	struct handle
 	{
-		owner_mem_block memory_block;
+		T* value_ptr;
 
+		handle()
+			:value_ptr(nullptr)
+		{}
+		
 		template<typename ... ArgT>
 		void
-		construct(owner_mem_block&& block, ArgT&& ... args)
+		construct(T* ptr, ArgT&& ... args)
 		{
-			memory_block = tmp::move(block);
-			new (memory_block.ptr) T(args...);
+			value_ptr = ptr;
+			new (value_ptr) T(args...);
 		}
 
 		void
 		destroy()
 		{
-			memory_block.template as<T>()->~T();
+			value_ptr->~T();
 		}
 
 		T*
 		operator->()
 		{
-			return memory_block.template as<T>();
+			return value_ptr;
 		}
 
 		const T*
 		operator->() const
 		{
-			return memory_block.template as<const T>();
+			return value_ptr;
 		}
 
 		T&
 		operator*()
 		{
-			return *memory_block.template as<T>();
+			return *value_ptr;
 		}
 
 		const T&
 		operator*() const
 		{
-			return *memory_block.template as<T>();
-		}
-
-		template<typename R>
-		R*
-		as()
-		{
-			return memory_block.template as<R>();
-		}
-
-		template<typename R>
-		const R*
-		as() const
-		{
-			return memory_block.template as<const R>();
-		}
-
-		operator
-		owner_mem_block&()
-		{
-			return &memory_block;
+			return *value_ptr;
 		}
 
 		operator
@@ -186,7 +192,19 @@ namespace cpprelude
 		bool
 		valid() const
 		{
-			return memory_block.ptr != nullptr && memory_block.size > 0;
+			return value_ptr != nullptr;
+		}
+
+		bool
+		operator==(const handle& other) const
+		{
+			return value_ptr == other.value_ptr;
+		}
+
+		bool
+		operator!=(const handle& other) const
+		{
+			return ~operator==(other);
 		}
 	};
 
@@ -196,6 +214,9 @@ namespace cpprelude
 
 	API void
 	virtual_free(owner_mem_block& block);
+
+	API void
+	virtual_free(owner_mem_block&& block);
 
 	API owner_mem_block
 	alloc(usize size, ubyte alignment = 4);
@@ -207,5 +228,22 @@ namespace cpprelude
 	free(owner_mem_block& block);
 
 	API void
+	free(owner_mem_block&& block);
+
+	API void
 	swap(owner_mem_block& a, owner_mem_block& b);
+
+	template<typename T>
+	owner_mem_block
+	resurrect(T* ptr, usize size = sizeof(T))
+	{
+		return owner_mem_block(ptr, size);
+	}
+
+	template<typename T>
+	owner_mem_block
+	resurrect(const handle<T>& handle_, usize size = sizeof(T))
+	{
+		return owner_mem_block(handle_.value_ptr, size);
+	}
 }

@@ -32,7 +32,7 @@ namespace cpprelude
 			if(_next)
 			{
 				_next.destroy();
-				_allocator.free(_next.memory_block);
+				_allocator.free(resurrect(_next));
 			}
 		}
 
@@ -40,7 +40,16 @@ namespace cpprelude
 		operator[](usize index)
 		{
 			if(index >= bucket_size)
-				return _next->operator[](index - bucket_size);
+			{
+				auto it = _next;
+				index -= bucket_size;
+				while(index >= bucket_size)
+				{
+					it = it->_next;
+					index -= bucket_size;
+				}
+				return *it->_memory.template at<T>(index);
+			}
 
 			return *_memory.template at<T>(index);
 		}
@@ -49,16 +58,35 @@ namespace cpprelude
 		operator[](usize index) const
 		{
 			if(index >= bucket_size)
-				return _next->operator[](index - bucket_size);
+			{
+				auto it = _next;
+				index -= bucket_size;
+				while(index >= bucket_size)
+				{
+					it = it->_next;
+					index -= bucket_size;
+				}
+				return *it->_memory.template at<T>(index);
+			}
 
-			return *_memory.template at<const T>(index);
+			return *_memory.template at<T>(index);
 		}
 
 		T*
 		at(usize index)
 		{
 			if(index >= bucket_size)
-				return _next->operator[](index - bucket_size);
+			{
+				auto it = _next;
+				index -= bucket_size;
+				while(index >= bucket_size)
+				{
+					it = it->_next;
+					index -= bucket_size;
+				}
+				return *it->_memory.template at<T>(index);
+			}
+
 			return _memory.template at<T>(index);
 		}
 
@@ -68,7 +96,7 @@ namespace cpprelude
 			if(_next)
 				_next->expand();
 			else
-				_next.construct(_allocator.alloc(sizeof(bucket_array)), _allocator);
+				_next.construct(_allocator.alloc(sizeof(bucket_array)).template decay<bucket_array>(), _allocator);
 		}
 	};
 }

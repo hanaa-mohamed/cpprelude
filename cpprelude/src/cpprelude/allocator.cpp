@@ -2,7 +2,7 @@
 
 namespace cpprelude
 {
-	linear_allocator::linear_allocator(const weak_mem_block& memory)
+	linear_allocator::linear_allocator(const mem_block& memory)
 		:_memory(memory), _alloc_head(0), _alloc_count(0)
 	{}
 
@@ -87,6 +87,29 @@ namespace cpprelude
 		}
 	}
 
+	void
+	linear_allocator::free(owner_mem_block&& block)
+	{
+		void* memory_end = reinterpret_cast<ubyte*>(_memory.ptr) + _memory.size;
+
+		if(block.ptr >= _memory.ptr && block.ptr < memory_end)
+		{
+			void* latest_block = reinterpret_cast<ubyte*>(_memory.ptr) + _alloc_head - block.size;
+
+			//if this is the last allocated block then move the head back
+			if(block.ptr == latest_block)
+				_alloc_head -= block.size;
+
+			block.ptr = nullptr;
+			block.size = 0;
+			--_alloc_count;
+
+			//if no other allocations exist then free the whole stack
+			if(_alloc_count == 0)
+				_alloc_head = 0;
+		}
+	}
+
 	owner_mem_block
 	global_allocator::alloc(usize size, ubyte alignment)
 	{
@@ -105,6 +128,12 @@ namespace cpprelude
 		cpprelude::free(block);
 	}
 
+	void
+	global_allocator::free(owner_mem_block&& block)
+	{
+		cpprelude::free(block);
+	}
+
 	linear_allocator
 	make_arena_allocator(usize arena_size, owner_mem_block& mem_block)
 	{
@@ -115,6 +144,6 @@ namespace cpprelude
 	linear_allocator
 	make_stack_allocator(ubyte* ptr, usize size)
 	{
-		return linear_allocator(weak_mem_block(ptr, size));
+		return linear_allocator(mem_block(ptr, size));
 	}
 }

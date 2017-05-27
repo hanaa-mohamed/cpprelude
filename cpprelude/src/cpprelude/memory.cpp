@@ -7,29 +7,29 @@
 
 namespace cpprelude
 {
-	//weak_mem_block 
-	weak_mem_block::weak_mem_block(void* ptr_, usize size_)
+	//mem_block 
+	mem_block::mem_block(void* ptr_, usize size_)
 		:ptr(ptr_), size(size_)
 	{}
 
-	weak_mem_block::weak_mem_block()
+	mem_block::mem_block()
 		:ptr(nullptr), size(0)
 	{}
 
-	weak_mem_block::~weak_mem_block()
+	mem_block::~mem_block()
 	{
 		ptr = nullptr;
 		size = 0;
 	}
 
 	bool
-	weak_mem_block::operator==(const weak_mem_block& other) const
+	mem_block::operator==(const mem_block& other) const
 	{
 		return ptr == other.ptr && size == other.size;
 	}
 
 	bool
-	weak_mem_block::operator!=(const weak_mem_block& other) const
+	mem_block::operator!=(const mem_block& other) const
 	{
 		return !operator==(other);
 	}
@@ -81,25 +81,25 @@ namespace cpprelude
 		return !operator==(other);
 	}
 
-	weak_mem_block
+	mem_block
 	owner_mem_block::sub_block(usize offset, usize size_) const
 	{
 		if(offset + size_ <= size)
-			return weak_mem_block(reinterpret_cast<ubyte*>(ptr)+offset, size_);
+			return mem_block(reinterpret_cast<ubyte*>(ptr)+offset, size_);
 
-		return weak_mem_block();
+		return mem_block();
 	}
 
-	weak_mem_block
+	mem_block
 	owner_mem_block::sub_block(usize offset) const
 	{
 		if(offset < size)
-			return weak_mem_block(reinterpret_cast<ubyte*>(ptr)+offset, size-offset);
+			return mem_block(reinterpret_cast<ubyte*>(ptr)+offset, size-offset);
 
-		return weak_mem_block();
+		return mem_block();
 	}
 
-	weak_mem_block
+	mem_block
 	owner_mem_block::release()
 	{
 		auto result = sub_block(0);
@@ -145,6 +145,19 @@ namespace cpprelude
 #endif
 	}
 
+	void
+	virtual_free(owner_mem_block&& block)
+	{
+#if defined(OS_WINDOWS)
+		VirtualFree(block.ptr, block.size, MEM_RELEASE);
+
+		block.ptr = nullptr;
+		block.size = 0;
+#elif defined(OS_LINUX)
+		free(block);
+#endif
+	}
+
 	owner_mem_block
 	alloc(usize size, ubyte alignment)
 	{
@@ -169,6 +182,16 @@ namespace cpprelude
 
 	void
 	free(owner_mem_block& block)
+	{
+		if(block.ptr != nullptr)	
+			std::free(block.ptr);
+
+		block.ptr = nullptr;
+		block.size = 0;
+	}
+
+	void
+	free(owner_mem_block&& block)
 	{
 		if(block.ptr != nullptr)	
 			std::free(block.ptr);

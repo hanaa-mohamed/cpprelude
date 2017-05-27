@@ -53,7 +53,7 @@ namespace cpprelude
 			++_count;
 		}
 		
-		const T&
+		T
 		top() const
 		{
 			return _array[_count-1];

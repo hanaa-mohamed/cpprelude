@@ -2,6 +2,7 @@
 
 #include "cpprelude/defines.h"
 #include "cpprelude/allocator.h"
+#include "cpprelude/bucket_array.h"
 
 namespace cpprelude
 {
@@ -11,41 +12,80 @@ namespace cpprelude
 	struct ring_buffer
 	{
 		bucket_array<T, bucket_size, AllocatorT> _array;
-		usize _count, _write_head, _read_head;
-		
+		usize _capacity, _write_head, _read_head;
 
 		ring_buffer(const AllocatorT& allocator = AllocatorT())
-			:_count(bucket_size), _write_head(0), _read_head(-1)
+			:_capacity(bucket_size),
+			 _write_head(0),
+			 _read_head(0),
+			 _array(allocator)
 		{}
 
 		bool
-		write(const T& value)
+		push(const T& value)
 		{
-			if(_write_head != _read_head)
+			auto write_position = (_write_head + 1) % _capacity;
+			if(write_position != _read_head)
 			{
 				_array[_write_head] = value;
-				_write_head = (_write_head + 1) % _count;
-				return true;
-			}
-			return false;
-		}
-
-		void
-		write(T&& value)
-		{
-			if(_write_head != _read_head)
-			{
-				_array[_write_head] = tmp::move(value);
-				_write_head = (_write_head + 1) % _count;
+				_write_head = write_position;
 				return true;
 			}
 			return false;
 		}
 
 		bool
-		read(T& value)
+		push(T&& value)
 		{
-			if(_read_head != _
+		    auto write_position = (_write_head + 1) % _capacity;
+			if(write_position != _read_head)
+			{
+				_array[_write_head] = value;
+				_write_head = write_position;
+				return true;
+			}
+			return false;
+		}
+
+		T&
+		front()
+		{
+			return _array[_read_head];
+		}
+
+		T
+		front() const
+		{
+			return _array[_read_head];
+		}
+
+		bool
+		pop()
+		{
+			if (_read_head !=  _write_head)
+			{
+				_read_head = (_read_head + 1) % _capacity;
+				return true;
+			}
+
+			return false;
+		}
+
+		usize
+		capacity() const
+		{
+			return _capacity;
+		}
+
+		bool
+		expand()
+		{
+			//if the data isn't wrapped around the end where we will expand
+			if(_write_head < _read_head)
+				return false;
+			_array.expand();
+			_capacity += bucket_size;
+			return true;
 		}
 	};
 }

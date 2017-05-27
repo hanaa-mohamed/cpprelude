@@ -20,10 +20,10 @@ namespace cpprelude
 	struct dlinked_list
 	{
 		using iterator = bidirectional_iterator<T>;
-		using const_iterator = bidirectional_iterator<const T>;
+		using const_iterator = const bidirectional_iterator<T>;
+		using node_type = details::double_node<T>;
 
-		owner_mem_block _head;
-		owner_mem_block _tail;
+		handle<node_type> _head, _tail;
 		usize _count;
 		AllocatorT _allocator;
 
@@ -38,7 +38,7 @@ namespace cpprelude
 		{
 			_init_sentinels();
 
-			for(const auto& value: list)
+			for(auto& value: list)
 				insert_back(value);
 		}
 
@@ -56,12 +56,8 @@ namespace cpprelude
 		{
 			_init_sentinels();
 
-			auto other_it = other._head.template as<owner_mem_block>(sizeof(owner_mem_block));
-			for(usize i = 0; i < other.count(); ++i)
-			{
-				insert_back(*other_it->template as<T>(2*sizeof(owner_mem_block)));
-				other_it = other_it->template as<owner_mem_block>(sizeof(owner_mem_block));
-			}
+			for(const auto& other_value: other)
+				insert_back(other_value);
 		}
 
 		dlinked_list(const dlinked_list<T>& other, const AllocatorT& allocator)
@@ -69,12 +65,8 @@ namespace cpprelude
 		{
 			_init_sentinels();
 
-			auto other_it = other._head.template as<owner_mem_block>(sizeof(owner_mem_block));
-			for(usize i = 0; i < other.count(); ++i)
-			{
-				insert_back(*other_it->template as<T>(2*sizeof(owner_mem_block)));
-				other_it = other_it->template as<owner_mem_block>(sizeof(owner_mem_block));
-			}
+			for(auto& other_value: other)
+				insert_back(other_value);
 		}
 
 		dlinked_list(dlinked_list<T>&& other)
@@ -84,6 +76,8 @@ namespace cpprelude
 			 _allocator(other._allocator)
 		{
 			other._count = 0;
+			other._head.value_ptr = nullptr;
+			other._tail.value_ptr = nullptr;
 		}
 
 		dlinked_list(dlinked_list<T>&& other, const AllocatorT& allocator)
@@ -93,13 +87,16 @@ namespace cpprelude
 			 _allocator(allocator)
 		{
 			other._count = 0;
+			other._head.value_ptr = nullptr;
+			other._tail.value_ptr = nullptr;
 		}
 
 		~dlinked_list()
 		{
 			reset();
-			_allocator.free(_head);
-			_allocator.free(_tail);
+			//remove the sentinals
+			_allocator.free(resurrect(_head));
+			_allocator.free(resurrect(_tail));
 			_count = 0;
 		}
 
@@ -109,12 +106,8 @@ namespace cpprelude
 			reset();
 			_allocator = other._allocator;
 
-			auto other_it = other._head.template as<owner_mem_block>(sizeof(owner_mem_block));
-			for(usize i = 0; i < other.count(); ++i)
-			{
-				insert_back(*other_it->template as<T>(2*sizeof(owner_mem_block)));
-				other_it = other_it->template as<owner_mem_block>(sizeof(owner_mem_block));
-			}
+			for(auto& other_value: other)
+				insert_back(other_value);
 
 			return *this;
 		}
@@ -129,8 +122,10 @@ namespace cpprelude
 			_head = tmp::move(other._head);
 			_tail = tmp::move(other._tail);
 			other._count = 0;
+			other._head.value_ptr = nullptr;
+			other._tail.value_ptr = nullptr;
 
-			return*this;
+			return *this;
 		}
 
 		usize
@@ -173,25 +168,19 @@ namespace cpprelude
 			if(index >= _count * 0.5)
 			{
 				index = _count - index;
-				//traverse from tail
-				auto it = &_tail;
+				auto it = _tail;
 				while(index--)
-				{
-					it = it->template as<owner_mem_block>();
-				}
+					it = it->prev;
 
-				return *(it->template as<T>(2 * sizeof(owner_mem_block)));
+				return it->data;
 			}
 			else
 			{
-				//traverse from head
-				auto it = _head.template as<owner_mem_block>(sizeof(owner_mem_block));
+				auto it = _head->next;
 				while(index--)
-				{
-					it = it->template as<owner_mem_block>(sizeof(owner_mem_block));
-				}
+					it = it->next;
 
-				return *(it->template as<T>(2 * sizeof(owner_mem_block)));
+				return it->data;
 			}
 		}
 
@@ -201,25 +190,19 @@ namespace cpprelude
 			if(index >= _count * 0.5)
 			{
 				index = _count - index;
-				//traverse from tail
-				auto it = &_tail;
+				auto it = _tail;
 				while(index--)
-				{
-					it = it->template as<owner_mem_block>();
-				}
+					it = it->prev;
 
-				return *(it->template as<T>(2 * sizeof(owner_mem_block)));
+				return it->data;
 			}
 			else
 			{
-				//traverse from head
-				auto it = _head.template as<owner_mem_block>(sizeof(owner_mem_block));
+				auto it = _head->next;
 				while(index--)
-				{
-					it = it->template as<owner_mem_block>(sizeof(owner_mem_block));
-				}
+					it = it->next;
 
-				return *(it->template as<T>(2 * sizeof(owner_mem_block)));
+				return it->data;
 			}
 		}
 
@@ -238,24 +221,20 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			handle<node_type> new_node;
+			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
-			//get the first node in the list
-			auto first_node = _head.template as<owner_mem_block>(sizeof(owner_mem_block));
-			//make new_memory_block as previous to the first node
-			*first_node->template as<weak_mem_block>() = new_memory_block.sub_block();
+			auto first_node = _head->next;
 
-			//make _head as previous to new_memory_block
-			new (new_memory_block.template as<weak_mem_block>()) weak_mem_block(_head.sub_block());
+			first_node->prev = new_node;
 
-			//make first_node as next to new_memoey_block
-			new (new_memory_block.template as<weak_mem_block>(sizeof(weak_mem_block))) weak_mem_block(first_node->sub_block());
+			new_node->next = first_node;
 
-			//put the value inside the new_memory_block
-			new (new_memory_block.template as<T>(2*sizeof(weak_mem_block))) T(value);
+			_head->next = new_node;
 
-			//make the head next point to this node
-			new (_head.template as<owner_mem_block>(sizeof(owner_mem_block))) owner_mem_block(tmp::move(new_memory_block));
+			new_node->prev = _head;
+
+			new (&new_node->data) T(value);
 
 			++_count;
 		}
@@ -263,24 +242,18 @@ namespace cpprelude
 		void
 		insert_front(T&& value)
 		{
-			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			handle<node_type> new_node;
+			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
-			//get the first node in the list
-			auto first_node = _head.template as<owner_mem_block>(sizeof(owner_mem_block));
-			//make new_memory_block as previous to the first node
-			*first_node->template as<weak_mem_block>() = new_memory_block.sub_block();
+			auto first_node = _head->next;
 
-			//make _head as previous to new_memory_block
-			new (new_memory_block.template as<weak_mem_block>()) weak_mem_block(_head.sub_block());
+			first_node->prev = new_node;
+			new_node->next = first_node;
 
-			//make first_node as next to new_memoey_block
-			new (new_memory_block.template as<weak_mem_block>(sizeof(weak_mem_block))) weak_mem_block(first_node->sub_block());
+			_head->next = new_node;
+			new_node->prev = _head;
 
-			//put the value inside the new_memory_block
-			new (new_memory_block.template as<T>(2*sizeof(weak_mem_block))) T(tmp::move(value));
-
-			//make the head next point to this node
-			new (_head.template as<owner_mem_block>(sizeof(owner_mem_block))) owner_mem_block(tmp::move(new_memory_block));
+			new (&new_node->data) T(tmp::move(value));
 
 			++_count;
 		}
@@ -295,24 +268,18 @@ namespace cpprelude
 		void
 		insert_back(const T& value)
 		{
-			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			handle<node_type> new_node;
+			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
-			//get the last node in the list
-			auto last_node = _tail.template as<owner_mem_block>();
-			//make the next of last_node point to new_memory_block
-			*last_node->template as<weak_mem_block>(sizeof(weak_mem_block)) = new_memory_block.sub_block();
+			auto last_node = _tail->prev;
 
-			//make last_node as previous to new_memory_block
-			new (new_memory_block.template as<weak_mem_block>()) weak_mem_block(last_node->sub_block());
+			last_node->next = new_node;
+			new_node->prev = last_node;
 
-			//make _tail as next to new_memory_blcok
-			new (new_memory_block.template as<weak_mem_block>(sizeof(weak_mem_block))) weak_mem_block(_tail.sub_block());
+			_tail->prev = new_node;
+			new_node->next = _tail;
 
-			//assign the value
-			new (new_memory_block.template as<T>(2*sizeof(weak_mem_block))) T(value);
-
-			//make new_memory_block as previous to _tail
-			new (_tail.template as<owner_mem_block>()) owner_mem_block(tmp::move(new_memory_block));
+			new (&new_node->data) T(value);
 
 			++_count;
 		}
@@ -320,24 +287,18 @@ namespace cpprelude
 		void
 		insert_back(T&& value)
 		{
-			auto new_memory_block = _allocator.alloc(2*sizeof(owner_mem_block) + sizeof(T));
+			handle<node_type> new_node;
+			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
-			//get the last node in the list
-			auto last_node = _tail.template as<owner_mem_block>();
-			//make the next of last_node point to new_memory_block
-			*last_node->template as<weak_mem_block>(sizeof(weak_mem_block)) = new_memory_block.sub_block();
+			auto last_node = _tail->prev;
 
-			//make last_node as previous to new_memory_block
-			new (new_memory_block.template as<weak_mem_block>()) weak_mem_block(last_node->sub_block());
+			last_node->next = new_node;
+			new_node->prev = last_node;
 
-			//make _tail as next to new_memory_blcok
-			new (new_memory_block.template as<weak_mem_block>(sizeof(weak_mem_block))) weak_mem_block(_tail.sub_block());
+			_tail->prev = new_node;
+			new_node->next = _tail;
 
-			//assign the value
-			new (new_memory_block.template as<T>(2*sizeof(weak_mem_block))) T(tmp::move(value));
-
-			//make new_memory_block as previous to _tail
-			new (_tail.template as<owner_mem_block>()) owner_mem_block(tmp::move(new_memory_block));
+			new (&new_node->data) T(tmp::move(value));
 
 			++_count;
 		}
@@ -345,42 +306,45 @@ namespace cpprelude
 		void
 		remove_front(usize removal_count = 1)
 		{
-			auto it = tmp::move(*_head.template as<owner_mem_block>(sizeof(owner_mem_block)));
+			if(removal_count == 0)
+				return;
 
-			for(usize i = 0; i < removal_count; ++i)
+			auto it = _head->next;
+
+			while(removal_count--)
 			{
-				auto next_block = tmp::move(*it.template as<owner_mem_block>(sizeof(owner_mem_block)));
+				auto next_node = it->next;
 
-				it.template as<T>(2*sizeof(owner_mem_block))->~T();
+				it.destroy();
 
-				_allocator.free(it);
-				it = tmp::move(next_block);
+				_allocator.free(resurrect(it));
+
+				it = next_node;
 				--_count;
 			}
 
-			*it.template as<weak_mem_block>() = _head.sub_block();
-			new (_head.template as<owner_mem_block>(sizeof(owner_mem_block))) owner_mem_block(tmp::move(it));
+			it->prev = _head;
+			_head->next = it;
 		}
 
 		void
 		remove_back(usize removal_count = 1)
 		{
-			auto it = tmp::move(*_tail.template as<owner_mem_block>());
+			auto it = _tail->prev;
 
-			for(usize i = 0; i < removal_count; ++i)
+			while(removal_count--)
 			{
-				auto next_block = tmp::move(*it.template as<owner_mem_block>());
+				auto prev_node = it->prev;
 
-				it.template as<T>(2*sizeof(owner_mem_block))->~T();
+				it.destroy();
+				_allocator.free(resurrect(it));
 
-				_allocator.free(it);
-				it = tmp::move(next_block);
+				it = prev_node;
 				--_count;
 			}
 
-			*it.template as<weak_mem_block>(sizeof(weak_mem_block)) = _tail.sub_block();
-
-			new (_tail.template as<owner_mem_block>()) owner_mem_block(tmp::move(it));
+			it->next = _tail;
+			_tail->prev = it;
 		}
 
 		void
@@ -389,28 +353,23 @@ namespace cpprelude
 			if(_count == 0)
 				return;
 
-			auto it = tmp::move(*_head.template as<owner_mem_block>(sizeof(owner_mem_block)));
+			auto it = _head->next;
+
 			while(_count)
 			{
-				auto next_block = tmp::move(*it.template as<owner_mem_block>(sizeof(owner_mem_block)));
+				auto next_node = it->next;
 
-				it.template as<T>(2*sizeof(owner_mem_block))->~T();
-				_allocator.free(it);
-				it = tmp::move(next_block);
+				it.destroy();
+
+				_allocator.free(resurrect(it));
+
+				it = next_node;
+
 				--_count;
 			}
 
-			it.release();
-
-			//make _tail prev -> _head
-			*_tail.template as<weak_mem_block>() = _head.sub_block();
-			//make _tail next -> empty block
-			new (_tail.template as<owner_mem_block>(sizeof(owner_mem_block))) owner_mem_block();
-
-			//make _head next -> _tail
-			*_head.template as<weak_mem_block>(sizeof(weak_mem_block)) = _tail.sub_block();
-			//make _head prev -> empty block
-			new (_head.template as<owner_mem_block>()) owner_mem_block();
+			_head->next = _tail;
+			_tail->prev = _head;
 		}
 
 		bool
@@ -419,69 +378,62 @@ namespace cpprelude
 			return _count == 0;
 		}
 
-		bidirectional_iterator<const T>
+		const_iterator
 		front() const
 		{
-			return bidirectional_iterator<const T>(*_head.template as<weak_mem_block>(sizeof(weak_mem_block)));
+			return const_iterator(_head->next);
 		}
 
-		bidirectional_iterator<T>
+		iterator
 		front()
 		{
-			return bidirectional_iterator<T>(*_head.template as<weak_mem_block>(sizeof(weak_mem_block)));
+			return iterator(_head->next);
 		}
 
-		bidirectional_iterator<const T>
+		const_iterator
 		back() const
 		{
-			return bidirectional_iterator<const T>(*_tail.template as<weak_mem_block>());
+			return const_iterator(_tail->prev);
 		}
 
-		bidirectional_iterator<T>
+		iterator
 		back()
 		{
-			return bidirectional_iterator<T>(*_tail.template as<weak_mem_block>());
+			return iterator(_tail->prev);
 		}
 
-		bidirectional_iterator<const T>
+		const_iterator
 		begin() const
 		{
-			return bidirectional_iterator<const T>(*_head.template as<weak_mem_block>(sizeof(weak_mem_block)));
+			return const_iterator(_head->next);
 		}
 
-		bidirectional_iterator<T>
+		iterator
 		begin()
 		{
-			return bidirectional_iterator<T>(*_head.template as<weak_mem_block>(sizeof(weak_mem_block)));
+			return iterator(_head->next);
 		}
 
-		bidirectional_iterator<const T>
+		const_iterator
 		end() const
 		{
-			return bidirectional_iterator<const T>(_tail.sub_block());
+			return const_iterator(_tail);
 		}
 
-		bidirectional_iterator<T>
+		iterator
 		end()
 		{
-			return bidirectional_iterator<T>(_tail.sub_block());
+			return iterator(_tail);
 		}
 
 		void
 		_init_sentinels()
 		{
-			_head = _allocator.alloc(2*sizeof(owner_mem_block));
-			_tail = _allocator.alloc(2*sizeof(owner_mem_block));
+			_head.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			_tail.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
-			//make _tail prev -> _head
-			*_tail.template as<weak_mem_block>() = _head.sub_block();
-			//make _tail next -> empty block
-			new (_tail.template as<owner_mem_block>(sizeof(owner_mem_block))) owner_mem_block();
-
-			//make _head next -> _tail
-			*_head.template as<weak_mem_block>(sizeof(weak_mem_block)) = _tail.sub_block();
-			//make _head prev -> empty block
-			new (_head.template as<owner_mem_block>()) owner_mem_block();
+			_tail->prev = _head;
+			_head->next = _tail;
 		}
 	};
 }

@@ -19,7 +19,7 @@ namespace cpprelude
 	struct dynamic_array
 	{
 		using iterator = sequential_iterator<T>;
-		using const_iterator = sequential_iterator<const T>;
+		using const_iterator = const sequential_iterator<T>;
 
 		owner_mem_block _data_block;
 		usize _count;
@@ -99,7 +99,7 @@ namespace cpprelude
 		dynamic_array<T, AllocatorT>&
 		operator=(const dynamic_array<T, AllocatorT>& other)
 		{
-			auto tmp_data_block = _allocator.alloc(other._data_block.size);
+			owner_mem_block tmp_data_block = _allocator.alloc(other._data_block.size);
 			for(usize i = 0; i < other._count; ++i)
 				new (tmp_data_block.template at<T>(i)) T(*other._data_block.template at<T>(i));
 
@@ -288,52 +288,52 @@ namespace cpprelude
 			return _count == 0;
 		}
 
-		sequential_iterator<const T>
+		const_iterator
 		front() const
 		{
-			return sequential_iterator<const T>(_data_block.sub_block(), 0);
+			return const_iterator(_data_block.sub_block(), 0);
 		}
 
-		sequential_iterator<T>
+		iterator
 		front()
 		{
-			return sequential_iterator<T>(_data_block.sub_block(), 0);
+			return iterator(_data_block.sub_block(), 0);
 		}
 
-		sequential_iterator<const T>
+		const_iterator
 		back() const
 		{
-			return sequential_iterator<const T>(_data_block.sub_block(), _count-1);
+			return const_iterator(_data_block.sub_block(), _count-1);
 		}
 
-		sequential_iterator<T>
+		iterator
 		back()
 		{
-			return sequential_iterator<T>(_data_block.sub_block(), _count - 1);
+			return iterator(_data_block.sub_block(), _count - 1);
 		}
 
-		sequential_iterator<const T>
+		const_iterator
 		begin() const
 		{
-			return sequential_iterator<const T>(_data_block.sub_block(), 0);
+			return const_iterator(_data_block.sub_block(), 0);
 		}
 
-		sequential_iterator<T>
+		iterator
 		begin()
 		{
-			return sequential_iterator<T>(_data_block.sub_block(), 0);
+			return iterator(_data_block.sub_block(), 0);
 		}
 
-		sequential_iterator<const T>
+		const_iterator
 		end() const
 		{
-			return sequential_iterator<const T>(_data_block.sub_block(), _count);
+			return const_iterator(_data_block.sub_block(), _count);
 		}
 
-		sequential_iterator<T>
+		iterator
 		end()
 		{
-			return sequential_iterator<T>(_data_block.sub_block(), _count);
+			return iterator(_data_block.sub_block(), _count);
 		}
 
 		void

@@ -7,10 +7,10 @@ namespace cpprelude
 {
 	struct API linear_allocator
 	{
-		weak_mem_block _memory;
+		mem_block _memory;
 		usize _alloc_head, _alloc_count;
 
-		explicit linear_allocator(const weak_mem_block& memory);
+		explicit linear_allocator(const mem_block& memory);
 		~linear_allocator();
 
 		owner_mem_block
@@ -21,6 +21,9 @@ namespace cpprelude
 
 		void
 		free(owner_mem_block& block);
+
+		void
+		free(owner_mem_block&& block);
 	};
 
 	struct API global_allocator
@@ -33,6 +36,9 @@ namespace cpprelude
 
 		void
 		free(owner_mem_block& block);
+
+		void
+		free(owner_mem_block&& block);
 	};
 
 	API linear_allocator
@@ -40,6 +46,5 @@ namespace cpprelude
 
 	API linear_allocator
 	make_stack_allocator(ubyte* ptr, usize size);
-
 
 }

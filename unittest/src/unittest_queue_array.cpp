@@ -33,7 +33,7 @@ TEST_CASE("queue_array test", "[queue_array]")
 
 	SECTION("Case 02")
 	{
-		queue_array<usize> queue(10);
+		queue_array<usize, 10> queue;
 
 
 		CHECK(queue.count() == 0);
@@ -58,7 +58,7 @@ TEST_CASE("queue_array test", "[queue_array]")
 
 	SECTION("Case 03")
 	{
-		queue_array<usize> queue(50);
+		queue_array<usize, 50> queue;
 
 
 		CHECK(queue.count() == 0);
@@ -96,4 +96,5 @@ TEST_CASE("queue_array test", "[queue_array]")
 			CHECK(queue.dequeue());
 		}
 	}
+	
 }

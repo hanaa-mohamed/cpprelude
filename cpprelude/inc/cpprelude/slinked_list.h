@@ -10,7 +10,6 @@
 
 namespace cpprelude
 {
-	
 	/*
 	 * data is layouted this way
 	 * owner_mem_block = [ sizeof(owner_mem_block) | T ]
@@ -21,9 +20,10 @@ namespace cpprelude
 	struct slinked_list
 	{
 		using iterator = forward_iterator<T>;
-		using const_iterator = forward_iterator<const T>;
+		using const_iterator = const forward_iterator<T>;
+		using node_type = details::single_node<T>;
 
-		owner_mem_block _head;
+		handle<node_type> _head;
 		usize _count;
 		AllocatorT _allocator;
 
@@ -53,22 +53,20 @@ namespace cpprelude
 		slinked_list(const slinked_list<T>& other)
 			:_count(0), _allocator(other._allocator)
 		{
-			//pointer to the other data
-			auto other_it = &other._head;
-			//have to pointers to iterate
-			auto it = &_head;
-			for(usize i = 0; i < other._count; ++i)
-			{
-				//allocate a node
-				*it = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
-				//init the next field
-				new (it->template as<owner_mem_block>()) owner_mem_block();
-				//copy the content from the other list
-				new (it->template as<T>(sizeof(owner_mem_block))) T(*other_it->template as<T>(sizeof(owner_mem_block)));
+			auto* other_it = &other._head;
+			auto* it = &_head;
 
-				//get the next node in both lists
-				it = it->template as<owner_mem_block>();
-				other_it = other_it->template as<owner_mem_block>();
+			for(usize i = 0;
+				i < other._count;
+				++i)
+			{
+				it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+
+				//copy the data
+				new (&(*it)->data) T((*other_it)->data);
+
+				it = &(*it)->next;
+				other_it = &(*other_it)->next;
 				++_count;
 			}
 		}
@@ -76,22 +74,20 @@ namespace cpprelude
 		slinked_list(const slinked_list<T>& other, const AllocatorT& allocator)
 			:_count(0), _allocator(allocator)
 		{
-			//pointer to the other data
-			auto other_it = &other._head;
-			//have to pointers to iterate
-			auto it = &_head;
-			for(usize i = 0; i < other._count; ++i)
-			{
-				//allocate a node
-				*it = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
-				//init the next field
-				new (it->template as<owner_mem_block>()) owner_mem_block();
-				//copy the content from the other list
-				new (it->template as<T>(sizeof(owner_mem_block))) T(*other_it->template as<T>(sizeof(owner_mem_block)));
+			auto* other_it = &other._head;
+			auto* it = &_head;
 
-				//get the next node in both lists
-				it = it->template as<owner_mem_block>();
-				other_it = other_it->template as<owner_mem_block>();
+			for(usize i = 0;
+				i < other._count;
+				++i)
+			{
+				it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+
+				//copy the data
+				new (&(*it)->data) T((*other_it)->data);
+
+				it = &(*it)->next;
+				other_it = &(*other_it)->next;
 				++_count;
 			}
 		}
@@ -102,6 +98,7 @@ namespace cpprelude
 			 _allocator(tmp::move(other._allocator))
 		{
 			other._count = 0;
+			other._head.value_ptr = nullptr;
 		}
 
 		slinked_list(slinked_list<T>&& other, const AllocatorT& allocator)
@@ -110,6 +107,7 @@ namespace cpprelude
 			 _allocator(allocator)
 		{
 			other._count = 0;
+			other._head.value_ptr = nullptr;
 		}
 
 		~slinked_list()
@@ -123,22 +121,21 @@ namespace cpprelude
 			reset();
 			
 			_allocator = other._allocator;
-			//pointer to the other data
-			auto other_it = &other._head;
-			//have to pointers to iterate
-			auto it = &_head;
-			for(usize i = 0; i < other._count; ++i)
-			{
-				//allocate a node
-				*it = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
-				//init the next field
-				new (it->template as<owner_mem_block>()) owner_mem_block();
-				//copy the content from the other list
-				new (it->template as<T>(sizeof(owner_mem_block))) T(*other_it->template as<T>(sizeof(owner_mem_block)));
+			
+			auto* other_it = &other._head;
+			auto* it = &_head;
 
-				//get the next node in both lists
-				it = it->template as<owner_mem_block>();
-				other_it = other_it->template as<owner_mem_block>();
+			for(usize i = 0;
+				i < other._count;
+				++i)
+			{
+				it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+
+				//copy the data
+				new (&(*it)->data) T((*other_it)->data);
+
+				it = &(*it)->next;
+				other_it = &(*other_it)->next;
 				++_count;
 			}
 
@@ -153,6 +150,7 @@ namespace cpprelude
 			_head = tmp::move(other._head);
 			_allocator = tmp::move(other._allocator);
 			other._count = 0;
+			other._head.value_ptr = nullptr;
 
 			return *this;
 		}
@@ -180,25 +178,23 @@ namespace cpprelude
 		T&
 		operator[](usize index)
 		{
-			auto it = &_head;
+			auto it = _head;
 			while(index--)
 			{
-				it = it->template as<owner_mem_block>();
+				it = it->next;
 			}
-
-			return *(it->template as<T>(sizeof(owner_mem_block)));
+			return it->data;
 		}
 
 		T
 		operator[](usize index) const
 		{
-			auto it = &_head;
+			auto it = _head;
 			while(index--)
 			{
-				it = it->template as<owner_mem_block>();
+				it = it->next;
 			}
-
-			return *(it->template as<T>(sizeof(owner_mem_block)));
+			return it->data;
 		}
 
 		void
@@ -216,64 +212,82 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			auto new_memory_block = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
-			//move the current head to the next field in memory
-			new (new_memory_block.template as<owner_mem_block>()) owner_mem_block(tmp::move(_head));
-			//move the value to it's corresponding field
-			new (new_memory_block.template as<T>(sizeof(owner_mem_block))) T(value);
+			handle<node_type> new_node;
+			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
-			//now hold the new_memory_block with the now empty _head handle
-			_head = tmp::move(new_memory_block);
+			//copy the data value
+			new (&new_node->data) T(value);
+
+			//move the current head as the next to the new node
+			new_node->next = tmp::move(_head);
+
+			//set the new node as the new head
+			_head = new_node;
+
 			++_count;
 		}
 
 		void
 		insert_front(T&& value)
 		{
-			auto new_memory_block = _allocator.alloc(sizeof(owner_mem_block) + sizeof(T));
-			//move the current head to the next field in memory
-			new (new_memory_block.template as<owner_mem_block>()) owner_mem_block(tmp::move(_head));
-			//move the value to it's corresponding field
-			new (new_memory_block.template as<T>(sizeof(owner_mem_block))) T(tmp::move(value));
+			handle<node_type> new_node;
+			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
-			//now hold the new_memory_block with the now empty _head handle
-			_head = tmp::move(new_memory_block);
+			//copy the data value
+			new (&new_node->data) T(value);
+
+			//move the current head as the next to the new node
+			new_node->next = tmp::move(_head);
+
+			//set the new node as the new head
+			_head = new_node;
+
 			++_count;
 		}
 
 		void
 		remove_front(usize removal_count = 1)
 		{
-			auto it = tmp::move(_head);
-			for (usize i = 0; i < removal_count; ++i)
+			if(removal_count == 0)
+				return;
+
+			auto it = _head;
+			for(usize i = 0;
+				i < removal_count;
+				++i)
 			{
-				auto next_block = tmp::move(*it.template as<owner_mem_block>());
+				//move the next node to the tmp
+				auto next_node = tmp::move(it->next);
 
-				it.template as<T>(sizeof(owner_mem_block))->~T();
+				//destroy the value
+				it.destroy();
 
-				//free the current block
-				_allocator.free(it);
+				//free the memory
+				_allocator.free(resurrect<node_type>(it.value_ptr));
 
-				it = tmp::move(next_block);
+				it = next_node;
 				--_count;
+
 			}
-			_head = tmp::move(it);
+			_head = it;
 		}
 
 		void
 		reset()
 		{
-			auto it = tmp::move(_head);
+			auto it = _head;
 			while(_count)
 			{
-				auto next_block = tmp::move(*it.template as<owner_mem_block>());
+				//move the next node to the tmp
+				auto next_node = it->next;
 
-				it.template as<T>(sizeof(owner_mem_block))->~T();
+				//destroy the value
+				it.destroy();
 
-				//free the current block
-				_allocator.free(it);
-				
-				it = tmp::move(next_block);
+				//free the memory
+				_allocator.free(resurrect<node_type>(it.value_ptr));
+
+				it = next_node;
 				--_count;
 			}
 		}
@@ -284,40 +298,73 @@ namespace cpprelude
 			return _count == 0;
 		}
 
-		forward_iterator<const T>
+		const_iterator
 		front() const
 		{
-			return forward_iterator<const T>(_head.sub_block());
+			return const_iterator(_head);
 		}
 
-		forward_iterator<T>
+		iterator
 		front()
 		{
-			return forward_iterator<T>(_head.sub_block());
+			return iterator(_head);
 		}
 
-		forward_iterator<const T>
+		const_iterator
 		begin() const
 		{
-			return forward_iterator<const T>(_head.sub_block());
+			return const_iterator(_head);
 		}
 
-		forward_iterator<T>
+		iterator
 		begin()
 		{
-			return forward_iterator<T>(_head.sub_block());
+			return iterator(_head);
 		}
 
-		forward_iterator<const T>
+		const_iterator
 		end() const
 		{
-			return forward_iterator<const T>();
+			return const_iterator();
 		}
 
-		forward_iterator<T>
+		iterator
 		end()
 		{
-			return forward_iterator<T>();
+			return iterator();
+		}
+	};
+
+	template<typename T>
+	struct r_node
+	{
+		r_node* next;
+		T data;
+
+		r_node()
+			:next(nullptr)
+		{}
+	};
+
+	template<typename T>
+	struct r_list
+	{
+		r_node<T>* _head;
+
+		r_list()
+			:_head(nullptr)
+		{}
+
+		void
+		insert_front(const T& value)
+		{
+			r_node<T>* new_node = new r_node<T>();
+
+			new (&new_node->data) T(value);
+
+			new_node->next = _head;
+
+			_head = new_node;
 		}
 	};
 }
