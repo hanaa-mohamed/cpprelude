@@ -75,10 +75,9 @@ TEST_CASE("merge_sort test", "[merge_sort]")
 			arr[i] = details::_get_random_index(length);
 		}
 
+		//just playing with lamdas
 		std::function <isize (const usize& , const usize& )> fun = [](const usize& x, const usize& y){
-			if (x < y) return -1;
-			else if (x == y) return 0;
-			return 1;
+			return x < y;
 		};
 
 		CHECK(!is_sorted(arr.begin(), 0, arr.count() - 1), fun);
