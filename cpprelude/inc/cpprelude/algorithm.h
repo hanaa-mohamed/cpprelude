@@ -2,10 +2,11 @@
 
 #include "cpprelude/defines.h"
 #include "cpprelude/tmp.h"
-#include<functional>
 
 #include <random>
 #include <cpprelude/dynamic_array.h>
+
+#include<iostream>
 
 namespace cpprelude
 {
@@ -30,6 +31,8 @@ namespace cpprelude
 
 			return distribution(generator);
 		}
+
+
 	}
 
 	
@@ -50,36 +53,74 @@ namespace cpprelude
 			it = next(it);
 		}
 	}
-
-	template<typename T>
+	
+	template<typename iterator_type>
 	void
-	merge(const dynamic_array<T>& arr, dynamic_array<T>& aux, usize lo, usize mid, usize hi)
+	merge(iterator_type arr, iterator_type aux, usize lo, usize mid, usize hi)
 	{
 		usize i = lo;
 		usize j = mid + 1;
 		usize k = lo;
 		
+		iterator_type arr_at_i = next(arr, i);
+		iterator_type arr_at_j = next(arr, j);
+		iterator_type aux_at_k = next(aux, k);
+
 		while (i < mid + 1 && j <= hi)
 		{
-			if (arr[i] <= arr[j])
-				aux[k++] = arr[i++];
+			
+
+			if ((*arr_at_i) <= (*arr_at_j))
+			{
+				//aux[k++] = arr[i++];
+				*aux_at_k = *arr_at_i;
+
+				aux_at_k = next (aux_at_k);
+				arr_at_i = next(arr_at_i);
+				++i;
+				++k;
+			}
+				
 			else
-				aux[k++] = arr[j++];
+			{
+			//	aux[k++] = arr[j++];
+				*aux_at_k = *arr_at_j;
+				aux_at_k = next(aux_at_k);
+				arr_at_j = next(arr_at_j);
+				++k;
+				++j;
+			}
 		}
 
 		if (j == hi +1 )
 			while (i <= mid)
-				aux[k++] = arr[i++];
+			{
+				//	aux[k++] = arr[i++];
+				*aux_at_k = *arr_at_i;
+				aux_at_k = next(aux_at_k);
+				arr_at_i = next(arr_at_i);
+				++k;
+				++i;
+			}
 	}
-
-	template<typename T>
+	
+	template<typename iterator_type>
 	void
-	merge_sort(dynamic_array<T>& arr)
+	merge_sort(iterator_type arr, usize size)
 	{
 		usize hi = 0;
 		usize mid = 0;
-		usize count = arr.count();
-		dynamic_array<T> aux(arr);
+		usize count = size;
+		dynamic_array<usize> aux(size);
+		iterator_type aux_it = aux.begin();
+		iterator_type end = next(arr, size);
+		iterator_type temp = arr;
+		
+		for (auto& n : aux)
+		{
+			n = *temp;
+			temp = next(temp);
+		}
 		
 		for (usize range = 1; range < count; range += range)
 		{
@@ -87,115 +128,164 @@ namespace cpprelude
 			{
 				mid = lo + range - 1;
 				hi = (mid + range  > count - 1) ? count - 1 : mid + range;
+				
+				temp = next(aux_it, mid);
 
-				if(aux[mid] > aux[mid+1])
-					merge(arr, aux, lo, mid, hi);
+				if((*temp) > (*next(temp)))
+					merge(arr, aux_it, lo, mid, hi);
 			}
-			arr = aux;
+
+			temp = arr;
+			for (auto& n : aux)
+			{
+				*temp = n;
+				temp = next(temp);
+			}
 		}
 	}
 
-	template<typename T>
+	template<typename iterator_type, typename function_type>
 	void
-	_merge(const dynamic_array<T>& arr, dynamic_array<T>& aux, usize lo, usize mid, usize hi,
-		  std::function <isize(const T&, const T&)> compareTo)
+	merge(iterator_type arr, iterator_type aux, usize lo, usize mid, usize hi, function_type compareTo)
 	{
 		usize i = lo;
 		usize j = mid + 1;
 		usize k = lo;
 
+		iterator_type arr_at_i = next(arr, i);
+		iterator_type arr_at_j = next(arr, j);
+		iterator_type aux_at_k = next(aux, k);
+
 		while (i < mid + 1 && j <= hi)
 		{
-			if (compareTo(arr[i] ,arr[j])<=0)
-				aux[k++] = arr[i++];
+
+
+			if (compareTo((*arr_at_i), (*arr_at_j)) <= 0)
+			{
+				//aux[k++] = arr[i++];
+				*aux_at_k = *arr_at_i;
+
+				aux_at_k = next(aux_at_k);
+				arr_at_i = next(arr_at_i);
+				++i;
+				++k;
+			}
+
 			else
-				aux[k++] = arr[j++];
+			{
+				//	aux[k++] = arr[j++];
+				*aux_at_k = *arr_at_j;
+				aux_at_k = next(aux_at_k);
+				arr_at_j = next(arr_at_j);
+				++k;
+				++j;
+			}
 		}
 
 		if (j == hi + 1)
 			while (i <= mid)
-				aux[k++] = arr[i++];
+			{
+				//	aux[k++] = arr[i++];
+				*aux_at_k = *arr_at_i;
+				aux_at_k = next(aux_at_k);
+				arr_at_i = next(arr_at_i);
+				++k;
+				++i;
+			}
 	}
 
-	template<typename T>
+	template<typename iterator_type, typename function_type>
 	void
-	merge_sort(dynamic_array<T>& arr , std::function <isize(const T&, const T&)> compareTo)
+	merge_sort(iterator_type arr, usize size, function_type compareTo)
 	{
 		usize hi = 0;
-		usize count = arr.count();
-		dynamic_array<T> aux(arr);
+		usize mid = 0;
+		usize count = size;
+		 
+		dynamic_array<iterator_type::alias_type> aux(size);
+		iterator_type aux_it = aux.begin();
+		iterator_type end = next(arr, size);
+		iterator_type temp = arr;
+
+		for (auto& n : aux)
+		{
+			n = *temp;
+			temp = next(temp);
+		}
 
 		for (usize range = 1; range < count; range += range)
 		{
 			for (usize lo = 0; lo < count - range; lo += (range + range))
 			{
-				hi = (lo + range + range - 1 > count - 1) ? count - 1 : lo + range + range - 1;
-				_merge(arr, aux, lo, lo + range - 1, hi , compareTo);
+				mid = lo + range - 1;
+				hi = (mid + range  > count - 1) ? count - 1 : mid + range;
+
+				temp = next(aux_it, mid);
+				//arr[mid] > arr[mid+1]
+				if (compareTo((*temp), (*next(temp))) > 0) 
+					merge(arr, aux_it, lo, mid, hi, compareTo);
 			}
-			arr = aux;
+
+			temp = arr;
+			for (auto& n : aux)
+			{
+				*temp = n;
+				temp = next(temp);
+			}
 		}
 	}
-
-	template<typename T>
-	bool
-	is_sorted(const dynamic_array<T> &arr, usize lo , usize hi )
+	
+	template<typename iterator_type>
+	void
+	print(iterator_type it, usize size)
 	{
-		for (usize i = lo; i < hi; i++)
+		for (usize i = 0; i<size; i++)
 		{
-			if (arr[i] > arr[i + 1])
+			std::cout << *it << " ";
+			it = next(it);
+		}std::cout << std::endl;
+	}
+
+	template<typename iterator_type>
+	bool
+	is_sorted(iterator_type arr, usize lo , usize hi )
+	{
+		
+		iterator_type start = next(arr, lo);
+		iterator_type end = next(arr, hi-1);
+		iterator_type next_start = next(start);
+		while (start != end)
+		{
+			
+			if ((*start) > (*next_start))
 				return false;
+
+			start = next(start);
+			next_start = next(next_start);
+
 		}
 		return true;
 	}
 
-	template<typename T>
-	void
-	_partition(dynamic_array<T>& arr, usize start, usize end)
+	template<typename iterator_type, typename function_type>
+	bool
+	is_sorted(iterator_type arr, usize lo, usize hi, function_type compareTo)
 	{
-		//Stoping condiction
-		if (end <= start) return;
 
-		usize lt = start;
-		usize i = start;
-		usize gt = end;
-
-		//Chosing pivot randomly		
-		usize index_pivot = start;// details::_get_random_index(start, end);
-		T pivot = arr[index_pivot];
-		T temp;
-		//Partitioning 
-		while (i <= gt)
+		iterator_type start = next(arr, lo);
+		iterator_type end = next(arr, hi - 1);
+		iterator_type next_start = next(start);
+		while (start != end)
 		{
-			if (arr[i] < pivot)
-			{
-				//swap(arr[lt++], arr[i++]);
-				temp = arr[lt];
-				arr[lt] = arr[i];
-				arr[i] = temp;
-				++lt;
-				++i;
-			}
-			else if (arr[i] > pivot)
-			{
-				//swap(arr[i], arr[gt--]);
-				temp = arr[gt];
-				arr[gt] = arr[i];
-				arr[i] = temp;
-				--gt;
-			}
-			else 
-				++i;
+
+			if (compareTo(*start) , (*next_start) > 0)
+				return false;
+
+			start = next(start);
+			next_start = next(next_start);
+
 		}
-
-		_partition(arr, start, lt - 1);
-		_partition(arr, gt + 1, end);
+		return true;
 	}
 
-	template<typename T>
-	void 
-	quick_sort(dynamic_array<T>& arr)
-	{
-		_partition(arr, 0, arr.count() - 1);		
-	}
-	
 }

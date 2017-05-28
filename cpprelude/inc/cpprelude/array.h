@@ -7,6 +7,7 @@ namespace cpprelude
 	template<typename T, usize fixed_count>
 	struct array
 	{
+		using data_type = T;
 		T _data[fixed_count];
 
 		T&

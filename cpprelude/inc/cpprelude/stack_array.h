@@ -8,6 +8,8 @@ namespace cpprelude
 	template<typename T, typename AllocatorT = global_allocator>
 	struct stack_array
 	{
+		using data_type = T;
+
 		dynamic_array<T, AllocatorT> _array;
 		usize _count;
 
