@@ -22,6 +22,7 @@ namespace cpprelude
 	{
 		using iterator = forward_iterator<T>;
 		using const_iterator = forward_iterator<const T>;
+		using data_type = T;
 
 		owner_mem_block _head;
 		usize _count;

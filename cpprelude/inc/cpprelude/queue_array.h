@@ -7,6 +7,8 @@ namespace cpprelude
 	template<typename T>
 	struct queue_array
 	{
+		using data_type = T;
+
 		dynamic_array<T> _array;
 		usize _first;
 		usize _last;

@@ -8,6 +8,8 @@ namespace cpprelude
 	template<typename T, typename AllocatorT = global_allocator>
 	struct stack_list
 	{
+		using data_type = T;
+
 		slinked_list<T, AllocatorT> _list;
 		
 		stack_list(const AllocatorT& allocator = AllocatorT())

@@ -21,6 +21,7 @@ namespace cpprelude
 	{
 		using iterator = bidirectional_iterator<T>;
 		using const_iterator = bidirectional_iterator<const T>;
+		using data_type = T;
 
 		owner_mem_block _head;
 		owner_mem_block _tail;
