@@ -5,10 +5,28 @@
 
 namespace cpprelude
 {
+	namespace details
+	{
+		template<typename T>
+		struct single_node
+		{
+			handle<single_node<T>> next;
+			T data;
+		};
+
+		template<typename T>
+		struct double_node
+		{
+			handle<double_node<T>> prev;
+			handle<double_node<T>> next;
+			T data;
+		};
+	}
+
 	template<typename T>
 	struct sequential_iterator
 	{
-		weak_mem_block _data_block;
+		mem_block _data_block;
 		usize _count;
 		using data_type = T;
 
@@ -16,7 +34,7 @@ namespace cpprelude
 			:_count(0)
 		{}
 
-		sequential_iterator(weak_mem_block data_block, usize count)
+		sequential_iterator(mem_block data_block, usize count)
 			:_count(count),
 			 _data_block(data_block)
 		{}
@@ -88,40 +106,40 @@ namespace cpprelude
 	struct forward_iterator
 	{
 		using data_type = T;
+		handle<details::single_node<T>> _node;
 
-		weak_mem_block _node_block;
 
 		forward_iterator(){}
 
-		forward_iterator(weak_mem_block node_block)
-			:_node_block(node_block)
+		forward_iterator(handle<details::single_node<T>> node)
+			:_node(node)
 		{}
 
-		forward_iterator<T>&
+		forward_iterator&
 		operator++()
 		{
-			if(_node_block.ptr != nullptr && _node_block.size > 0)
-				_node_block = *_node_block.template as<weak_mem_block>();
+			if(_node)
+				_node = _node->next;
 			return *this;
 		}
 
-		forward_iterator<T>
+		forward_iterator
 		operator++(int)
 		{
 			auto result = *this;
-			if(_node_block.ptr != nullptr && _node_block.size > 0)
-				_node_block = *_node_block.template as<weak_mem_block>();
+			if(_node)
+				_node = _node->next;
 			return result;
 		}
 
 		bool
-		operator==(const forward_iterator<T>& other) const
+		operator==(const forward_iterator& other) const
 		{
-			return _node_block == other._node_block;
+			return _node == other._node;
 		}
 
 		bool
-		operator!=(const forward_iterator<T>& other) const
+		operator!=(const forward_iterator& other) const
 		{
 			return !operator==(other);
 		}
@@ -129,13 +147,13 @@ namespace cpprelude
 		const T&
 		operator*() const
 		{
-			return *_node_block.template as<const T>(sizeof(weak_mem_block));
+			return _node->data;
 		}
 
 		T&
 		operator*()
 		{
-			return *_node_block.template as<T>(sizeof(weak_mem_block));
+			return _node->data;
 		}
 	};
 
@@ -143,74 +161,61 @@ namespace cpprelude
 	struct bidirectional_iterator
 	{
 		using data_type = T;
-		weak_mem_block _node_block;
+		handle<details::double_node<T>> _node;
 
 		bidirectional_iterator(){}
 
-		bidirectional_iterator(weak_mem_block node_block)
-			:_node_block(node_block)
+		bidirectional_iterator(handle<details::double_node<T>> node)
+			:_node(node)
 		{}
 
-		bidirectional_iterator<T>&
+		bidirectional_iterator&
 		operator++()
 		{
-			if(_node_block.ptr != nullptr && _node_block.size > 0)
-			{
-				auto next_block = *_node_block.template as<weak_mem_block>(sizeof(weak_mem_block));
-				if(next_block.ptr != nullptr && next_block.size > 0)
-					_node_block = next_block;
-			}
+			if(_node->next)
+				_node = _node->next;
+
 			return *this;
 		}
 
-		bidirectional_iterator<T>
+		bidirectional_iterator
 		operator++(int)
 		{
 			auto result = *this;
 
-			if(_node_block.ptr != nullptr && _node_block.size > 0)
-			{
-				auto next_block = *_node_block.template as<weak_mem_block>(sizeof(weak_mem_block));
-				if(next_block.ptr != nullptr && next_block.size > 0)
-					_node_block = next_block;
-			}
+			if(_node->next)
+				_node = _node->next;
 
 			return result;
 		}
 
-		bidirectional_iterator<T>&
+		bidirectional_iterator&
 		operator--()
 		{
-			if(_node_block.ptr != nullptr && _node_block.size > 0)
-			{
-				auto prev_block = *_node_block.template as<weak_mem_block>();
-				if(prev_block.ptr != nullptr && prev_block.size > 0)
-					_node_block = prev_block;
-			}
+			if(_node->prev)
+				_node = _node->prev;
 			return *this;
 		}
 
-		bidirectional_iterator<T>
+		bidirectional_iterator
 		operator--(int)
 		{
 			auto result = *this;
-			if(_node_block.ptr != nullptr && _node_block.size > 0)
-			{
-				auto prev_block = *_node_block.template as<weak_mem_block>();
-				if(prev_block.ptr != nullptr && prev_block.size > 0)
-					_node_block = prev_block;
-			}
+			
+			if(_node->prev)
+				_node = _node->prev;
+
 			return result;
 		}
 
 		bool
-		operator==(const bidirectional_iterator<T>& other) const
+		operator==(const bidirectional_iterator& other) const
 		{
-			return _node_block == other._node_block;
+			return _node == other._node;
 		}
 
 		bool
-		operator!=(const bidirectional_iterator<T>& other) const
+		operator!=(const bidirectional_iterator& other) const
 		{
 			return !operator==(other);
 		}
@@ -218,13 +223,13 @@ namespace cpprelude
 		const T&
 		operator*() const
 		{
-			return *_node_block.template as<const T>(2*sizeof(weak_mem_block));
+			return _node->data;
 		}
 
 		T&
 		operator*()
 		{
-			return *_node_block.template as<T>(2*sizeof(weak_mem_block));
+			return _node->data;
 		}
 	};
 

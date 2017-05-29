@@ -52,7 +52,7 @@ namespace cpprelude
 			return false;
 		}
 
-		const T&
+		T
 		front() const
 		{
 			return *_list.front();
@@ -76,5 +76,16 @@ namespace cpprelude
 			return _list.count();
 		}
 
+		owner_mem_block
+		decay()
+		{
+			return _list.decay();
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			return _list.decay_continuous();
+		}
 	};
 }

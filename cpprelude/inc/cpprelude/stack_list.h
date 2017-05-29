@@ -40,7 +40,7 @@ namespace cpprelude
 			_list.insert_front(tmp::move(item));
 		}
 
-		const T&
+		T
 		top() const
 		{
 			return *_list.begin();
@@ -76,6 +76,17 @@ namespace cpprelude
 			return _list.count();
 		}
 
+		owner_mem_block
+		decay()
+		{
+			return _list.decay();
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			return _list.decay_continuous();
+		}
 	};
 
 }

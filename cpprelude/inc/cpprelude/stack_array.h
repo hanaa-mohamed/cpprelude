@@ -55,7 +55,7 @@ namespace cpprelude
 			++_count;
 		}
 		
-		const T&
+		T
 		top() const
 		{
 			return _array[_count-1];
@@ -93,6 +93,20 @@ namespace cpprelude
 		count()
 		{
 			return _count;
+		}
+
+		owner_mem_block
+		decay()
+		{
+			_count = 0;
+			return _array.decay();
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			_count = 0;
+			return _array.decay_continuous();
 		}
 
 	};

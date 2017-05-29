@@ -1,121 +1,66 @@
 #pragma once
 #include "cpprelude/defines.h"
-#include "cpprelude/dynamic_array.h"
+#include "cpprelude/ring_buffer.h"
+#include "cpprelude/allocator.h"
+#include "cpprelude/tmp.h"
 
 namespace cpprelude
 {
-	template<typename T>
+	template<typename T, usize buffer_size = 128, typename AllocatorT = global_allocator>
 	struct queue_array
 	{
 		using data_type = T;
+		ring_buffer<T, buffer_size, AllocatorT> _buffer;
 
-		dynamic_array<T> _array;
-		usize _first;
-		usize _last;
 		usize _count;
 
-		queue_array()
-			:_first(0),_last(0),_count(0)
-		{}
-
-		queue_array(usize count)
-			:_array(count), _first(0), _last(0),_count(0)
+		queue_array(const AllocatorT& allocator = AllocatorT())
+			:_count(0), _buffer(allocator)
 		{}
 
 		void
 		enqueue(const T& item)
 		{
-			if (_count == _array.count())
+			if(!_buffer.push(item))
 			{
-				_array.insert_back(item);
-				++_last;
+				_buffer.expand();
+				_buffer.push(item);
 			}
-			else if (_last == _array.count())
-			{
-				//Shifting array content to start from 0 index
-				for (usize i = _first, j=0; i < _last; i++,j++)
-				{
-					_array[j] = _array[i];
-				}
-				
-				_first = 0;
-				_last = _count +1;
-				_array[_count] = item;
-				
-			}
-			else {
-				_array[_last] = item;
-				++_last;
-			}
-
+			
 			++_count;
-
 		}
 
 		void
 		enqueue(T&& item)
 		{
-			if (_count == _array.count())
+			if(!_buffer.push(tmp::move(item)))
 			{
-				_array.insert_back(tmp::move(item));
-				++_last;
+				_buffer.expand();
+				_buffer.push(tmp::move(item));
 			}
-			else if (_last == _array.count())
-			{
-				//Shifting array content to start from 0 index
-				for (usize i = _first, j = 0; i < _last; i++, j++)
-				{
-					_array[j] = tmp::move(_array[i]);
-				}
-
-				_first = 0;
-				_last = _count + 1;
-				_array[_count] = tmp::move(item);
-
-			}
-			else {
-				_array[_last] = tmp::move(item);
-				++_last;
-			}
-
+			
 			++_count;
 		}
 
 		bool
 		dequeue()
 		{
-			if (_count > 0)
-			{
+			bool result =  _buffer.pop();
+			if(result)
 				--_count;
-				++_first;
-				if (_count <= _array.count() * 0.25)
-				{
-					//Shifting array content to start from 0 index
-					for (usize i = _first, j = 0; i < _last; i++, j++)
-					{
-						_array[j] = _array[i];
-					}
-
-					_first = 0;
-					_last = _count;
-					_array.shrink_back(_array.count() - _count);
-				}
-				return true;
-			}
-
-			return false;
+			return result;
 		}
 
-		const T&
+		T
 		front() const
 		{
-			return _array[_first];
+			return _buffer.front();
 		}
 
 		T&
 		front()
 		{
-			return _array[_first];
+			return _buffer.front();
 		}
 
 		bool
@@ -130,5 +75,18 @@ namespace cpprelude
 			return _count;
 		}
 
+		owner_mem_block
+		decay()
+		{
+			return decay_continuous();
+		}
+
+		owner_mem_block
+		decay_continuous()
+		{
+			auto result = _buffer.decay_continuous(_count);
+			_count = 0;
+			return result;
+		}
 	};
 }
