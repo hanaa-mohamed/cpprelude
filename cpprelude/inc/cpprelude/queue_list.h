@@ -8,6 +8,8 @@ namespace cpprelude
 	template<typename T, typename AllocatorT = global_allocator>
 	struct queue_list
 	{
+		using data_type = T;
+
 		dlinked_list<T, AllocatorT> _list;
 
 		queue_list(const AllocatorT& allocator = AllocatorT())

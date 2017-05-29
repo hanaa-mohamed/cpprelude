@@ -18,6 +18,9 @@
 #include <cpprelude/queue_array.h>
 #include <queue>
 
+#include <cpprelude/algorithm.h>
+#include <algorithm>
+
 #include <iostream>
 
 void
@@ -522,6 +525,30 @@ benchmark_custom_queue_array(cpprelude::usize limit)
 	cpprelude::virtual_free(mem_block);
 }
 
+void
+benchmark_merge_sort(cpprelude::usize limit)
+{
+	std::random_device device;
+	std::mt19937 generator(device());
+	std::uniform_int_distribution<cpprelude::usize> distribution(0, limit);
+
+	stopwatch w;
+	cpprelude::dynamic_array<cpprelude::usize> array;
+
+	for(cpprelude::usize i = 0; i < limit; ++i)
+		array.insert_back(distribution(generator));
+
+	w.start();
+	cpprelude::merge_sort(array.begin(), array.count());
+	w.stop();
+
+	std::cout << "benchmark merge_sort" << std::endl;
+	std::cout << "seconds: " << w.seconds() << std::endl;
+	std::cout << "milliseconds: " << w.milliseconds() << std::endl;
+	std::cout << "microseconds: " << w.microseconds() << std::endl;
+	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
+}
+
 //STD
 
 void
@@ -728,6 +755,54 @@ benchmark_queue(std::size_t limit)
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
 
+void
+benchmark_std_sort(cpprelude::usize limit)
+{
+	std::random_device device;
+	std::mt19937 generator(device());
+	std::uniform_int_distribution<cpprelude::usize> distribution(0, limit);
+
+	stopwatch w;
+	std::vector<cpprelude::usize> array;
+
+	for(cpprelude::usize i = 0; i < limit; ++i)
+		array.push_back(distribution(generator));
+
+	w.start();
+	std::sort(array.begin(), array.end());
+	w.stop();
+
+	std::cout << "benchmark std::sort" << std::endl;
+	std::cout << "seconds: " << w.seconds() << std::endl;
+	std::cout << "milliseconds: " << w.milliseconds() << std::endl;
+	std::cout << "microseconds: " << w.microseconds() << std::endl;
+	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
+}
+
+void
+benchmark_std_stable_sort(cpprelude::usize limit)
+{
+	std::random_device device;
+	std::mt19937 generator(device());
+	std::uniform_int_distribution<cpprelude::usize> distribution(0, limit);
+
+	stopwatch w;
+	std::vector<cpprelude::usize> array;
+
+	for(cpprelude::usize i = 0; i < limit; ++i)
+		array.push_back(distribution(generator));
+
+	w.start();
+	std::stable_sort(array.begin(), array.end());
+	w.stop();
+
+	std::cout << "benchmark std::stable_sort" << std::endl;
+	std::cout << "seconds: " << w.seconds() << std::endl;
+	std::cout << "milliseconds: " << w.milliseconds() << std::endl;
+	std::cout << "microseconds: " << w.microseconds() << std::endl;
+	std::cout << "nanoseconds: " << w.nanoseconds() << std::endl;
+}
+
 void 
 benchmark()
 {
@@ -782,4 +857,12 @@ benchmark()
 	benchmark_queue_array(limit);
 	std::cout << std::endl;
 	benchmark_custom_queue_array(limit);
+
+	std::cout <<"============================================================"<< std::endl;
+
+	benchmark_std_sort(limit);
+	std::cout << std::endl;
+	benchmark_merge_sort(limit);
+	std::cout << std::endl;
+	benchmark_std_stable_sort(limit);
 }

@@ -21,6 +21,7 @@ namespace cpprelude
 	{
 		using iterator = bidirectional_iterator<T>;
 		using const_iterator = const bidirectional_iterator<T>;
+		using data_type = T;
 		using node_type = details::double_node<T>;
 
 		handle<node_type> _head, _tail;

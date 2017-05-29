@@ -9,7 +9,9 @@ namespace cpprelude
 	template<typename T, usize buffer_size = 128, typename AllocatorT = global_allocator>
 	struct queue_array
 	{
+		using data_type = T;
 		ring_buffer<T, buffer_size, AllocatorT> _buffer;
+
 		usize _count;
 
 		queue_array(const AllocatorT& allocator = AllocatorT())

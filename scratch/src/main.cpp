@@ -133,5 +133,6 @@ main(int argc, char** argv)
 	benchmark();
 	//shuffle_test();
 	scratch();
+
 	return 0;
 }

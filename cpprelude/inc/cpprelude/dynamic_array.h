@@ -20,6 +20,7 @@ namespace cpprelude
 	{
 		using iterator = sequential_iterator<T>;
 		using const_iterator = const sequential_iterator<T>;
+		using data_type = T;
 
 		owner_mem_block _data_block;
 		usize _count;

@@ -21,6 +21,7 @@ namespace cpprelude
 	{
 		using iterator = forward_iterator<T>;
 		using const_iterator = const forward_iterator<T>;
+		using data_type = T;
 		using node_type = details::single_node<T>;
 
 		handle<node_type> _head;

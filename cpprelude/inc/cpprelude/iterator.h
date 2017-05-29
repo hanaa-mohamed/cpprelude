@@ -28,6 +28,7 @@ namespace cpprelude
 	{
 		mem_block _data_block;
 		usize _count;
+		using data_type = T;
 
 		sequential_iterator()
 			:_count(0)
@@ -104,7 +105,9 @@ namespace cpprelude
 	template<typename T>
 	struct forward_iterator
 	{
+		using data_type = T;
 		handle<details::single_node<T>> _node;
+
 
 		forward_iterator(){}
 
@@ -157,6 +160,7 @@ namespace cpprelude
 	template<typename T>
 	struct bidirectional_iterator
 	{
+		using data_type = T;
 		handle<details::double_node<T>> _node;
 
 		bidirectional_iterator(){}

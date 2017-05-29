@@ -11,6 +11,8 @@ namespace cpprelude
 			 typename AllocatorT = global_allocator>
 	struct ring_buffer
 	{
+		using data_type = T;
+		
 		bucket_array<T, bucket_size, AllocatorT> _array;
 		usize _capacity, _write_head, _read_head;
 

@@ -11,6 +11,8 @@ namespace cpprelude
 			 typename AllocatorT = global_allocator>
 	struct bucket_array
 	{
+		using data_type = T;
+		
 		owner_mem_block _memory;
 		AllocatorT _allocator;
 		handle<bucket_array> _next;
