@@ -4,8 +4,6 @@
 
 using namespace cpprelude;
 
-
-
 TEST_CASE("merge_sort test", "[merge_sort]")
 {
 
@@ -24,14 +22,14 @@ TEST_CASE("merge_sort test", "[merge_sort]")
 		}
 
 		dynamic_array<usize> aux(arr);
-				
-		CHECK(!is_sorted(aux.begin(), 0, aux.count() - 1));
-		merge(arr.begin(), aux.begin(), 0, 4, 9);
-		CHECK(is_sorted(aux.begin(), 0, aux.count() - 1));
 
-		CHECK(!is_sorted(arr.begin(), 0, arr.count() - 1));
+		CHECK(!cpprelude::is_sorted(aux.begin(), aux.end()));
+		cpprelude::_merge(arr.begin(), aux.begin(), 0, 4, 9);
+		CHECK(cpprelude::is_sorted(aux.begin(), aux.end()));
+
+		CHECK(!cpprelude::is_sorted(arr.begin(), arr.end()));
 		merge_sort(arr.begin(),arr.count());
-		CHECK(is_sorted(arr.begin(), 0, arr.count() - 1));
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.end()));
 				
 	}
 	
@@ -45,9 +43,9 @@ TEST_CASE("merge_sort test", "[merge_sort]")
 			arr[i] = details::_get_random_index(length);
 		}
 		
-		CHECK(!is_sorted(arr.begin(), 0, arr.count() - 1));
+		CHECK(!cpprelude::is_sorted(arr.begin(), arr.end()));
 		merge_sort(arr.begin(), arr.count());
-		CHECK(is_sorted(arr.begin(), 0, arr.count() - 1));
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.end()));
 	}
 
 	SECTION("Case 03")
@@ -60,9 +58,9 @@ TEST_CASE("merge_sort test", "[merge_sort]")
 			arr[i] = details::_get_random_index(length);
 		}
 
-		CHECK(!is_sorted(arr.begin(), 0, arr.count() - 1));
+		CHECK(!cpprelude::is_sorted(arr.begin(), arr.end()));
 		merge_sort(arr.begin(), arr.count());
-		CHECK(is_sorted(arr.begin(), 0, arr.count() - 1));
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.end()));
 	}
 
 	SECTION("Case 04")
@@ -76,13 +74,13 @@ TEST_CASE("merge_sort test", "[merge_sort]")
 		}
 
 		//just playing with lamdas
-		std::function <isize (const usize& , const usize& )> fun = [](const usize& x, const usize& y){
+		std::function <bool (const usize& , const usize& )> fun = [](const usize& x, const usize& y){
 			return x < y;
 		};
 
-		CHECK(!is_sorted(arr.begin(), 0, arr.count() - 1), fun);
+		CHECK(!cpprelude::is_sorted(arr.begin(), arr.end(), fun));
 		merge_sort(arr.begin(), arr.count(), fun);
-		CHECK(is_sorted(arr.begin(), 0, arr.count() - 1), fun);
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.end(), fun));
 	}
 	
 }

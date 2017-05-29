@@ -10,6 +10,7 @@ namespace cpprelude
 {
 	namespace details
 	{
+
 		inline usize
 		_get_random_index(usize from, usize to)
 		{
@@ -23,11 +24,7 @@ namespace cpprelude
 		inline usize
 		_get_random_index(usize n)
 		{
-			std::random_device device;
-			std::mt19937 generator(device());
-			std::uniform_int_distribution<usize> distribution(0, n);
-
-			return distribution(generator);
+			return _get_random_index(0, n);
 		}
 
 		template<typename T>
@@ -59,23 +56,22 @@ namespace cpprelude
 		}
 	}
 	
-	template<typename iterator_type, typename function_type = details::default_less_than<iterator_type::alias_type>>
+	template<typename iterator_type, typename aux_iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>>
 	void
-	merge(iterator_type arr, iterator_type aux, usize lo, usize mid, usize hi, function_type lessThan = function_type())
+	_merge(iterator_type begin_it, aux_iterator_type aux_it, usize lo, usize mid, usize hi, function_type less_than = function_type())
 	{
 		usize i = lo;
 		usize j = mid + 1;
 		usize k = lo;
 
-		iterator_type arr_at_i = next(arr, i);
-		iterator_type arr_at_j = next(arr, j);
-		iterator_type aux_at_k = next(aux, k);
+		iterator_type arr_at_i = next(begin_it, i);
+		iterator_type arr_at_j = next(begin_it, j);
+		aux_iterator_type aux_at_k = next(aux_it, k);
 
+		//loop through the two halfs and do merge
 		while (i < mid + 1 && j <= hi)
 		{
-
-
-			if (lessThan((*arr_at_i), (*arr_at_j)))
+			if (less_than((*arr_at_i), (*arr_at_j)))
 			{
 				//aux[k++] = arr[i++];
 				*aux_at_k = *arr_at_i;
@@ -97,6 +93,7 @@ namespace cpprelude
 			}
 		}
 
+		//if the second half has been consumed first then we move the rest of the first half to the back
 		if (j == hi + 1)
 			while (i <= mid)
 			{
@@ -109,65 +106,67 @@ namespace cpprelude
 			}
 	}
 
-	template<typename iterator_type, typename Comparator = details::default_less_than<iterator_type::alias_type>>
+	template<typename iterator_type, typename Comparator = details::default_less_than<typename iterator_type::data_type>>
 	void
-	merge_sort(iterator_type arr, usize size, Comparator lessThan = Comparator())
+	merge_sort(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{
-		usize hi = 0;
-		usize mid = 0;
-		usize count = size;
-
-		dynamic_array<iterator_type::alias_type> aux(size);
+		dynamic_array<typename iterator_type::data_type> aux(count);
 		iterator_type aux_it = aux.begin();
-		iterator_type end = next(arr, size);
-		iterator_type temp = arr;
+		iterator_type end_it = next(begin_it, count);
+		iterator_type tmp_it = begin_it;
 
+		//so you copy the array to the aux 
 		for (auto& n : aux)
 		{
-			n = *temp;
-			temp = next(temp);
+			n = *tmp_it;
+			tmp_it = next(tmp_it);
 		}
 
-		for (usize range = 1; range < count; range += range)
+		//this is a bottom up merge sort so we start with rng_count = 1 then double each time
+		for (usize rng_count = 1; rng_count < count; rng_count *= 2)
 		{
-			for (usize lo = 0; lo < count - range; lo += (range + range))
+			//for each range in the array
+			for (usize lo = 0; lo < count - rng_count; lo += (rng_count*2))
 			{
-				mid = lo + range - 1;
-				hi = (mid + range  > count - 1) ? count - 1 : mid + range;
-
-				temp = next(aux_it, mid);
+				//calculate the mid point
+				usize mid = lo + rng_count - 1;
+				//calculate the high point
+				usize hi = (mid + rng_count  > count - 1) ? count - 1 : mid + rng_count;
+				
+				tmp_it = next(aux_it, mid);
 				//arr[mid+1] < arr[mid]
-				if (lessThan(*next(temp) , *temp))
-					merge(arr, aux_it, lo, mid, hi, lessThan);
+				//if the first element in the second half is less than the last element in the first half
+				if (less_than(*next(tmp_it) , *tmp_it))
+					//if this is the case then merge the two halfs
+					_merge(begin_it, aux_it, lo, mid, hi, less_than);
 			}
 
-			temp = arr;
+			//commit the range back to the original array
+			tmp_it = begin_it;
 			for (auto& n : aux)
 			{
-				*temp = n;
-				temp = next(temp);
+				*tmp_it = n;
+				tmp_it = next(tmp_it);
 			}
 		}
 	}
 
 
-	template<typename iterator_type, typename Comparator = details::default_less_than<iterator_type::alias_type>>
+	template<typename iterator_type, typename Comparator = details::default_less_than<typename iterator_type::data_type>>
 	bool
-	is_sorted(iterator_type arr, usize lo, usize hi, Comparator lessThan = Comparator())
+	is_sorted(iterator_type begin_it, iterator_type end_it, Comparator less_than = Comparator())
 	{
+		iterator_type a = begin_it;
+		iterator_type b = next(a);
 
-		iterator_type start = next(arr, lo);
-		iterator_type end = next(arr, hi - 1);
-		iterator_type next_start = next(start);
-		while (start != end)
+		while (b != end_it)
 		{
 
-			if (lessThan(*next_start ,*start))
+			if (less_than(*b ,*a))
 				return false;
 
-			start = next(start);
-			next_start = next(next_start);
-
+			a = b;
+			b = next(b);
 		}
 		return true;
 	}

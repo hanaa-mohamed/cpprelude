@@ -10,7 +10,7 @@ namespace cpprelude
 	{
 		weak_mem_block _data_block;
 		usize _count;
-		using alias_type = T;
+		using data_type = T;
 
 		sequential_iterator()
 			:_count(0)
@@ -87,7 +87,7 @@ namespace cpprelude
 	template<typename T>
 	struct forward_iterator
 	{
-		using alias_type = T;
+		using data_type = T;
 
 		weak_mem_block _node_block;
 
@@ -142,7 +142,7 @@ namespace cpprelude
 	template<typename T>
 	struct bidirectional_iterator
 	{
-		using alias_type = T;
+		using data_type = T;
 		weak_mem_block _node_block;
 
 		bidirectional_iterator(){}
