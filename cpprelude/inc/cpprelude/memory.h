@@ -12,7 +12,6 @@ namespace cpprelude
 
 		mem_block(void* ptr, usize size);
 	    mem_block();
-		~mem_block();
 
 		bool
 		operator==(const mem_block& other) const;
@@ -141,6 +140,10 @@ namespace cpprelude
 
 		handle()
 			:value_ptr(nullptr)
+		{}
+
+		handle(T* ptr)
+			:value_ptr(ptr)
 		{}
 
 		handle(const handle&) = default;

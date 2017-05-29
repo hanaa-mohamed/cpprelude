@@ -16,12 +16,6 @@ namespace cpprelude
 		:ptr(nullptr), size(0)
 	{}
 
-	mem_block::~mem_block()
-	{
-		ptr = nullptr;
-		size = 0;
-	}
-
 	bool
 	mem_block::operator==(const mem_block& other) const
 	{

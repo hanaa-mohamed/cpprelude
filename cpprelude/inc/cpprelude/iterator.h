@@ -26,23 +26,17 @@ namespace cpprelude
 	template<typename T>
 	struct sequential_iterator
 	{
-		mem_block _data_block;
-		usize _count;
+		T* _element;
 		using data_type = T;
 
-		sequential_iterator()
-			:_count(0)
-		{}
-
-		sequential_iterator(mem_block data_block, usize count)
-			:_count(count),
-			 _data_block(data_block)
+		sequential_iterator(T* ptr)
+			:_element(ptr)
 		{}
 
 		sequential_iterator<T>&
 		operator++()
 		{
-			_count++;
+			_element++;
 			return *this;
 		}
 
@@ -50,14 +44,14 @@ namespace cpprelude
 		operator++(int)
 		{
 			auto result = *this;
-			_count++;
+			_element++;
 			return result;
 		}
 
 		sequential_iterator<T>&
 		operator--()
 		{
-			--_count;
+			--_element;
 			return *this;
 		}
 
@@ -65,22 +59,14 @@ namespace cpprelude
 		operator--(int)
 		{
 			auto result = *this;
-			--_count;
+			--_element;
 			return result;
 		}
 
 		bool
 		operator==(const sequential_iterator<T>& other) const
 		{
-			if(_data_block == other._data_block)
-			{
-				//if the two iterator is out of memory region then they are equal 
-				if(_count >= _data_block.size / sizeof(T) && other._count >= other._data_block.size / sizeof(T))
-					return true;
-				else if(_count == other._count)
-					return true;
-			}
-			return false;
+			return _element == other._element;
 		}
 
 		bool
@@ -92,13 +78,13 @@ namespace cpprelude
 		const T&
 		operator*() const
 		{
-			return *_data_block.template at<const T>(_count);
+			return *_element;
 		}
 
 		T&
 		operator*()
 		{
-			return *_data_block.template at<T>(_count);
+			return *_element;
 		}
 	};
 
@@ -255,7 +241,7 @@ namespace cpprelude
 	sequential_iterator<T>
 	next(sequential_iterator<T> it, usize n = 1)
 	{
-		it._count += n;
+		it._element += n;
 		return it;
 	}
 
@@ -263,7 +249,7 @@ namespace cpprelude
 	sequential_iterator<T>
 	prev(sequential_iterator<T> it, usize n = 1)
 	{
-		it._count -= n;
+		it._element -= n;
 		return it;
 	}
 }

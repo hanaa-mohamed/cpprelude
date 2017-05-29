@@ -292,49 +292,49 @@ namespace cpprelude
 		const_iterator
 		front() const
 		{
-			return const_iterator(_data_block.sub_block(), 0);
+			return const_iterator(_data_block.template as<T>());
 		}
 
 		iterator
 		front()
 		{
-			return iterator(_data_block.sub_block(), 0);
+			return iterator(_data_block.template as<T>());
 		}
 
 		const_iterator
 		back() const
 		{
-			return const_iterator(_data_block.sub_block(), _count-1);
+			return const_iterator(_data_block.template at<T>(_count-1));
 		}
 
 		iterator
 		back()
 		{
-			return iterator(_data_block.sub_block(), _count - 1);
+			return iterator(_data_block.template at<T>(_count-1));
 		}
 
 		const_iterator
 		begin() const
 		{
-			return const_iterator(_data_block.sub_block(), 0);
+			return const_iterator(_data_block.template as<T>());
 		}
 
 		iterator
 		begin()
 		{
-			return iterator(_data_block.sub_block(), 0);
+			return iterator(_data_block.template as<T>());
 		}
 
 		const_iterator
 		end() const
 		{
-			return const_iterator(_data_block.sub_block(), _count);
+			return const_iterator(_data_block.template at<T>(_count));
 		}
 
 		iterator
 		end()
 		{
-			return iterator(_data_block.sub_block(), _count);
+			return iterator(_data_block.template at<T>(_count));
 		}
 
 		owner_mem_block

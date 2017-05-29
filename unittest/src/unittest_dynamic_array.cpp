@@ -283,9 +283,6 @@ TEST_CASE("dynamic_array test", "[dynamic_array]")
 		it = next(it);
 		CHECK(it != array.begin());
 		it = next(it);
-		it = next(it);
-		it = next(it);
-		it = next(it);
 		CHECK(it == array.end());
 	}
 
