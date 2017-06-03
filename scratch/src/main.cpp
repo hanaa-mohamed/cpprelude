@@ -150,15 +150,18 @@ scratch()
 	for(cpprelude::usize i = 16; i < 32; i++)
 		array[i] = i;
 
-	cpprelude::dynamic_array<int> arr;
-	arr.insert_back({2,2,2,2,1,1,1,1,0,0,0,0});
+	cpprelude::dlinked_list<int> arr;
+	arr.insert_back({0, 1, 2, 4, 3});
 
-	auto result = cpprelude::_partition_3way(arr.begin(), arr.count());
-	std::cout << "result.less_index = " << result.less_index << std::endl;
-	std::cout << "result.greater_index = " << result.greater_index << std::endl;
-	for (auto& n : arr)
-		std::cout << n << " ";
-	std::cout << "\n";
+	for(int i = 0; i < arr.count(); ++i)
+	{
+		auto result = cpprelude::quick_select(arr.begin(), arr.count(), i);
+		std::cout << "result("<<i<<") = " << *result << std::endl;
+		for(auto n: arr)
+			std::cout << n << ", ";
+		std::cout << "\n";
+		std::cout << "\n";
+	}
 }
 
 int

@@ -37,47 +37,44 @@ namespace cpprelude
 		};
 
 		template<typename iterator_type>
-		struct partition_result
-		{
-			iterator_type iterator;
-			usize index;
-
-			partition_result(iterator_type it, usize ix)
-				:iterator(it), index(ix)
-			{}
-		};
-
-		template<typename iterator_type>
-		struct partition_3way_result
-		{
-			iterator_type less_iterator, greater_iterator;
-			usize less_index, greater_index;
-
-			partition_3way_result(iterator_type lt, usize lt_ix, iterator_type gt, usize gt_ix)
-				:less_iterator(lt), less_index(lt_ix),
-				 greater_iterator(gt), greater_index(gt_ix)
-			{}
-		};
-
-		template<typename iterator_type>
-		inline typename iterator_type::data_type&
+		inline iterator_type&
 		_quick_next(iterator_type& it, usize& ix)
 		{
-			it = next(it);
 			++ix;
-			return *it;
+			it = next(it);
+			return it;
 		}
 
 		template<typename iterator_type>
-		inline typename iterator_type::data_type&
+		inline iterator_type&
 		_quick_prev(iterator_type& it, usize& ix)
 		{
-			it = prev(it);
 			--ix;
-			return *it;
+			it = prev(it);
+			return it;
 		}
 	}
 
+	template<typename iterator_type>
+	struct element_marker
+	{
+		iterator_type iterator;
+		usize index;
+
+		element_marker(iterator_type it, usize ix)
+			:iterator(it), index(ix)
+		{}
+	};
+
+	template<typename iterator_type>
+	struct region_marker
+	{
+		element_marker<iterator_type> begin, end;
+
+		region_marker(iterator_type lt, usize lt_ix, iterator_type gt, usize gt_ix)
+			:begin(lt, lt_ix), end(gt, gt_ix)
+		{}
+	};
 
 	template<typename iterator_type>
 	void
@@ -248,11 +245,11 @@ namespace cpprelude
 	//QUICK SORT
 
 	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>>
-	details::partition_result<iterator_type>
+	element_marker<iterator_type>
 	_median_of3(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
 		if(count < 3)
-			return details::partition_result<iterator_type>(begin_it, 0);
+			return element_marker<iterator_type>(begin_it, 0);
 
 		usize b_ix = count / 2.0f;
 		usize c_ix = count-1;
@@ -262,25 +259,25 @@ namespace cpprelude
 
 		if ((less_than(*b, *a) && less_than(*a, *c)) ||
 			(less_than(*c, *a) && less_than(*a, *b)))
-			return details::partition_result<iterator_type>(a, 0);
+			return element_marker<iterator_type>(a, 0);
 
 		if ((less_than(*a, *b) && less_than(*b, *c)) ||
 			(less_than(*c, *b) && less_than(*b, *a)))
-			return details::partition_result<iterator_type>(b, b_ix);
+			return element_marker<iterator_type>(b, b_ix);
 
 		if ((less_than(*b, *c) && less_than(*c, *a)) ||
 			(less_than(*a, *c) && less_than(*c, *b)))
-			return details::partition_result<iterator_type>(c, c_ix);
+			return element_marker<iterator_type>(c, c_ix);
 
-		return details::partition_result<iterator_type>(begin_it, 0);
+		return element_marker<iterator_type>(begin_it, 0);
 	}	
 
 	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>>
-	details::partition_3way_result<iterator_type>
+	region_marker<iterator_type>
 	_partition_3way(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
 		if (count == 0)
-			return details::partition_3way_result<iterator_type>(next(begin_it, count), count, next(begin_it), count);
+			return region_marker<iterator_type>(begin_it, 0, begin_it, 0);
 
 		usize lt_ix = 0;
 		auto  lt_it = begin_it;
@@ -323,41 +320,42 @@ namespace cpprelude
 			}
 		}
 
-		return details::partition_3way_result<iterator_type>(lt_it, lt_ix, gt_it, gt_ix);
+		return region_marker<iterator_type>(lt_it, lt_ix, gt_it, gt_ix);
 	}
 
 	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>>
-	details::partition_result<iterator_type>
+	element_marker<iterator_type>
 	_partition(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
 		if (count == 0)
-			return details::partition_result<iterator_type>(next(begin_it, count), count);
+			return element_marker<iterator_type>(next(begin_it, count), count);
 
 		// we assume that the pivot is the first element so lo_it starts at index = 1
-		usize lo_ix = 1;
-		usize hi_ix = count-1;
-		auto lo_it = next(begin_it);
+		usize lo_ix = 0;
+		usize hi_ix = count;
+		auto lo_it = begin_it;
 		auto hi_it = next(begin_it, hi_ix);
 		auto k_it = begin_it;
 
 		while (true)
 		{
-
-			while (less_than(*lo_it, *k_it))
+			do
 			{
 				lo_it = next(lo_it);
 				++lo_ix;
-				if (lo_ix == count)
-					break;
-			}
 
-			while (less_than(*k_it, *hi_it))
+				if(lo_ix == count)
+					break;
+			}while(less_than(*lo_it, *k_it));
+
+			do
 			{
 				hi_it = prev(hi_it);
 				--hi_ix;
-				if (hi_ix == 0)
+
+				if(hi_ix == 0)
 					break;
-			}
+			}while(less_than(*k_it, *hi_it));
 			
 			//if the indices cross then break
 			if (lo_ix >= hi_ix)
@@ -374,15 +372,15 @@ namespace cpprelude
 		*hi_it = tmp::move(*k_it);
 		*k_it = tmp::move(temp_value);
 
-		return details::partition_result<iterator_type>(hi_it, hi_ix);
+		return element_marker<iterator_type>(hi_it, hi_ix);
 	}
 
 	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>>
-	details::partition_result<iterator_type>
+	element_marker<iterator_type>
 	_select(iterator_type begin_it, usize count, usize k, function_type less_than = function_type())
 	{
 		if (k >= count)
-			return details::partition_result<iterator_type>(next(begin_it, count), count);
+			return element_marker<iterator_type>(next(begin_it, count), count);
 
 		shuffle(begin_it, count);
 
@@ -401,7 +399,7 @@ namespace cpprelude
 				//adjust iterator index
 				it_ix += presult.index+1;
 				//new count
-				it_count = count - (it_ix + 1);
+				it_count = count - it_ix;
 			}
 			//convert from relative index of presult to absolute index of it
 			else if ((it_ix + presult.index) > k)
@@ -416,7 +414,7 @@ namespace cpprelude
 			}
 		}
 
-		return details::partition_result<iterator_type>(next(begin_it, k), k);
+		return element_marker<iterator_type>(next(begin_it, k), k);
 	}
 
 	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>>
@@ -440,18 +438,27 @@ namespace cpprelude
 		return _partition(begin_it, count, less_than).iterator;
 	}
 
-	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>, usize cutoff_limit = 24>
 	void
 	_quick_sort(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
 		if (count <= 1)
 			return;
 
-		auto presult = _partition(begin_it, count, less_than);
-		//sort the first part of the array from begin to partition index
-		_quick_sort(begin_it, presult.index, less_than);
-		//sort the second part of the array from one past the partition iterator to end of array
-		_quick_sort(next(presult.iterator), count - (presult.index + 1), less_than);
+		//use insertion sort when cutoff
+		if(count <= cutoff_limit)
+		{
+			insertion_sort(begin_it, count, less_than);
+		}
+		//continue quick_sort
+		else
+		{
+			auto presult = _partition(begin_it, count, less_than);
+			//sort the first part of the array from begin to partition index
+			_quick_sort(begin_it, presult.index, less_than);
+			//sort the second part of the array from one past the partition iterator to end of array
+			_quick_sort(next(presult.iterator), count - (presult.index + 1), less_than);
+		}
 	}
 
 	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>, usize cutoff_limit = 24>
@@ -471,18 +478,18 @@ namespace cpprelude
 		{
 			auto presult = _partition_3way(begin_it, count, less_than);
 			//sort the first part of the array from begin to partition index
-			_quick_sort_3way(begin_it, presult.less_index, less_than);
+			_quick_sort_3way(begin_it, presult.begin.index, less_than);
 			//sort the second part of the array from one past the partition iterator to end of array
-			_quick_sort_3way(next(presult.greater_iterator), count - (presult.greater_index + 1), less_than);
+			_quick_sort_3way(next(presult.end.iterator), count - (presult.end.index + 1), less_than);
 		}
 	}
 
 	template<typename iterator_type, typename function_type = details::default_less_than<typename iterator_type::data_type>, usize cutoff_limit = 24>
 	void
-	_quick_sort_3way_nr(iterator_type begin_it, usize count, function_type less_than = function_type())
+	_quick_sort_3way_non_recursive(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
-		stack_array<details::partition_result<iterator_type>> call_stack;
-		call_stack.push(details::partition_result<iterator_type>(begin_it, count));
+		stack_array<element_marker<iterator_type>> call_stack;
+		call_stack.push(element_marker<iterator_type>(begin_it, count));
 		
 		while(!call_stack.empty())
 		{
@@ -501,10 +508,10 @@ namespace cpprelude
 			{
 				auto presult = _partition_3way(call.iterator, call.index, less_than);
 				//sort the second part of the array from one past the partition iterator to end of array
-				call_stack.push(details::partition_result<iterator_type>(next(presult.greater_iterator), call.index - (presult.greater_index + 1)));
+				call_stack.push(element_marker<iterator_type>(next(presult.end.iterator), call.index - (presult.end.index + 1)));
 
 				//sort the first part of the array from begin to partition index
-				call_stack.push(details::partition_result<iterator_type>(call.iterator, presult.less_index));
+				call_stack.push(element_marker<iterator_type>(call.iterator, presult.begin.index));
 			}
 		}
 	}
