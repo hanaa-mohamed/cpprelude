@@ -129,10 +129,7 @@ namespace cpprelude
 			
 			while(less_than(*t_it, *t_p_it))
 			{
-
-				auto temp_value = tmp::move(*t_p_it);
-				*t_p_it = tmp::move(*t_it);
-				*t_it = tmp::move(temp_value);
+				tmp::swap(*t_p_it, *t_it);
 
 				t_p_it = prev(t_p_it);
 				t_it = prev(t_it);
@@ -294,9 +291,7 @@ namespace cpprelude
 
 			if(it_l_k)
 			{
-				auto temp_value = tmp::move(*lt_it);
-				*lt_it = tmp::move(*it);
-				*it = tmp::move(temp_value);
+				tmp::swap(*lt_it, *it);
 
 				lt_it = next(lt_it);
 				++lt_ix;
@@ -306,9 +301,7 @@ namespace cpprelude
 			}
 			else if(k_l_it)
 			{
-				auto temp_value = tmp::move(*gt_it);
-				*gt_it = tmp::move(*it);
-				*it = tmp::move(temp_value);
+				tmp::swap(*gt_it, *it);
 
 				gt_it = prev(gt_it);
 				--gt_ix;
@@ -362,15 +355,11 @@ namespace cpprelude
 				break;
 
 			//exchange lo_it and hi_it values
-			auto temp_value = tmp::move(*lo_it);
-			*lo_it = tmp::move(*hi_it);
-			*hi_it = tmp::move(temp_value);
+			tmp::swap(*lo_it, *hi_it);
 		}
 
 		//exchange k with the hi_it
-		auto temp_value = tmp::move(*hi_it);
-		*hi_it = tmp::move(*k_it);
-		*k_it = tmp::move(temp_value);
+		tmp::swap(*hi_it, *k_it);
 
 		return element_marker<iterator_type>(hi_it, hi_ix);
 	}
@@ -522,9 +511,7 @@ namespace cpprelude
 	{
 		auto presult = _median_of3(begin_it, count, less_than);
 
-		auto temp_value = tmp::move(*begin_it);
-		*begin_it = tmp::move(*presult.iterator);
-		*presult.iterator = tmp::move(temp_value);
+		tmp::swap(*begin_it, *presult.iterator);
 
 		_quick_sort_3way(begin_it, count, less_than);
 	}
