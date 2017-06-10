@@ -2,6 +2,9 @@
 
 namespace cpprelude
 {
+	linear_allocator::linear_allocator()
+	{}
+	
 	linear_allocator::linear_allocator(const mem_block& memory)
 		:_memory(memory), _alloc_head(0), _alloc_count(0)
 	{}

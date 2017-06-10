@@ -43,7 +43,7 @@ namespace cpprelude
 		bool
 		dequeue()
 		{
-			if (_list.count() > 0)
+			if (!_list.empty())
 			{
 				_list.remove_front();
 				return true;

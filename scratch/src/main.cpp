@@ -2,9 +2,10 @@
 #include "benchmark.h"
 #include <cpprelude/dynamic_array.h>
 #include <cpprelude/slinked_list.h>
-#include <cpprelude/bucket_array.h>
+#include <cpprelude/bucket_list.h>
 #include <cpprelude/dlinked_list.h>
 #include <cpprelude/algorithm.h>
+#include <cpprelude/bucket_array.h>
 #include <vector>
 #include <cstdlib>
 
@@ -143,7 +144,7 @@ scratch()
 
 	std::cout <<"============================================================"<< std::endl;
 
-	cpprelude::bucket_array<cpprelude::usize, 16> array;
+	cpprelude::bucket_list<cpprelude::usize, 16> array;
 	for(cpprelude::usize i = 0; i < 16; i++)
 		array[i] = i;
 	array.expand();
@@ -162,6 +163,27 @@ scratch()
 		std::cout << "\n";
 		std::cout << "\n";
 	}
+
+	//cpprelude::bucket_array<int, 5> koko;
+
+	// std::cout << "bucket_array content: \n";
+	// for(int& x: koko)
+	// {
+	// 	std::cout << x << " ";
+	// }
+
+	// std::cout << "\n";
+
+	// for(int i = 0; i < 30; ++i)
+	// 	koko.insert_back(i);
+
+	// std::cout << "bucket_array content: \n";
+	// for(int& x: koko)
+	// {
+	// 	std::cout << x << " ";
+	// }
+
+	// std::cout << "\n";
 }
 
 int

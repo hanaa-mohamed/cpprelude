@@ -1,78 +1,70 @@
 #pragma once
 #include "cpprelude/defines.h"
-#include "cpprelude/ring_buffer.h"
+#include "cpprelude/bucket_array.h"
 #include "cpprelude/allocator.h"
 #include "cpprelude/tmp.h"
 
 namespace cpprelude
 {
-	template<typename T, usize buffer_size = 128, typename AllocatorT = global_allocator>
+
+	template<typename T,
+			 usize buffer_size = details::default_size(sizeof(T)),
+			 typename AllocatorT = global_allocator>
 	struct queue_array
 	{
 		using data_type = T;
-		ring_buffer<T, buffer_size, AllocatorT> _buffer;
-
-		usize _count;
+		bucket_array<T, buffer_size, AllocatorT> _list;
 
 		queue_array(const AllocatorT& allocator = AllocatorT())
-			:_count(0), _buffer(allocator)
+			:_list(allocator)
 		{}
 
 		void
 		enqueue(const T& item)
 		{
-			if(!_buffer.push(item))
-			{
-				_buffer.expand();
-				_buffer.push(item);
-			}
-			
-			++_count;
+			_list.insert_back(item);
 		}
 
 		void
 		enqueue(T&& item)
 		{
-			if(!_buffer.push(tmp::move(item)))
-			{
-				_buffer.expand();
-				_buffer.push(tmp::move(item));
-			}
-			
-			++_count;
+			_list.insert_back(tmp::move(item));
 		}
 
 		bool
 		dequeue()
 		{
-			bool result =  _buffer.pop();
-			if(result)
-				--_count;
-			return result;
+			if (!_list.empty())
+			{
+				_list.remove_front();
+				return true;
+			}
+
+			return false;
 		}
 
 		T
 		front() const
 		{
-			return _buffer.front();
+			return *_list.front();
 		}
 
 		T&
 		front()
 		{
-			return _buffer.front();
+			return *_list.front();
 		}
 
 		bool
 		empty()
 		{
-			return _count == 0;
+			return _list.empty();
 		}
 
 		usize
 		count()
 		{
-			return _count;
+			return _list.count();
 		}
 
 		owner_mem_block
@@ -84,9 +76,7 @@ namespace cpprelude
 		owner_mem_block
 		decay_continuous()
 		{
-			auto result = _buffer.decay_continuous(_count);
-			_count = 0;
-			return result;
+			return _list.decay_continuous();
 		}
 	};
 }

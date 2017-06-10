@@ -3,8 +3,6 @@
 #include <Windows.h>
 #endif // OS_WINDOWS
 
-#include <cstdlib>
-
 namespace cpprelude
 {
 	//mem_block 

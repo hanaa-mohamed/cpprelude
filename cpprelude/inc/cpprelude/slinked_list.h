@@ -61,7 +61,8 @@ namespace cpprelude
 				i < other._count;
 				++i)
 			{
-				it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+				*it = _allocator.template alloc<node_type>();
+				// it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 				//copy the data
 				new (&(*it)->data) T((*other_it)->data);
@@ -82,7 +83,8 @@ namespace cpprelude
 				i < other._count;
 				++i)
 			{
-				it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+				*it = _allocator.template alloc<node_type>();
+				// it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 				//copy the data
 				new (&(*it)->data) T((*other_it)->data);
@@ -130,7 +132,8 @@ namespace cpprelude
 				i < other._count;
 				++i)
 			{
-				it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+				*it = _allocator.template alloc<node_type>();
+				// it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 				//copy the data
 				new (&(*it)->data) T((*other_it)->data);
@@ -213,8 +216,8 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			handle<node_type> new_node;
-			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			handle<node_type> new_node = _allocator.template alloc<node_type>();
+			// new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 			//copy the data value
 			new (&new_node->data) T(value);
@@ -231,8 +234,8 @@ namespace cpprelude
 		void
 		insert_front(T&& value)
 		{
-			handle<node_type> new_node;
-			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			handle<node_type> new_node = _allocator.template alloc<node_type>();
+			// new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 			//copy the data value
 			new (&new_node->data) T(value);
@@ -264,7 +267,7 @@ namespace cpprelude
 				it.destroy();
 
 				//free the memory
-				_allocator.free(resurrect<node_type>(it.value_ptr));
+				_allocator.free(it);
 
 				it = next_node;
 				--_count;
@@ -286,7 +289,7 @@ namespace cpprelude
 				it.destroy();
 
 				//free the memory
-				_allocator.free(resurrect<node_type>(it.value_ptr));
+				_allocator.free(it);
 
 				it = next_node;
 				--_count;
