@@ -29,6 +29,10 @@ namespace cpprelude
 		T* _element;
 		using data_type = T;
 
+		sequential_iterator()
+			:_element(nullptr)
+		{}
+
 		sequential_iterator(T* ptr)
 			:_element(ptr)
 		{}
@@ -86,6 +90,18 @@ namespace cpprelude
 		{
 			return *_element;
 		}
+
+		T*
+		operator->()
+		{
+			return _element;
+		}
+
+		const T*
+		operator->() const
+		{
+			return _element;
+		}
 	};
 
 	template<typename T>
@@ -140,6 +156,18 @@ namespace cpprelude
 		operator*()
 		{
 			return _node->data;
+		}
+
+		T*
+		operator->()
+		{
+			return &_node->data;
+		}
+
+		const T*
+		operator->() const
+		{
+			return &_node->data;
 		}
 	};
 
@@ -216,6 +244,149 @@ namespace cpprelude
 		operator*()
 		{
 			return _node->data;
+		}
+
+		T*
+		operator->()
+		{
+			return &_node->data;
+		}
+
+		const T*
+		operator->() const
+		{
+			return &_node->data;
+		}
+	};
+
+	template<typename T, usize bucket_size>
+	struct bucket_array_iterator
+	{
+		using data_type = T;
+		handle<handle<T>> _bucket_it;
+		handle<T> _element_it;
+		usize _index;
+
+		bucket_array_iterator()
+			{}
+
+		bucket_array_iterator(handle<handle<T>> bucket_it,
+							  handle<T> element_it, usize index)
+			:_bucket_it(bucket_it), _element_it(element_it), _index(index)
+		{}
+
+		bucket_array_iterator&
+		operator++()
+		{
+			++_index;
+
+			if (_index >= bucket_size)
+			{
+				_index = 0;
+				++_bucket_it;
+				_element_it = *_bucket_it;
+			}
+			else
+			{
+				++_element_it;
+			}
+
+			return *this;
+		}
+
+		bucket_array_iterator
+		operator++(int)
+		{
+			auto result = *this;
+
+			++_index;
+
+			if (_index >= bucket_size)
+			{
+				_index = 0;
+				++_bucket_it;
+				_element_it = *_bucket_it;
+			}
+			else
+			{
+				++_element_it;
+			}
+
+			return result;
+		}
+
+		bucket_array_iterator&
+		operator--()
+		{
+			if(_index != 0)
+			{
+				--_element_it;
+				--_index;
+			}
+			else
+			{
+				--_bucket_it;
+				_index = bucket_size - 1;
+				_element_it = *_bucket_it + _index;
+			}
+
+			return *this;
+		}
+
+		bucket_array_iterator
+		operator--(int)
+		{
+			auto result = *this;
+
+			if(_index != 0)
+			{
+				--_element_it;
+				--_index;
+			}
+			else
+			{
+				--_bucket_it;
+				_index = bucket_size - 1;
+				_element_it = *_bucket_it + _index;
+			}
+
+			return result;
+		}
+
+		bool
+		operator==(const bucket_array_iterator& other) const
+		{
+			return _element_it == other._element_it;
+		}
+
+		bool
+		operator!=(const bucket_array_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		const T&
+		operator*() const
+		{
+			return *_element_it;
+		}
+
+		T&
+		operator*()
+		{
+			return *_element_it;
+		}
+
+		T*
+		operator->()
+		{
+			return &(*_element_it);
+		}
+
+		const T*
+		operator->() const
+		{
+			return &(*_element_it);
 		}
 	};
 

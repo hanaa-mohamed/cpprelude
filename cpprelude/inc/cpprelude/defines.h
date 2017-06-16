@@ -27,6 +27,9 @@
 #define MEGABYTES(amount) KILOBYTES(amount) * 1024LL
 #define GIGABYTES(amount) MEGABYTES(amount) * 1024LL
 
+#define MAX(a, b) a > b ? a : b
+#define MIN(a, b) a > b ? b : a
+
 namespace cpprelude {
 	//type definitions
 	using ubyte = unsigned char;

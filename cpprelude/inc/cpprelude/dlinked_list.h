@@ -96,8 +96,8 @@ namespace cpprelude
 		{
 			reset();
 			//remove the sentinals
-			_allocator.free(resurrect(_head));
-			_allocator.free(resurrect(_tail));
+			_allocator.free(_head);
+			_allocator.free(_tail);
 			_count = 0;
 		}
 
@@ -222,8 +222,7 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			handle<node_type> new_node;
-			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			handle<node_type> new_node = _allocator.template alloc<node_type>();
 
 			auto first_node = _head->next;
 
@@ -243,8 +242,7 @@ namespace cpprelude
 		void
 		insert_front(T&& value)
 		{
-			handle<node_type> new_node;
-			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			handle<node_type> new_node = _allocator.template alloc<node_type>();
 
 			auto first_node = _head->next;
 
@@ -269,8 +267,7 @@ namespace cpprelude
 		void
 		insert_back(const T& value)
 		{
-			handle<node_type> new_node;
-			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			handle<node_type> new_node = _allocator.template alloc<node_type>();
 
 			auto last_node = _tail->prev;
 
@@ -288,8 +285,7 @@ namespace cpprelude
 		void
 		insert_back(T&& value)
 		{
-			handle<node_type> new_node;
-			new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			handle<node_type> new_node = _allocator.template alloc<node_type>();
 
 			auto last_node = _tail->prev;
 
@@ -318,7 +314,7 @@ namespace cpprelude
 
 				it.destroy();
 
-				_allocator.free(resurrect(it));
+				_allocator.free(it);
 
 				it = next_node;
 				--_count;
@@ -338,7 +334,7 @@ namespace cpprelude
 				auto prev_node = it->prev;
 
 				it.destroy();
-				_allocator.free(resurrect(it));
+				_allocator.free(it);
 
 				it = prev_node;
 				--_count;
@@ -362,7 +358,7 @@ namespace cpprelude
 
 				it.destroy();
 
-				_allocator.free(resurrect(it));
+				_allocator.free(it);
 
 				it = next_node;
 

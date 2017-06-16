@@ -2,7 +2,7 @@
 
 #include "cpprelude/defines.h"
 #include "cpprelude/allocator.h"
-#include "cpprelude/bucket_array.h"
+#include "cpprelude/bucket_list.h"
 
 namespace cpprelude
 {
@@ -13,7 +13,7 @@ namespace cpprelude
 	{
 		using data_type = T;
 		
-		bucket_array<T, bucket_size, AllocatorT> _array;
+		bucket_list<T, bucket_size, AllocatorT> _array;
 		usize _capacity, _write_head, _read_head;
 
 		ring_buffer(const AllocatorT& allocator = AllocatorT())

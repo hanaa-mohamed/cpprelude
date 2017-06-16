@@ -3,6 +3,8 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/tmp.h"
 
+#include <cstdlib>
+
 namespace cpprelude
 {
 	struct API mem_block
@@ -140,6 +142,7 @@ namespace cpprelude
 
 		handle()
 			:value_ptr(nullptr)
+
 		{}
 
 		handle(T* ptr)
@@ -180,10 +183,71 @@ namespace cpprelude
 			new (value_ptr) T(tmp::forward<ArgT>(args)...);
 		}
 
+		template<typename ... ArgT>
+		void
+		construct_inplace(ArgT&& ... args)
+		{
+			new (value_ptr) T(tmp::forward<ArgT>(args)...);
+		}
+
 		void
 		destroy()
 		{
 			value_ptr->~T();
+		}
+
+		handle
+		operator+(const usize& offset)
+		{
+			return handle(value_ptr + offset);
+		}
+
+		handle
+		operator-(const usize& offset)
+		{
+			return handle(value_ptr - offset);
+		}
+
+		handle
+		operator+(const i32& offset)
+		{
+			return handle(value_ptr + offset);
+		}
+
+		handle
+		operator-(const i32& offset)
+		{
+			return handle(value_ptr - offset);
+		}	
+
+		handle
+		operator++()
+		{
+			++value_ptr;
+			return *this;
+		}
+
+		handle
+		operator++(int)
+		{
+			auto result = *this;
+			++value_ptr;
+			return result;
+		}
+
+		handle&
+		operator--()
+		{
+			--value_ptr;
+			return *this;
+		}
+
+		handle
+		operator--(int)
+		{
+			auto result = *this;
+			--value_ptr;
+			return result;
 		}
 
 		T*
@@ -208,6 +272,18 @@ namespace cpprelude
 		operator*() const
 		{
 			return *value_ptr;
+		}
+
+		T&
+		operator[](usize index)
+		{
+			return *(value_ptr + index);
+		}
+
+		T
+		operator[](usize index) const
+		{
+			return *(value_ptr + index);
 		}
 
 		operator
@@ -280,4 +356,23 @@ namespace cpprelude
 	{
 		return owner_mem_block(handle_.value_ptr, size);
 	}
+
+	//handles stuff
+	template<typename T>
+	handle<T>
+	alloc(usize count = 1)
+	{
+		T* ptr = reinterpret_cast<T*>(std::malloc(sizeof(T) * count));
+		return handle<T>(ptr);
+	}
+
+	template<typename T>
+	void
+	free(handle<T>&& value, usize count = 1)
+	{
+		if(value)
+			std::free(value.value_ptr);
+		value.value_ptr = nullptr;
+	}
+
 }

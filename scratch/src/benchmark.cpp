@@ -10,6 +10,7 @@
 
 #include <cpprelude/slinked_list.h>
 #include <cpprelude/dlinked_list.h>
+#include <cpprelude/bucket_array.h>
 #include <list>
 #include <deque>
 #include <forward_list>
@@ -561,6 +562,40 @@ benchmark_custom_queue_array(cpprelude::usize limit)
 }
 
 void
+benchmark_bucket_array(cpprelude::usize limit)
+{
+	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
+
+	stopwatch w;
+
+	for(cpprelude::usize j = 0; j < 100; ++j)
+	{
+		cpprelude::bucket_array<cpprelude::usize> array;
+
+		w.start();
+		for(cpprelude::usize i = 0; i < limit; ++i)
+			array.insert_back(i);
+		w.stop();
+
+		avg_sec += w.seconds();
+		avg_milli += w.milliseconds();
+		avg_micro += w.microseconds();
+		avg_nano += w.nanoseconds();
+	}
+
+	avg_sec /= 100;
+	avg_milli /= 100;
+	avg_micro /= 100;
+	avg_nano /= 100;
+
+	std::cout << "benchmark bucket_array" << std::endl;
+	std::cout << "seconds: " << avg_sec << std::endl;
+	std::cout << "milliseconds: " << avg_milli << std::endl;
+	std::cout << "microseconds: " << avg_micro << std::endl;
+	std::cout << "nanoseconds: " << avg_nano << std::endl;
+}
+
+void
 benchmark_merge_sort(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
@@ -1049,6 +1084,8 @@ benchmark()
 	benchmark_dlinked_list(limit);
 	std::cout << std::endl;
 	benchmark_custom_dlinked_list(limit);
+	std::cout << std::endl;
+	benchmark_bucket_array(limit);
 
 	std::cout <<"============================================================"<< std::endl;
 
