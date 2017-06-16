@@ -37,7 +37,7 @@ TEST_CASE("heap_sort test", "[heap_sort]")
 		}
 
 		CHECK(!cpprelude::is_sorted(arr.begin(), arr.count()));
-		heap_sort(arr);
+		heap_sort(arr.begin(), arr.count());
 		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
 	}
 	
@@ -83,7 +83,7 @@ TEST_CASE("heap_sort test", "[heap_sort]")
 
 		//just playing with lamdas
 		std::function <bool(const usize&, const usize&)> fun = [](const usize& x, const usize& y) {
-			return x < y;
+			return x > y;
 		};
 
 		CHECK(!cpprelude::is_sorted(arr.begin(), arr.count(), fun));

@@ -3,11 +3,10 @@
 #include "cpprelude/dynamic_array.h"
 #include "cpprelude/allocator.h"
 #include "cpprelude/tmp.h"
-#include "algorithm.h"
 
 namespace cpprelude {
 	// Minheap is the default
-	template<typename T, typename AllocatorT = global_allocator, typename Comparator = details::default_less_than<T>>
+	template<typename T, typename Comparator = tmp::default_less_than<T>, typename AllocatorT = global_allocator>
 	struct priority_queue
 	{
 		using data_type = T;
@@ -63,7 +62,7 @@ namespace cpprelude {
 			if (_count == _array.count())
 				_array.insert_back(item);
 			else
-			_array[_count] = item;
+				_array[_count] = item;
 
 			_bubble_up(_count);
 			++_count;
@@ -84,8 +83,7 @@ namespace cpprelude {
 		bool
 		dequeue()
 		{
-			if (_count < 0) return false;
-			//_array[0] = _array[_count - 1];
+			if (_count == 0) return false;
 			tmp::swap(_array[0], _array[_count - 1]);
 			--_count;
 			if (_count <= _array.count() * 0.25)
@@ -108,13 +106,6 @@ namespace cpprelude {
 		{
 			return _array[0];
 		}
-		
-		void
-		_heapify()
-		{
-			for (usize i = 0; i <_count; i++)
-				_bubble_up(i);
-		}
 
 		usize
 		count()
@@ -123,9 +114,16 @@ namespace cpprelude {
 		}
 
 		bool
-		isEmpty()
+		empty()
 		{
 			return _count == 0;
+		}
+
+		void
+		_heapify()
+		{
+			for (usize i = 0; i <_count; i++)
+				_bubble_up(i);
 		}
 
 		void

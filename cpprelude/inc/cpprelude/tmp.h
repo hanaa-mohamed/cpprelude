@@ -7,6 +7,15 @@ namespace cpprelude
 	namespace tmp
 	{
 		template<typename T>
+		struct default_less_than
+		{
+			bool operator()(const T& a, const T& b)
+			{
+				return a < b;
+			}
+		};
+
+		template<typename T>
 		struct remove_reference
 		{ typedef T type; };
 
