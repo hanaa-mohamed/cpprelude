@@ -22,8 +22,8 @@ namespace cpprelude
 			 typename AllocatorT = global_allocator>
 	struct bucket_array
 	{
-		using bucket_type = handle<T>;
-		using map_type = handle<bucket_type>;
+		using bucket_type = T*;
+		using map_type = bucket_type*;
 		using iterator = bucket_array_iterator<T, bucket_size>;
 		using const_iterator = const iterator;
 		using data_type = T;
@@ -35,11 +35,11 @@ namespace cpprelude
 		iterator _cap_begin, _cap_end;
 
 		bucket_array(const AllocatorT& allocator = AllocatorT())
-			:_allocator(allocator), _bucket_count(0), _count(0)
+			:_allocator(allocator), _bucket_count(0), _count(0), _map(nullptr)
 		{ _init(); }
 
 		bucket_array(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
-			:_allocator(allocator), _bucket_count(0), _count(0)
+			:_allocator(allocator), _bucket_count(0), _count(0), _map(nullptr)
 		{
 			_init();
 
@@ -48,7 +48,7 @@ namespace cpprelude
 		}
 
 		bucket_array(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
-			:_allocator(allocator), _bucket_count(0), _count(0)
+			:_allocator(allocator), _bucket_count(0), _count(0), _map(nullptr)
 		{
 			_init();
 
@@ -57,7 +57,7 @@ namespace cpprelude
 		}
 
 		bucket_array(const bucket_array& other)
-			:_count(0), _bucket_count(0), _allocator(other._allocator)
+			:_count(0), _bucket_count(0), _allocator(other._allocator), _map(nullptr)
 		{
 			_init();
 
@@ -66,7 +66,7 @@ namespace cpprelude
 		}
 
 		bucket_array(const bucket_array& other, const AllocatorT& allocator)
-			:_count(0), _bucket_count(0), _allocator(allocator)
+			:_count(0), _bucket_count(0), _allocator(allocator), _map(nullptr)
 		{
 			_init();
 
@@ -82,7 +82,7 @@ namespace cpprelude
 			_cap_end(tmp::move(other._cap_begin)),
 			_begin(tmp::move(other._begin)),
 			_end(tmp::move(other._end)),
-			_map(tmp::move(other._map))
+			_map(other._map)
 		{
 			other._count = 0;
 			other._bucket_count = 0;
@@ -101,7 +101,7 @@ namespace cpprelude
 			 _cap_end(tmp::move(other._cap_begin)),
 			 _begin(tmp::move(other._begin)),
 			 _end(tmp::move(other._end)),
-			 _map(tmp::move(other._map))
+			 _map(other._map)
 		{
 			other._count = 0;
 			other._bucket_count = 0;
@@ -119,10 +119,10 @@ namespace cpprelude
 				for (usize i = 0; i < _bucket_count; ++i)
 				{
 					auto other_handle = _map[i];
-					_allocator.free(other_handle, bucket_size);
+					_allocator.free(make_slice(other_handle, bucket_size));
 				}
 
-				_allocator.free(_map, _bucket_count);
+				_allocator.free(make_slice(_map, _bucket_count));
 			}
 
 			_map = nullptr;
@@ -155,10 +155,10 @@ namespace cpprelude
 				for (usize i = 0; i < _bucket_count; ++i)
 				{
 					auto other_handle = _map[i];
-					_allocator.free(other_handle, bucket_size);
+					_allocator.free(make_slice(other_handle, bucket_size));
 				}
 
-				_allocator.free(_map, _bucket_count);
+				_allocator.free(make_slice(_map, _bucket_count));
 			}
 
 			_allocator = other._allocator;
@@ -168,7 +168,7 @@ namespace cpprelude
 			_cap_end = tmp::move(other._cap_begin);
 			_begin = tmp::move(other._begin);
 			_end = tmp::move(other._end);
-			_map = tmp::move(other._map);
+			_map = other._map;
 
 			other._count = 0;
 			other._bucket_count = 0;
@@ -387,20 +387,20 @@ namespace cpprelude
 			return _end;
 		}
 
-		owner_mem_block
+		slice<T>
 		decay()
 		{
 			return decay_continuous();
 		}
 
-		owner_mem_block
+		slice<T>
 		decay_continuous()
 		{
-			owner_mem_block result = _allocator.alloc(_count * sizeof(T));
+			slice<T> result = _allocator.template alloc(_count);
 			usize i = 0;
 
 			for (auto& value : *this)
-				new (result.template at<T>(i++)) T(tmp::move(value));
+				new (&result[i++]) T(tmp::move(value));
 
 			reset();
 
@@ -430,7 +430,7 @@ namespace cpprelude
 		void
 		_insert_bucket_back(usize count = 1)
 		{
-			auto _new_map = _allocator.template alloc<bucket_type>(_bucket_count + count);
+			bucket_type* _new_map = _allocator.template alloc<bucket_type>(_bucket_count + count);
 
 			usize i = 0;
 			for(; i < _bucket_count; ++i)
@@ -449,7 +449,7 @@ namespace cpprelude
 
 			}
 
-			_allocator.free(_map, _bucket_count);
+			_allocator.free(make_slice(_map, _bucket_count));
 
 			_bucket_count += count;
 
@@ -464,7 +464,7 @@ namespace cpprelude
 		void
 		_insert_bucket_front(usize count = 1)
 		{
-			auto _new_map = _allocator.template alloc<bucket_type>(_bucket_count + count);
+			bucket_type* _new_map = _allocator.template alloc<bucket_type>(_bucket_count + count);
 
 			usize i = count;
 			for (; i < _bucket_count + count; ++i)
@@ -483,7 +483,7 @@ namespace cpprelude
 
 			}
 
-			_allocator.free(_map, _bucket_count);
+			_allocator.free(make_slice(_map, _bucket_count));
 
 			_bucket_count += count;
 

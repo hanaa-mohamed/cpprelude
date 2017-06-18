@@ -76,13 +76,13 @@ namespace cpprelude
 			return _list.count();
 		}
 
-		owner_mem_block
+		slice<typename dlinked_list<T, AllocatorT>::node_type>
 		decay()
 		{
 			return _list.decay();
 		}
 
-		owner_mem_block
+		slice<T>
 		decay_continuous()
 		{
 			return _list.decay_continuous();

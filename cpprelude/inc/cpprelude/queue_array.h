@@ -67,13 +67,13 @@ namespace cpprelude
 			return _list.count();
 		}
 
-		owner_mem_block
+		slice<T>
 		decay()
 		{
 			return decay_continuous();
 		}
 
-		owner_mem_block
+		slice<T>
 		decay_continuous()
 		{
 			return _list.decay_continuous();

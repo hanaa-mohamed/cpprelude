@@ -24,18 +24,18 @@ namespace cpprelude
 		using data_type = T;
 		using node_type = details::double_node<T>;
 
-		handle<node_type> _head, _tail;
+		node_type *_head, *_tail;
 		usize _count;
 		AllocatorT _allocator;
 
 		dlinked_list(const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
 		{
 			_init_sentinels();
 		}
 
 		dlinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
 		{
 			_init_sentinels();
 
@@ -44,7 +44,7 @@ namespace cpprelude
 		}
 
 		dlinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
 		{
 			_init_sentinels();
 
@@ -53,7 +53,7 @@ namespace cpprelude
 		}
 
 		dlinked_list(const dlinked_list<T>& other)
-			:_count(0), _allocator(other._allocator)
+			:_count(0), _allocator(other._allocator), _head(nullptr), _tail(nullptr)
 		{
 			_init_sentinels();
 
@@ -62,7 +62,7 @@ namespace cpprelude
 		}
 
 		dlinked_list(const dlinked_list<T>& other, const AllocatorT& allocator)
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
 		{
 			_init_sentinels();
 
@@ -72,32 +72,32 @@ namespace cpprelude
 
 		dlinked_list(dlinked_list<T>&& other)
 			:_count(other._count),
-			 _head(tmp::move(other._head)),
-			 _tail(tmp::move(other._tail)),
+			 _head(other._head),
+			 _tail(other._tail),
 			 _allocator(other._allocator)
 		{
 			other._count = 0;
-			other._head.value_ptr = nullptr;
-			other._tail.value_ptr = nullptr;
+			other._head = nullptr;
+			other._tail = nullptr;
 		}
 
 		dlinked_list(dlinked_list<T>&& other, const AllocatorT& allocator)
 			:_count(other._count),
-			 _head(tmp::move(other._head)),
-			 _tail(tmp::move(other._tail)),
+			 _head(other._head),
+			 _tail(other._tail),
 			 _allocator(allocator)
 		{
 			other._count = 0;
-			other._head.value_ptr = nullptr;
-			other._tail.value_ptr = nullptr;
+			other._head = nullptr;
+			other._tail = nullptr;
 		}
 
 		~dlinked_list()
 		{
 			reset();
 			//remove the sentinals
-			_allocator.free(_head);
-			_allocator.free(_tail);
+			_allocator.free(make_slice(_head));
+			_allocator.free(make_slice(_tail));
 			_count = 0;
 		}
 
@@ -120,11 +120,11 @@ namespace cpprelude
 			_allocator = other._allocator;
 
 			_count = other._count;
-			_head = tmp::move(other._head);
-			_tail = tmp::move(other._tail);
+			_head = other._head;
+			_tail = other._tail;
 			other._count = 0;
-			other._head.value_ptr = nullptr;
-			other._tail.value_ptr = nullptr;
+			other._head = nullptr;
+			other._tail = nullptr;
 
 			return *this;
 		}
@@ -222,7 +222,7 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			handle<node_type> new_node = _allocator.template alloc<node_type>();
+			node_type* new_node = _allocator.template alloc<node_type>();
 
 			auto first_node = _head->next;
 
@@ -242,7 +242,7 @@ namespace cpprelude
 		void
 		insert_front(T&& value)
 		{
-			handle<node_type> new_node = _allocator.template alloc<node_type>();
+			node_type* new_node = _allocator.template alloc<node_type>();
 
 			auto first_node = _head->next;
 
@@ -267,7 +267,7 @@ namespace cpprelude
 		void
 		insert_back(const T& value)
 		{
-			handle<node_type> new_node = _allocator.template alloc<node_type>();
+			node_type* new_node = _allocator.template alloc<node_type>();
 
 			auto last_node = _tail->prev;
 
@@ -285,7 +285,7 @@ namespace cpprelude
 		void
 		insert_back(T&& value)
 		{
-			handle<node_type> new_node = _allocator.template alloc<node_type>();
+			node_type* new_node = _allocator.template alloc<node_type>();
 
 			auto last_node = _tail->prev;
 
@@ -312,9 +312,9 @@ namespace cpprelude
 			{
 				auto next_node = it->next;
 
-				it.destroy();
+				it->data.~T();
 
-				_allocator.free(it);
+				_allocator.free(make_slice(it));
 
 				it = next_node;
 				--_count;
@@ -333,8 +333,9 @@ namespace cpprelude
 			{
 				auto prev_node = it->prev;
 
-				it.destroy();
-				_allocator.free(it);
+				it->data.~T();
+
+				_allocator.free(make_slice(it));
 
 				it = prev_node;
 				--_count;
@@ -356,9 +357,9 @@ namespace cpprelude
 			{
 				auto next_node = it->next;
 
-				it.destroy();
+				it->data.~T();
 
-				_allocator.free(it);
+				_allocator.free(make_slice(it));
 
 				it = next_node;
 
@@ -423,26 +424,27 @@ namespace cpprelude
 			return iterator(_tail);
 		}
 
-		owner_mem_block
+		slice<node_type>
 		decay()
 		{
-			owner_mem_block result = resurrect(_head);
-			_head.value_ptr = nullptr;
-			_tail.value_ptr = nullptr;
+			slice<node_type> result(_head);
+
+			_head = nullptr;
+			_tail = nullptr;
 			_count = 0;
 			return result;
 		}
 
-		owner_mem_block
+		slice<T>
 		decay_continuous()
 		{
 			//allocate the memory of supplied allocator
-			owner_mem_block result = _allocator.alloc(_count*sizeof(T));
+			auto result = _allocator.template alloc<T>(_count);
 
 			//move the elements over
 			usize i = 0;
 			for(auto&& value: *this)
-				new (result.template at<T>(i++)) T(tmp::move(value));
+				new (&result[i++]) T(tmp::move(value));
 
 			//reset this linked list
 			reset();
@@ -454,11 +456,13 @@ namespace cpprelude
 		void
 		_init_sentinels()
 		{
-			_head.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
-			_tail.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			_head = _allocator.template alloc<node_type>();
+			_tail = _allocator.template alloc<node_type>();
 
 			_tail->prev = _head;
 			_head->next = _tail;
+			_head->prev = nullptr;
+			_tail->next = nullptr;
 		}
 	};
 }
