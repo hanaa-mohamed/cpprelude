@@ -10,16 +10,24 @@ namespace cpprelude
 		template<typename T>
 		struct single_node
 		{
-			handle<single_node<T>> next;
+			single_node<T>* next;
 			T data;
+
+			single_node()
+				:next(nullptr)
+			{}
 		};
 
 		template<typename T>
 		struct double_node
 		{
-			handle<double_node<T>> prev;
-			handle<double_node<T>> next;
+			double_node<T>* prev;
+			double_node<T>* next;
 			T data;
+
+			double_node()
+				:next(nullptr), prev(nullptr)
+			{}
 		};
 	}
 
@@ -108,12 +116,13 @@ namespace cpprelude
 	struct forward_iterator
 	{
 		using data_type = T;
-		handle<details::single_node<T>> _node;
+		details::single_node<T>* _node;
 
+		forward_iterator()
+			:_node(nullptr)
+		{}
 
-		forward_iterator(){}
-
-		forward_iterator(handle<details::single_node<T>> node)
+		forward_iterator(details::single_node<T>* node)
 			:_node(node)
 		{}
 
@@ -175,11 +184,13 @@ namespace cpprelude
 	struct bidirectional_iterator
 	{
 		using data_type = T;
-		handle<details::double_node<T>> _node;
+		details::double_node<T>* _node;
 
-		bidirectional_iterator(){}
+		bidirectional_iterator()
+			:_node(nullptr)
+		{}
 
-		bidirectional_iterator(handle<details::double_node<T>> node)
+		bidirectional_iterator(details::double_node<T>* node)
 			:_node(node)
 		{}
 
@@ -263,15 +274,16 @@ namespace cpprelude
 	struct bucket_array_iterator
 	{
 		using data_type = T;
-		handle<handle<T>> _bucket_it;
-		handle<T> _element_it;
+		T** _bucket_it;
+		T* _element_it;
 		usize _index;
 
 		bucket_array_iterator()
-			{}
+			:_bucket_it(nullptr), _element_it(nullptr), _index(0)
+		{}
 
-		bucket_array_iterator(handle<handle<T>> bucket_it,
-							  handle<T> element_it, usize index)
+		bucket_array_iterator(T** bucket_it,
+							  T* element_it, usize index)
 			:_bucket_it(bucket_it), _element_it(element_it), _index(index)
 		{}
 

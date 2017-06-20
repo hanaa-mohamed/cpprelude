@@ -24,16 +24,16 @@ namespace cpprelude
 		using data_type = T;
 		using node_type = details::single_node<T>;
 
-		handle<node_type> _head;
+		node_type* _head;
 		usize _count;
 		AllocatorT _allocator;
 
 		slinked_list(const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr)
 		{}
 
 		slinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr)
 		{
 			auto it = list.end();
 			it = std::prev(it);
@@ -45,14 +45,14 @@ namespace cpprelude
 		}
 
 		slinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr)
 		{
 			for(usize i = 0; i < count; ++i)
 				insert_front(fill_value);
 		}
 
 		slinked_list(const slinked_list<T>& other)
-			:_count(0), _allocator(other._allocator)
+			:_count(0), _allocator(other._allocator), _head(nullptr)
 		{
 			auto* other_it = &other._head;
 			auto* it = &_head;
@@ -62,7 +62,6 @@ namespace cpprelude
 				++i)
 			{
 				*it = _allocator.template alloc<node_type>();
-				// it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 				//copy the data
 				new (&(*it)->data) T((*other_it)->data);
@@ -74,7 +73,7 @@ namespace cpprelude
 		}
 
 		slinked_list(const slinked_list<T>& other, const AllocatorT& allocator)
-			:_count(0), _allocator(allocator)
+			:_count(0), _allocator(allocator), _head(nullptr)
 		{
 			auto* other_it = &other._head;
 			auto* it = &_head;
@@ -84,7 +83,6 @@ namespace cpprelude
 				++i)
 			{
 				*it = _allocator.template alloc<node_type>();
-				// it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 				//copy the data
 				new (&(*it)->data) T((*other_it)->data);
@@ -97,20 +95,20 @@ namespace cpprelude
 
 		slinked_list(slinked_list<T>&& other)
 			:_count(other._count),
-			 _head(tmp::move(other._head)),
+			 _head(other._head),
 			 _allocator(tmp::move(other._allocator))
 		{
 			other._count = 0;
-			other._head.value_ptr = nullptr;
+			other._head = nullptr;
 		}
 
 		slinked_list(slinked_list<T>&& other, const AllocatorT& allocator)
 			:_count(other._count),
-			 _head(tmp::move(other._head)),
+			 _head(other._head),
 			 _allocator(allocator)
 		{
 			other._count = 0;
-			other._head.value_ptr = nullptr;
+			other._head = nullptr;
 		}
 
 		~slinked_list()
@@ -133,7 +131,6 @@ namespace cpprelude
 				++i)
 			{
 				*it = _allocator.template alloc<node_type>();
-				// it->construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
 
 				//copy the data
 				new (&(*it)->data) T((*other_it)->data);
@@ -151,10 +148,10 @@ namespace cpprelude
 		{
 			reset();
 			_count = other._count;
-			_head = tmp::move(other._head);
+			_head = other._head;
 			_allocator = tmp::move(other._allocator);
 			other._count = 0;
-			other._head.value_ptr = nullptr;
+			other._head = nullptr;
 
 			return *this;
 		}
@@ -216,14 +213,13 @@ namespace cpprelude
 		void
 		insert_front(const T& value)
 		{
-			handle<node_type> new_node = _allocator.template alloc<node_type>();
-			// new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			node_type* new_node = _allocator.template alloc<node_type>();
 
 			//copy the data value
 			new (&new_node->data) T(value);
 
 			//move the current head as the next to the new node
-			new_node->next = tmp::move(_head);
+			new_node->next = _head;
 
 			//set the new node as the new head
 			_head = new_node;
@@ -234,14 +230,13 @@ namespace cpprelude
 		void
 		insert_front(T&& value)
 		{
-			handle<node_type> new_node = _allocator.template alloc<node_type>();
-			// new_node.construct(_allocator.alloc(sizeof(node_type)).template decay<node_type>());
+			node_type* new_node = _allocator.template alloc<node_type>();
 
 			//copy the data value
 			new (&new_node->data) T(value);
 
 			//move the current head as the next to the new node
-			new_node->next = tmp::move(_head);
+			new_node->next = _head;
 
 			//set the new node as the new head
 			_head = new_node;
@@ -261,13 +256,13 @@ namespace cpprelude
 				++i)
 			{
 				//move the next node to the tmp
-				auto next_node = tmp::move(it->next);
+				auto next_node = it->next;
 
 				//destroy the value
-				it.destroy();
+				it->data.~T();
 
 				//free the memory
-				_allocator.free(it);
+				_allocator.free(make_slice(it));
 
 				it = next_node;
 				--_count;
@@ -286,10 +281,10 @@ namespace cpprelude
 				auto next_node = it->next;
 
 				//destroy the value
-				it.destroy();
+				it->data.~T();
 
 				//free the memory
-				_allocator.free(it);
+				_allocator.free(make_slice(it));
 
 				it = next_node;
 				--_count;
@@ -338,25 +333,25 @@ namespace cpprelude
 			return iterator();
 		}
 
-		owner_mem_block
+		slice<node_type>
 		decay()
 		{
-			owner_mem_block result = resurrect(_head);
-			_head.value_ptr = nullptr;
+			slice<node_type> result(_head, sizeof(node_type));
+			_head = nullptr;
 			_count = 0;
 			return result;
 		}
 
-		owner_mem_block
+		slice<T>
 		decay_continuous()
 		{
 			//allocate the memory of the supplied allocator
-			owner_mem_block result = _allocator.alloc(_count*sizeof(T));
+			slice<T> result = _allocator.template alloc(_count);
 
 			//move the elements over
 			usize i = 0;
 			for(auto&& value: *this)
-				new (result.template at<T>(i++)) T(tmp::move(value));
+				new (&result[i++]) T(tmp::move(value));
 
 			//reset this linked list
 			reset();

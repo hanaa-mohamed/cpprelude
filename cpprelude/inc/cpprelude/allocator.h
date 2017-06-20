@@ -5,62 +5,108 @@
 
 namespace cpprelude
 {
-	struct API linear_allocator
+	struct global_allocator
 	{
-		mem_block _memory;
-		usize _alloc_head, _alloc_count;
-
-		linear_allocator();
-		explicit linear_allocator(const mem_block& memory);
-		explicit linear_allocator(mem_block&& memory);
-		~linear_allocator();
-
-		owner_mem_block
-		alloc(usize size, ubyte alignment = 4);
-
-		void
-		realloc(owner_mem_block& block, usize size);
-
-		void
-		free(owner_mem_block& block);
-
-		void
-		free(owner_mem_block&& block);
-
-		//handles stuff
 		template<typename T>
-		handle<T>
-		alloc(usize count = 1)
+		slice<T>
+		alloc(usize count = 1, ubyte alignment = 4)
 		{
-			usize size = sizeof(T) * count;
-			if(size > 0 && _alloc_head + size <= _memory.size)
-			{
-				++_alloc_count;
-				handle<T> result(reinterpret_cast<T*>(reinterpret_cast<ubyte*>(_memory.ptr)+_alloc_head));
-
-				_alloc_head += size;
-
-				return result;
-			}
-
-			return handle<T>();
+			return cpprelude::alloc<T>(count, alignment);
 		}
 
 		template<typename T>
 		void
-		free(handle<T>&& value, usize count = 1)
+		free(slice<T>& slice_)
 		{
-			void* memory_end = reinterpret_cast<ubyte*>(_memory.ptr) + _memory.size;
+			cpprelude::free<T>(slice_);
+		}
 
-			if(value.value_ptr >= _memory.ptr && value.value_ptr < memory_end)
+		template<typename T>
+		void
+		free(slice<T>&& slice_)
+		{
+			cpprelude::free<T>(tmp::move(slice_));
+		}
+
+		template<typename T>
+		void
+		realloc(slice<T>& slice_, usize count)
+		{
+			cpprelude::realloc<T>(slice_, count);
+		}
+
+		template<typename T>
+		void
+		realloc(slice<T>&& slice_, usize count)
+		{
+			cpprelude::realloc<T>(tmp::move(slice_), count);
+		}
+	};
+
+	struct linear_allocator
+	{
+		slice<ubyte> _memory;
+		usize _alloc_head, _alloc_count;
+
+		linear_allocator()
+			:_alloc_count(0), _alloc_head(0)
+		{}
+
+		template<typename T>
+		linear_allocator(slice<T> memory)
+			:_memory(reinterpret_cast<ubyte*>(memory.ptr), memory.size),
+			 _alloc_count(0), _alloc_head(0)
+		{}
+
+		~linear_allocator()
+		{
+			_memory.ptr = nullptr;
+			_memory.size = 0;
+			_alloc_head = 0;
+			_alloc_count = 0;
+		}
+
+		template<typename T>
+		slice<T>
+		alloc(usize count = 1, ubyte alignment = 4)
+		{
+			if(count > 0 && _alloc_head + count * sizeof(T) <= _memory.size)
 			{
-				void* latest_block = reinterpret_cast<ubyte*>(_memory.ptr) + _alloc_head - (sizeof(T) * count);
+				++_alloc_count;
+
+				slice<T> result(reinterpret_cast<T*>(&_memory[_alloc_head]), count * sizeof(T));
+
+				_alloc_head += count * sizeof(T);
+
+				return result;
+			}
+
+			return slice<T>();
+		}
+
+		template<typename T>
+		void
+		free(slice<T>& slice_)
+		{
+			linear_allocator::free(tmp::move(slice_));
+		}
+
+		template<typename T>
+		void
+		free(slice<T>&& slice_)
+		{
+			ubyte* memory_end = _memory.ptr + _memory.size;
+
+			if(reinterpret_cast<ubyte*>(slice_.ptr) >= _memory.ptr && reinterpret_cast<ubyte*>(slice_.ptr) < memory_end)
+			{
+				ubyte* latest_block = _memory.ptr + _alloc_head - slice_.size;
 
 				//if this is the last allocated block then move the head back
-				if(value.value_ptr == latest_block)
-					_alloc_head -= sizeof(T) * count;
+				if(reinterpret_cast<ubyte*>(slice_.ptr) == latest_block)
+					_alloc_head -= slice_.size;
 
-				value.value_ptr = nullptr;
+				slice_.ptr = nullptr;
+				slice_.size = 0;
 				--_alloc_count;
 
 				//if no other allocations exist then free the whole stack
@@ -71,53 +117,50 @@ namespace cpprelude
 
 		template<typename T>
 		void
-		free(handle<T>& value, usize count = 1)
+		realloc(slice<T>& slice_, usize count)
 		{
-			free(tmp::move(value), count);
+			linear_allocator::realloc(tmp::move(slice_), count);
+		}
+
+		template<typename T>
+		void
+		realloc(slice<T>&& slice_, usize count)
+		{
+			ubyte* memory_end = _memory.ptr + _memory.size;
+
+			//if i own this block
+			if(reinterpret_cast<ubyte*>(slice_.ptr) >= _memory.ptr && reinterpret_cast<ubyte*>(slice_.ptr) < memory_end)
+			{
+				//if the block is the latest block allocated then we can just expand it
+				ubyte* latest_block = _memory.ptr + _alloc_head - slice_.size;
+
+				if(reinterpret_cast<ubyte*>(slice_.ptr) == latest_block)
+				{
+					_alloc_head += (count * sizeof(T)) - slice_.size;
+					slice_.size = (count * sizeof(T));
+					return;
+				}
+
+				//else just allocate and copy data
+				slice<T> new_slice = linear_allocator::alloc<T>(count);
+				usize limit = slice_.count() < count ? slice_.count() : count;
+
+				//copy the data from the old to the new
+				for(usize i = 0; i < limit; ++i)
+					new_slice[i] = tmp::move(slice_[i]);
+
+				//now free the old
+				linear_allocator::free(slice_);
+
+				//move the new_slice to the old slice
+				slice_ = tmp::move(new_slice);
+			}
 		}
 	};
 
-	struct API global_allocator
-	{
-		owner_mem_block
-		alloc(usize size, ubyte alignment = 4);
-
-		void
-		realloc(owner_mem_block& block, usize size);
-
-		void
-		free(owner_mem_block& block);
-
-		void
-		free(owner_mem_block&& block);
-
-		//handles stuff
-		template<typename T>
-		handle<T>
-		alloc(usize count = 1)
-		{
-			return cpprelude::alloc<T>(count);
-		}
-
-		template<typename T>
-		void
-		free(handle<T>&& value, usize count = 1)
-		{
-			cpprelude::free(tmp::move(value), count);
-		}
-
-		template<typename T>
-		void
-		free(handle<T>& value, usize count = 1)
-		{
-			cpprelude::free(tmp::move(value), count);
-		}
-	};
-
-	API linear_allocator
-	make_arena_allocator(usize arena_size, owner_mem_block& mem_block);
+	API	linear_allocator
+	make_arena_allocator(usize arena_size, slice<ubyte>& mem_block);
 
 	API linear_allocator
 	make_stack_allocator(ubyte* ptr, usize size);
-
 }

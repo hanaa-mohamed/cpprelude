@@ -64,7 +64,7 @@ benchmark_custom_dynamic_array(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
-	cpprelude::owner_mem_block mem_block;
+	cpprelude::slice<cpprelude::ubyte> mem_block;
 	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
 
 	stopwatch w;
@@ -138,7 +138,7 @@ benchmark_custom_slinked_list(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
-	cpprelude::owner_mem_block mem_block;
+	cpprelude::slice<cpprelude::ubyte> mem_block;
 	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
 	stopwatch w;
 	for(cpprelude::usize j = 0; j < 100; ++j)
@@ -210,7 +210,7 @@ benchmark_custom_dlinked_list(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
-	cpprelude::owner_mem_block mem_block;
+	cpprelude::slice<cpprelude::ubyte> mem_block;
 	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
 	stopwatch w;
 
@@ -281,7 +281,7 @@ benchmark_stack_array(cpprelude::usize limit)
 void
 benchmark_custom_stack_array(cpprelude::usize limit)
 {
-	cpprelude::owner_mem_block mem_block;
+	cpprelude::slice<cpprelude::ubyte> mem_block;
 	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
 
 	stopwatch w;
@@ -344,7 +344,7 @@ benchmark_custom_stack_list(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
-	cpprelude::owner_mem_block mem_block;
+	cpprelude::slice<cpprelude::ubyte> mem_block;
 	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
 
 	stopwatch w;
@@ -419,7 +419,7 @@ benchmark_custom_queue_list(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
-	cpprelude::owner_mem_block mem_block;
+	cpprelude::slice<cpprelude::ubyte> mem_block;
 	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
 
 	stopwatch w;
@@ -526,7 +526,7 @@ benchmark_custom_queue_array(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
-	cpprelude::owner_mem_block mem_block;
+	cpprelude::slice<cpprelude::ubyte> mem_block;
 	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
 
 	stopwatch w;
@@ -1093,6 +1093,7 @@ benchmark_std_heap_sort(cpprelude::usize limit)
 			array.push_back(distribution(generator));
 
 		w.start();
+		std::make_heap(array.begin(), array.end());
 		std::sort_heap(array.begin(), array.end());
 		w.stop();
 

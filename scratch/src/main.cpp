@@ -1,4 +1,5 @@
 #include <iostream>
+//#include <vld.h>
 #include "benchmark.h"
 #include <cpprelude/dynamic_array.h>
 #include <cpprelude/slinked_list.h>

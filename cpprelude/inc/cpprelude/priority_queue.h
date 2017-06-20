@@ -164,14 +164,14 @@ namespace cpprelude {
 			}
 		}
 
-		owner_mem_block
+		slice<T>
 		decay()
 		{
 			_count = 0;
 			return _array.decay();
 		}
 
-		owner_mem_block
+		slice<T>
 		decay_continuous()
 		{
 			_count = 0;

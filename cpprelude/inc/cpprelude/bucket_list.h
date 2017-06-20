@@ -13,13 +13,15 @@ namespace cpprelude
 	{
 		using data_type = T;
 		
-		owner_mem_block _memory;
+		slice<T> _memory;
 		AllocatorT _allocator;
-		handle<bucket_list> _next;
+		bucket_list* _next;
 
 		bucket_list(const AllocatorT& allocator = AllocatorT())
-			:_allocator(allocator)
-		{ _memory = _allocator.alloc(bucket_size * sizeof(T)); }
+			:_allocator(allocator), _next(nullptr)
+		{
+			_memory = _allocator.template alloc<T>(bucket_size);
+		}
 
 		bucket_list(const bucket_list&) = delete;
 		
@@ -33,8 +35,8 @@ namespace cpprelude
 
 			if(_next)
 			{
-				_next.destroy();
-				_allocator.free(_next);
+				_next->~bucket_list();
+				_allocator.free(make_slice(_next));
 			}
 		}
 
@@ -50,10 +52,10 @@ namespace cpprelude
 					it = it->_next;
 					index -= bucket_size;
 				}
-				return *it->_memory.template at<T>(index);
+				return it->_memory[index];
 			}
 
-			return *_memory.template at<T>(index);
+			return _memory[index];
 		}
 
 		const T&
@@ -68,10 +70,10 @@ namespace cpprelude
 					it = it->_next;
 					index -= bucket_size;
 				}
-				return *it->_memory.template at<T>(index);
+				return it->_memory[index];
 			}
 
-			return *_memory.template at<T>(index);
+			return _memory[index];
 		}
 
 		T*
@@ -86,10 +88,10 @@ namespace cpprelude
 					it = it->_next;
 					index -= bucket_size;
 				}
-				return *it->_memory.template at<T>(index);
+				return &it->_memory[index];
 			}
 
-			return _memory.template at<T>(index);
+			return &_memory[index];
 		}
 
 		void
@@ -100,7 +102,7 @@ namespace cpprelude
 			else
 			{
 				_next = _allocator.template alloc<bucket_list>();
-				_next.construct_inplace(_allocator);
+				new (_next) bucket_list(_allocator);
 			}
 		}
 	};
