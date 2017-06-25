@@ -23,6 +23,9 @@
 #include <cpprelude/algorithm.h>
 #include <algorithm>
 
+#include <cpprelude/threading.h>
+#include <functional>
+
 #include <iostream>
 
 void
@@ -755,7 +758,290 @@ benchmark_heap_sort(cpprelude::usize limit)
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
 
+template<typename semaphore_t>
+void
+semaphore_thread_take_func(semaphore_t* sema, cpprelude::usize limit)
+{
+	for(cpprelude::usize i = 0; i < limit; ++i)
+		sema->wait_take();
+}
 
+template<typename semaphore_t>
+void
+semaphore_thread_give_func(semaphore_t* sema, cpprelude::usize limit)
+{
+	for(cpprelude::usize i = 0; i < limit; ++i)
+		sema->wait_give();
+}
+
+void
+benchmark_binary_semaphore(cpprelude::usize limit)
+{
+	cpprelude::binary_semaphore sema;
+	auto give_func = semaphore_thread_give_func<cpprelude::binary_semaphore>;
+	auto take_func = semaphore_thread_take_func<cpprelude::binary_semaphore>;
+
+	std::thread g1(give_func, &sema, limit);
+	std::thread g2(give_func, &sema, limit*3);
+	std::thread g3(give_func, &sema, limit*2);
+
+	std::thread t1(take_func, &sema, limit);
+	std::thread t2(take_func, &sema, limit);
+	std::thread t3(take_func, &sema, limit);
+	std::thread t4(take_func, &sema, limit);
+	std::thread t5(take_func, &sema, limit);
+	std::thread t6(take_func, &sema, limit);
+
+	g1.join();
+	g2.join();
+	g3.join();
+	t1.join();
+	t2.join();
+	t3.join();
+	t4.join();
+	t5.join();
+	t6.join();
+
+	std::cout << "benchmark binary_semaphore" << std::endl;
+	std::cout << "counter: " << sema._counter << std::endl;
+}
+
+void
+benchmark_count_semaphore(cpprelude::usize limit)
+{
+	cpprelude::count_semaphore<1024> sema;
+	auto give_func = semaphore_thread_give_func<cpprelude::count_semaphore<1024>>;
+	auto take_func = semaphore_thread_take_func<cpprelude::count_semaphore<1024>>;
+
+	std::thread g1(give_func, &sema, limit);
+	std::thread g2(give_func, &sema, limit*3);
+	std::thread g3(give_func, &sema, limit*2);
+
+	std::thread t1(take_func, &sema, limit);
+	std::thread t2(take_func, &sema, limit);
+	std::thread t3(take_func, &sema, limit);
+	std::thread t4(take_func, &sema, limit);
+	std::thread t5(take_func, &sema, limit);
+	std::thread t6(take_func, &sema, limit);
+
+	g1.join();
+	g2.join();
+	g3.join();
+	t1.join();
+	t2.join();
+	t3.join();
+	t4.join();
+	t5.join();
+	t6.join();
+
+	std::cout << "benchmark count_semaphore" << std::endl;
+	std::cout << "counter: " << sema._counter << std::endl;
+}
+
+void
+thread_unique_dequeue_func(
+	cpprelude::thread_unique<cpprelude::queue_array<int>>* job_queue,
+	cpprelude::usize limit)
+{
+	auto context = job_queue->new_context();
+
+	while(limit)
+	{
+		if(job_queue->read(context))
+		{
+			if(!job_queue->value.empty())
+			{
+				job_queue->value.dequeue();
+				--limit;
+				job_queue->read_release(context);
+			}
+			else
+			{
+				job_queue->read_release(context);
+				continue;
+			}
+		}
+	}
+
+}
+
+void
+thread_unique_enqueue_func(
+	cpprelude::thread_unique<cpprelude::queue_array<int>>* job_queue,
+	cpprelude::usize limit)
+{
+	auto context = job_queue->new_context();
+
+	while(limit)
+	{
+		if(job_queue->write(context))
+		{
+			job_queue->value.enqueue(1);
+			--limit;
+			job_queue->write_release(context);
+		}
+	}
+}
+
+void
+benchmark_thread_unique(cpprelude::usize limit)
+{
+	cpprelude::thread_unique<cpprelude::queue_array<int>> job_queue;
+	auto enqueue_func = thread_unique_enqueue_func;
+	auto dequeue_func = thread_unique_dequeue_func;
+
+	std::thread g1(dequeue_func, &job_queue, limit);
+	std::thread g2(dequeue_func, &job_queue, limit*3);
+	std::thread g3(dequeue_func, &job_queue, limit*2);
+
+	std::thread t1(enqueue_func, &job_queue, limit);
+	std::thread t2(enqueue_func, &job_queue, limit);
+	std::thread t3(enqueue_func, &job_queue, limit);
+	std::thread t4(enqueue_func, &job_queue, limit);
+	std::thread t5(enqueue_func, &job_queue, limit);
+	std::thread t6(enqueue_func, &job_queue, limit);
+
+	g1.join();
+	g2.join();
+	g3.join();
+	t1.join();
+	t2.join();
+	t3.join();
+	t4.join();
+	t5.join();
+	t6.join();
+
+	std::cout << "benchmark thread_unique" << std::endl;
+	std::cout << "empty: " << job_queue.value.empty() << std::endl;
+	std::cout << "count: " << job_queue.value.count() << std::endl;
+}
+
+void
+thread_multi_reader_read_func(
+	cpprelude::thread_multi_reader<cpprelude::dynamic_array<int>>* array,
+	cpprelude::usize limit)
+{
+	auto context = array->new_context();
+	while(true)
+	{
+		if(array->read(context))
+		{
+			if(array->value.empty())
+			{
+				array->read_release(context);
+				std::this_thread::sleep_for(std::chrono::duration<float, std::micro>(10));
+				continue;
+			}
+
+			//std::cout << "thread_multi_reader_read_func.count = " << array->value.count() << std::endl;
+
+			for(const auto& x: array->value)
+				if(x != 1)
+					std::cout << "ERROR!" << std::endl;
+			array->read_release(context);
+			return;
+		}
+	}
+}
+
+void
+thread_multi_reader_insert_func(
+	cpprelude::thread_multi_reader<cpprelude::dynamic_array<int>>* array,
+	cpprelude::usize limit)
+{
+	auto context = array->new_context();
+	while(true)
+	{
+		if(array->write(context))
+		{
+			//std::cout << "thread_multi_reader_insert_func" << std::endl;
+			while(limit--)
+				array->value.insert_back(1);
+			array->write_release(context);
+			return;
+		}
+
+	}
+}
+
+void
+thread_multi_reader_remove_func(
+	cpprelude::thread_multi_reader<cpprelude::dynamic_array<int>>* array,
+	cpprelude::usize limit)
+{
+	auto context = array->new_context();
+	while(true)
+	{
+		if(array->write(context))
+		{
+			//std::cout << "thread_multi_reader_remove_func" << std::endl;
+
+			if(array->value.count() >= limit)
+			{
+				array->value.remove_back(limit);
+				array->write_release(context);
+				return;
+			}
+			else
+			{
+				array->write_release(context);
+				std::this_thread::sleep_for(std::chrono::duration<float, std::micro>(10));
+
+				continue;
+			}
+		}
+	}
+}
+
+cpprelude::thread_multi_reader<cpprelude::dynamic_array<int>> 
+thread_multi_reader_job_queue;
+
+void
+benchmark_thread_multi_reader(cpprelude::usize limit)
+{
+	static bool read_done = false;
+
+	auto insert_func = thread_multi_reader_insert_func;
+	auto remove_func = thread_multi_reader_remove_func;
+	auto read_func = thread_multi_reader_read_func;
+
+	std::thread g1(remove_func, &thread_multi_reader_job_queue, limit);
+	std::thread g2(remove_func, &thread_multi_reader_job_queue, limit*3);
+	std::thread g3(remove_func, &thread_multi_reader_job_queue, limit*2);
+
+	if(!read_done)
+	{
+		std::thread r1(read_func, &thread_multi_reader_job_queue, limit);
+		std::thread r2(read_func, &thread_multi_reader_job_queue, limit);
+		std::thread r3(read_func, &thread_multi_reader_job_queue, limit);
+		r1.detach();
+		r2.detach();
+		r3.detach();
+		read_done = true;
+	}
+
+	std::thread t1(insert_func, &thread_multi_reader_job_queue, limit);
+	std::thread t2(insert_func, &thread_multi_reader_job_queue, limit);
+	std::thread t3(insert_func, &thread_multi_reader_job_queue, limit);
+	std::thread t4(insert_func, &thread_multi_reader_job_queue, limit);
+	std::thread t5(insert_func, &thread_multi_reader_job_queue, limit);
+	std::thread t6(insert_func, &thread_multi_reader_job_queue, limit);
+
+	g1.join();
+	g2.join();
+	g3.join();
+
+	t1.join();
+	t2.join();
+	t3.join();
+	t4.join();
+	t5.join();
+	t6.join();
+
+	std::cout << "benchmark thread_multi_reader" << std::endl;
+	std::cout << "empty: " << thread_multi_reader_job_queue.value.empty() << std::endl;
+	std::cout << "count: " << thread_multi_reader_job_queue.value.count() << std::endl;
+}
 //STD
 
 void
@@ -1192,8 +1478,19 @@ benchmark()
 	benchmark_heap_sort(limit);
 	std::cout << std::endl;
 	benchmark_std_heap_sort(limit);
+
 	std::cout << "\nnext size = 1/10 of original benchmark size\n" << std::endl;
+
 	benchmark_insertion_sort(limit/10);
+	std::cout << std::endl;
+	benchmark_binary_semaphore(limit/10);
+	std::cout << std::endl;
+	benchmark_count_semaphore(limit/10);
+	std::cout << std::endl;
+	benchmark_thread_unique(limit/10);
+	std::cout << std::endl;
+	benchmark_thread_multi_reader(limit/10);
+
 
 	std::cout << "\nBENCHMARK END\n" << std::endl;
 }

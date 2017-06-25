@@ -45,6 +45,13 @@ namespace cpprelude
 			it = prev(it);
 			return it;
 		}
+
+		template<typename T>
+		constexpr usize
+		_default_cutoff_quick_sort()
+		{
+			return (64 / sizeof(T)) == 0 ? 1 : (64 / sizeof(T));
+		}
 	}
 
 	template<typename iterator_type>
@@ -419,7 +426,9 @@ namespace cpprelude
 		return _partition(begin_it, count, less_than).iterator;
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>, usize cutoff_limit = 24>
+	template<typename iterator_type,
+			 typename function_type = tmp::default_less_than<typename iterator_type::data_type>,
+			 usize cutoff_limit = details::_default_cutoff_quick_sort<typename iterator_type::data_type>()>
 	void
 	_quick_sort(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
@@ -442,7 +451,9 @@ namespace cpprelude
 		}
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>, usize cutoff_limit = 24>
+	template<typename iterator_type,
+			 typename function_type = tmp::default_less_than<typename iterator_type::data_type>,
+			 usize cutoff_limit = details::_default_cutoff_quick_sort<typename iterator_type::data_type>()>
 	void
 	_quick_sort_3way(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
@@ -465,7 +476,9 @@ namespace cpprelude
 		}
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>, usize cutoff_limit = 24>
+	template<typename iterator_type,
+			 typename function_type = tmp::default_less_than<typename iterator_type::data_type>,
+			 usize cutoff_limit = details::_default_cutoff_quick_sort<typename iterator_type::data_type>()>
 	void
 	_quick_sort_3way_non_recursive(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{

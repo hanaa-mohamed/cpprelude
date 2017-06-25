@@ -73,10 +73,6 @@ namespace cpprelude
 			if(_count > 0)
 			{
 				--_count;
-				if(_count <= _array.count() * 0.25)
-				{
-					_array.shrink_back(_array.count() - _count);
-				}
 				return true;
 			}
 
@@ -84,13 +80,13 @@ namespace cpprelude
 		}
 
 		bool
-		empty()
+		empty() const
 		{
 			return (_count == 0);
 		}
 
 		usize
-		count()
+		count() const
 		{
 			return _count;
 		}
