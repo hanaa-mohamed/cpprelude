@@ -99,6 +99,16 @@ namespace cpprelude
 			return *_element;
 		}
 
+		operator T*()
+		{
+			return _element;
+		}
+
+		operator const T*() const
+		{
+			return _element;
+		}
+
 		T*
 		operator->()
 		{

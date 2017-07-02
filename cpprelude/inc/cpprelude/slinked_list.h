@@ -187,7 +187,7 @@ namespace cpprelude
 			return it->data;
 		}
 
-		T
+		const T&
 		operator[](usize index) const
 		{
 			auto it = _head;

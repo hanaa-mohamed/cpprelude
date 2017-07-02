@@ -7,8 +7,12 @@
 #include <cpprelude/dlinked_list.h>
 #include <cpprelude/algorithm.h>
 #include <cpprelude/bucket_array.h>
+#include <cpprelude/tmp.h>
+#include <cpprelude/string.h>
 #include <vector>
 #include <cstdlib>
+#include <typeinfo>
+using namespace cpprelude;
 
 struct screamer
 {
@@ -187,6 +191,102 @@ scratch()
 	// std::cout << "\n";
 }
 
+void
+test_string_conversion()
+{
+	cpprelude::local_string<256> str;
+
+	cpprelude::byte byte_v = 67;
+	cpprelude::write(str, byte_v);
+	std::cout << str << std::endl;
+
+	cpprelude::ubyte ubyte_v = 68;
+	cpprelude::write(str, ubyte_v);
+	std::cout << str << std::endl;
+
+	cpprelude::i8 i8_v = -69;
+	cpprelude::write(str, i8_v);
+	std::cout << str << std::endl;
+
+	cpprelude::u8 u8_v = 70;
+	cpprelude::write(str, u8_v);
+	std::cout << str << std::endl;
+
+	cpprelude::i16 i16_v = -71;
+	cpprelude::write(str, i16_v);
+	std::cout << str << std::endl;
+
+	cpprelude::u16 u16_v = 72;
+	cpprelude::write(str, u16_v);
+	std::cout << str << std::endl;
+
+	cpprelude::i32 i32_v = -73;
+	cpprelude::write(str, i32_v);
+	std::cout << str << std::endl;
+
+	cpprelude::u32 u32_v = 74;
+	cpprelude::write(str, u32_v);
+	std::cout << str << std::endl;
+
+	cpprelude::i64 i64_v = -75;
+	cpprelude::write(str, i64_v);
+	std::cout << str << std::endl;
+
+	cpprelude::u64 u64_v = 76;
+	cpprelude::write(str, u64_v);
+	std::cout << str << std::endl;
+
+	cpprelude::r32 r32_v = -77.123456;
+	cpprelude::write(str, r32_v);
+	std::cout << str << std::endl;
+
+	cpprelude::r64 r64_v = 78.123456789012;
+	cpprelude::write(str, r64_v);
+	std::cout << str << std::endl;
+
+	cpprelude::show(str, str.data());
+	std::cout << str << std::endl;
+
+	std::cout << cpprelude::write(str, 1, " ", 2.0f, " ", 3.0, " ", 4u) << std::endl;
+
+	std::cout << str << std::endl;
+	
+	auto str_literal = "-123456587646457687"_l;
+	i32 num;
+	auto res = cpprelude::read(str_literal, num);
+	std::cout << res << std::endl;
+	std::cout << num << std::endl;
+}
+
+void
+printt(int x)
+{
+	std::cout << "int: " << x << std::endl;
+}
+
+void
+printt(float x)
+{
+	std::cout << "float: " << x << std::endl;
+}
+
+template<typename T>
+void
+printt(T&& x)
+{
+	std::cout << "unknown: " << typeid(T).name()  << std::endl;
+}
+
+template<typename T, typename ... ArgsT>
+int
+printt(int x, T&& t, ArgsT&&... args)
+{
+	printt(cpprelude::tmp::forward<T>(t));
+	std::cout << "--" << std::endl;
+	printt(x, args...);
+	return x;
+}
+
 int
 main(int argc, char** argv)
 {
@@ -195,6 +295,8 @@ main(int argc, char** argv)
 	shuffle_test();
 	quick_select_test();
 	scratch();
-
+	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
+	test_string_conversion();
+	
 	return 0;
 }

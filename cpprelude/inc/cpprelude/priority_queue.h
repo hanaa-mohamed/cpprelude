@@ -95,7 +95,7 @@ namespace cpprelude {
 			return true;
 		}
 		
-		T
+		const T&
 		front() const
 		{
 			return _array[0];

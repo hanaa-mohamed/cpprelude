@@ -52,7 +52,7 @@ namespace cpprelude
 			return false;
 		}
 
-		T
+		const T&
 		front() const
 		{
 			return *_list.front();
