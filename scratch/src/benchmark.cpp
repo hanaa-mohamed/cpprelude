@@ -1075,15 +1075,6 @@ benchmark_string_writer(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-
-	auto str = cpprelude::string::from_cstring("batman");
-	std::cout << str << std::endl;
-	cpprelude::string::dispose(str);
-
-	auto arabic_str = "مصطفى"_l;
-	std::cout << arabic_str << std::endl;
-	auto english_str = "mostafa"_l;
-	std::cout << english_str << std::endl;
 	
 	std::cout << "benchmark string_writer" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
