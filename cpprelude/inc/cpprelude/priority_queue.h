@@ -50,7 +50,7 @@ namespace cpprelude {
 			_heapify();
 		}
 
-		priority_queue(dynamic_array<T> arr, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
+		priority_queue(const dynamic_array<T>& arr, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
 			:_count(arr.count()), _array(arr, allocator), _compare(compare_function)
 		{
 			_heapify();
