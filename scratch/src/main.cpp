@@ -7,6 +7,7 @@
 #include <cpprelude/dlinked_list.h>
 #include <cpprelude/algorithm.h>
 #include <cpprelude/bucket_array.h>
+#include <cpprelude/hash_array.h>
 #include <vector>
 #include <cstdlib>
 
@@ -185,6 +186,9 @@ scratch()
 	// }
 
 	// std::cout << "\n";
+
+	cpprelude::hash<int> h;
+	h(3);
 }
 
 int
