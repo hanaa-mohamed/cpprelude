@@ -55,7 +55,7 @@ namespace cpprelude
 			++_count;
 		}
 		
-		T
+		const T&
 		top() const
 		{
 			return _array[_count-1];

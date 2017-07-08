@@ -40,7 +40,7 @@ namespace cpprelude
 			_list.insert_front(tmp::move(item));
 		}
 
-		T
+		const T&
 		top() const
 		{
 			return *_list.begin();

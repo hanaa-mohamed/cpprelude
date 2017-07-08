@@ -194,6 +194,18 @@ namespace cpprelude
 		}
 
 		void
+		reserve(usize new_count)
+		{
+			if(new_count <= capacity())
+				return;
+
+			usize half_count = new_count/2;
+			usize ceil_val = half_count % bucket_size != 0 ? 1 : 0;
+			_insert_bucket_back((half_count/bucket_size) + ceil_val);
+			_insert_bucket_front(half_count/bucket_size);
+		}
+
+		void
 		expand_front(usize additional_count, const T& fill_value)
 		{
 			for(usize i = 0; i < additional_count; ++i)
@@ -228,7 +240,7 @@ namespace cpprelude
 			return *it;
 		}
 
-		T
+		const T&
 		operator[](usize index) const
 		{
 			auto it = _begin;
@@ -333,6 +345,12 @@ namespace cpprelude
 			_count = 0;
 		}
 
+		void
+		clear()
+		{
+			reset();
+		}
+
 		bool
 		empty() const
 		{
@@ -420,6 +438,10 @@ namespace cpprelude
 			_map[1] = _allocator.template alloc<T>(bucket_size);
 			_map[2] = _allocator.template alloc<T>(bucket_size);
 
+			_init_bucket(_map[0]);
+			_init_bucket(_map[1]);
+			_init_bucket(_map[2]);
+
 			_cap_begin = iterator(_map, _map[0], 0);
 			_cap_end = iterator(_map + _bucket_count - 1, _map[_bucket_count - 1] + bucket_size - 1, bucket_size - 1);
 
@@ -454,7 +476,10 @@ namespace cpprelude
 			_bucket_count += count;
 
 			for (; i < _bucket_count; ++i)
+			{
 				_new_map[i] = _allocator.template alloc<T>(bucket_size);
+				_init_bucket(_new_map[i]);
+			}
 
 			_map = _new_map;
 			_cap_begin = iterator(_map, _map[0], 0);
@@ -488,11 +513,21 @@ namespace cpprelude
 			_bucket_count += count;
 
 			for (i = 0; i < count; ++i)
+			{
 				_new_map[i] = _allocator.template alloc<T>(bucket_size);
+				_init_bucket(_new_map[i]);
+			}
 
 			_map = _new_map;
 			_cap_begin = iterator(_map, _map[0], 0);
 			_cap_end = iterator(_map + _bucket_count - 1, _map[_bucket_count - 1] + bucket_size - 1, bucket_size - 1);
+		}
+
+		void
+		_init_bucket(bucket_type bucket)
+		{
+			for(usize i = 0; i < bucket_size; ++i)
+				new (&bucket[i]) T();
 		}
 	};
 }

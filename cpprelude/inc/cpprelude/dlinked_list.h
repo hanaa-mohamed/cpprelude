@@ -185,7 +185,7 @@ namespace cpprelude
 			}
 		}
 
-		T
+		const T&
 		operator[](usize index) const
 		{
 			if(index >= _count * 0.5)
