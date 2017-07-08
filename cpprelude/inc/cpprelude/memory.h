@@ -82,6 +82,12 @@ namespace cpprelude
 			return size / sizeof(T);
 		}
 
+		bool
+		valid() const
+		{
+			return ptr != nullptr && size > 0;
+		}
+
 		template<typename R>
 		slice<R>
 		convert() const
