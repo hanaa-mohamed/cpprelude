@@ -87,7 +87,7 @@ namespace cpprelude
 		const T&
 		operator[](usize index) const
 		{
-			
+			return _data[index];
 		}
 
 		template<typename R>
