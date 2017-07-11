@@ -2,7 +2,7 @@
 
 namespace cpprelude
 {
-	inline usize
+	usize
 	hash_bytes(const void* ptr, usize len, usize seed)
 	{
 		details::_hash_bytes<sizeof(void*)> hasher;

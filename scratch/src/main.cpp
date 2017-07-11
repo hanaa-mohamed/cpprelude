@@ -9,6 +9,7 @@
 #include <cpprelude/bucket_array.h>
 #include <cpprelude/tmp.h>
 #include <cpprelude/string.h>
+#include <cpprelude/hash_array.h>
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
@@ -140,6 +141,14 @@ quick_select_test()
 	std::cout << "\nquick_select(4): " << *quick_select(array.begin(), array.count(), 4) << std::endl;
 }
 
+template<typename T>
+usize
+do_hash(const T& value)
+{
+	cpprelude::hash<T> hasher;
+	return hasher(value);
+}
+
 void
 scratch()
 {
@@ -189,6 +198,26 @@ scratch()
 	// }
 
 	// std::cout << "\n";
+
+	std::cout << "hash(1): " << do_hash(1) << std::endl;
+	std::cout << "hash(1.5f): " << do_hash(1.5f) << std::endl;
+	std::cout << "hash(1.5f) % 150: " << do_hash(1.5f) % 150 << std::endl;
+	std::cout << "hash(1.56f): " << do_hash(1.56f) << std::endl;
+	std::cout << "hash(1.56f) % 150: " << do_hash(1.56f) % 150 << std::endl;
+	std::cout << "hash(1.567): " << do_hash(1.567) << std::endl;
+	std::cout << "hash('a'): " << do_hash('a') << std::endl;
+	std::cout << "hash('b'): " << do_hash('b') << std::endl;
+	std::cout << "hash(\"mostafa\"): " << do_hash("mostafa"_l) << std::endl;
+	std::cout << "hash(\"mostafa\") % 150: " << do_hash("mostafa"_l) % 150 << std::endl;
+	auto str = cpprelude::string::from_cstring("mostafa");
+	std::cout << "hash(\"mostafa\"): " << do_hash(str) << std::endl;
+	std::cout << "hash(\"moustafa\"): " << do_hash("moustafa"_l) << std::endl;
+	std::cout << "hash(\"moustapha\"): " << do_hash("moustapha"_l) << std::endl;
+
+	cpprelude::hash_array<int, char> h_table;
+	h_table.insert(3, 5);
+	h_table.insert(4, 6);
+	h_table.insert(3, 9);
 }
 
 void
@@ -295,8 +324,7 @@ main(int argc, char** argv)
 	shuffle_test();
 	quick_select_test();
 	scratch();
-	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
-	test_string_conversion();
-	
+	//std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
+	//test_string_conversion();
 	return 0;
 }

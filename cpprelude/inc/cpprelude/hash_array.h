@@ -3,6 +3,8 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/dynamic_array.h"
 #include "cpprelude/allocator.h"
+#include "cpprelude/string.h"
+#include "cpprelude/memory.h"
 
 namespace cpprelude
 {
@@ -47,13 +49,13 @@ namespace cpprelude
 					hash ^= static_cast<ubyte>(buffer[2]) << 16;
 					--len;
 				}
-				
+
 				if(len == 2)
 				{
 					hash ^= static_cast<ubyte>(buffer[1]) << 8;
 					--len;
 				}
-				
+
 				if(len == 1)
 				{
 					hash ^= static_cast<ubyte>(buffer[0]);
@@ -88,7 +90,7 @@ namespace cpprelude
 			{
 				return v ^ (v >> 47);
 			}
-			
+
 			inline usize
 			operator()(const void* ptr, usize len, usize seed)
 			{
@@ -149,7 +151,7 @@ namespace cpprelude
 		struct hash<TYPE>\
 		{\
 			inline usize\
-			operator()(TYPE value)\
+			operator()(TYPE value) const\
 			{\
 				return static_cast<usize>(value);\
 			}\
@@ -169,14 +171,221 @@ namespace cpprelude
 
 #undef trivial_hash
 
-	API inline usize
-	hash_bytes(const void* ptr, usize len, usize seed);
-	
-	template<typename key_type,
-			 typename value_type,
-			 typename hash_func_type = hash<key_type>,
+	API usize
+	hash_bytes(const void* ptr, usize len, usize seed = 0xc70f6907UL);
+
+	template<typename T>
+	struct hash<string_slice<T>>
+	{
+		inline usize
+		operator()(const string_slice<T>& str) const
+		{
+			return hash_bytes(str.data(), str.count() * sizeof(T));
+		}
+	};
+
+	template<typename T>
+	struct hash<slice<T>>
+	{
+		inline usize
+		operator()(const slice<T>& data) const
+		{
+			return hash_bytes(data.ptr, data.size);
+		}
+	};
+
+	template<>
+	struct hash<r32>
+	{
+		inline usize
+		operator()(r32 value) const
+		{
+			return value != 0.0f ? hash_bytes(&value, sizeof(r32)) : 0;
+		}
+	};
+
+	template<>
+	struct hash<r64>
+	{
+		inline usize
+		operator()(r64 value) const
+		{
+			return value != 0.0 ? hash_bytes(&value, sizeof(r64)) : 0;
+		}
+	};
+
+	template<typename keyType,
+			 typename valueType,
+			 typename hashType = hash<keyType>,
 			 typename AllocatorT = global_allocator>
 	struct hash_array
 	{
+		using key_type = keyType;
+		using value_type = valueType;
+		using hash_type = hashType;
+
+		dynamic_array<key_type, AllocatorT> _keys;
+		dynamic_array<value_type, AllocatorT> _values;
+		dynamic_array<u8, AllocatorT> _flags;
+		hash_type _hasher;
+		usize _count;
+
+		hash_array(const AllocatorT& allocator = AllocatorT())
+			:_keys(allocator), _values(allocator), _flags(allocator), _count(0)
+		{
+			constexpr usize starting_count = 128;
+			
+			_keys.expand_back(starting_count);
+			_values.expand_back(starting_count);
+			_flags.expand_back(starting_count, 0);
+		}
+
+		bool
+		insert(const key_type& key, const value_type& value)
+		{
+			if(_count > capacity() / 2)
+				reserve(capacity() * 2);
+
+			auto index = _find_position(key);
+
+			//we couldn't find a position
+			if(index == capacity())
+				return false;
+			
+			_keys[index] = key;
+			_values[index] = value;
+
+			//if this cell is empty mark it full and increment _count
+			if(_flags[index] == 0)
+			{
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return true;
+		}
+
+		bool
+		insert(key_type&& key, const value_type& value)
+		{
+			if(_count > capacity() / 2)
+				reserve(capacity() * 2);
+
+			auto index = _find_position(key);
+
+			//we couldn't find a position
+			if(index == capacity())
+				return false;
+			
+			_keys[index] = tmp::move(key);
+			_values[index] = value;
+
+			//if this cell is empty mark it full and increment _count
+			if(_flags[index] == 0)
+			{
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return true;
+		}
+
+		bool
+		insert(const key_type& key, value_type&& value)
+		{
+			if(_count > capacity() / 2)
+				reserve(capacity() * 2);
+
+			auto index = _find_position(key);
+
+			//we couldn't find a position
+			if(index == capacity())
+				return false;
+			
+			_keys[index] = key;
+			_values[index] = tmp::move(value);
+
+			//if this cell is empty mark it full and increment _count
+			if(_flags[index] == 0)
+			{
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return true;
+		}
+
+		bool
+		insert(key_type&& key, value_type&& value)
+		{
+			if(_count > capacity() / 2)
+				reserve(capacity() * 2);
+
+			auto index = _find_position(key);
+
+			//we couldn't find a position
+			if(index == capacity())
+				return false;
+			
+			_keys[index] = tmp::move(key);
+			_values[index] = tmp::move(value);
+
+			//if this cell is empty mark it full and increment _count
+			if(_flags[index] == 0)
+			{
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return true;
+		}
+
+		usize
+		capacity() const
+		{
+			return _keys.count();
+		}
+
+		void
+		reserve(usize new_count)
+		{
+			_keys.expand_back(new_count);
+			_values.expand_back(new_count);
+			_flags.expand_back(new_count, 0);
+		}
+
+		usize
+		_find_position(const key_type& key) const
+		{
+			usize hash_value = _hasher(key);
+			usize cap = capacity();
+			usize index = hash_value % cap;
+			usize it = index;
+
+			//linear probing goes here
+			while(true)
+			{
+				//this is an empty spot then there's no data here we return it
+				if(_flags[it] == 0)
+					return it;
+
+				//this means that the position is occupied
+				//check if it's the same key then we return it also
+				if(_keys[it] == key)
+					return it;
+
+				//this means it position is not empty nor does it has our key
+				++it;
+				it %= cap;
+
+				//if we went a full circle then we just return cap to signal
+				//that we didn't find anything
+				if(it == index)
+					return cap;
+			}
+
+			return cap;
+		}
+
 	};
 }
