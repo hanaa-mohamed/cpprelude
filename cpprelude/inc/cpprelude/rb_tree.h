@@ -8,7 +8,6 @@
 
 namespace cpprelude {
 
-	//Lean left red black tree
 	template<typename T, typename Comparator = tmp::default_less_than<T>, typename AllocatorT = global_allocator>
 	struct rb_tree
 	{
@@ -138,9 +137,7 @@ namespace cpprelude {
 		insert(const T& key)
 		{
 			RB_Node* new_node = _create_node(key);
-			if (_root == nullptr)
-				new_node->color = COLOR::BLACK;
-			_root = _insert(_root, new_node);
+			_rb_insert(new_node);
 			++_count;
 			return rb_iterator(new_node);
 		}
@@ -149,19 +146,78 @@ namespace cpprelude {
 		insert(T&& key)
 		{
 			RB_Node* new_node = _create_node(tmp::move(key));
-			if (_root == nullptr)
-				new_node->color = COLOR::BLACK;
-			_root = _insert(_root, new_node);
+			_rb_insert(new_node);
 			++_count;
 			return rb_iterator(new_node);
+		}
+
+		void
+		delete_rb_tree(const T&k)
+		{
+			rb_iterator node_to_delete = lookup(k);
+			delete_rb_tree(node_to_delete);
+		}
+
+		void
+		delete_rb_tree(T&&k)
+		{
+			rb_iterator node_to_delete = lookup(k);
+			delete_rb_tree(node_to_delete);
+		}
+
+		void
+		delete_rb_tree(rb_iterator node_to_delete)
+		{
+			if (node_to_delete == nullptr) return;
+
+			RB_Node *x = nullptr, *x_parent = nullptr;
+			rb_iterator y;
+
+			if (node_to_delete->left == nullptr || node_to_delete->right == nullptr)
+				y = node_to_delete;
+			else
+			{
+				y = ++node_to_delete;
+				--node_to_delete;
+			}
+
+			if (y->left != nullptr)
+				x = y->left;
+			else
+				x = y->right;
+
+			if (x != nullptr)
+				x->parent = y->parent;
+
+			x_parent = y->parent;
+
+			if (y->parent == nullptr)
+			{
+				_root = x;
+				if (x != nullptr)
+					x->color = COLOR::BLACK;
+			}
+			else if (y == y->parent->left)
+				y->parent->left = x;
+			else
+				y->parent->right = x;
+
+			if (y != node_to_delete)
+				node_to_delete->data = y->data;
+
+			if (y->color == COLOR::BLACK)
+				_rb_delete_fixup(x, x_parent);
+
+			_free_mem(y._node);
 		}
 
 		rb_iterator
 		lookup(const T& key)
 		{
 			RB_Node* result = _root;
+			RB_Node* key_it = _create_node(key);
 			if (result != nullptr)
-				result = _lookup(key, _root);
+				result = _lookup(key_it, _root);
 			return rb_iterator(result);
 		}
 
@@ -169,8 +225,29 @@ namespace cpprelude {
 		lookup(const T& key) const
 		{
 			RB_Node* result = _root;
+			RB_Node* key_it = _create_node(key);
 			if (result != nullptr)
-				result = _lookup(key, _root);
+				result = _lookup(key_it, _root);
+			return const_rb_iterator(result);
+		}
+
+		rb_iterator
+		lookup(T&& key)
+		{
+			RB_Node* result = _root;
+			RB_Node* key_it = _create_node(key);
+			if (result != nullptr)
+				result = _lookup(key_it, _root);
+			return rb_iterator(result);
+		}
+
+		const_rb_iterator
+		lookup(T&& key) const
+		{
+			RB_Node* result = _root;
+			RB_Node* key_it = _create_node(key);
+			if (result != nullptr)
+				result = _lookup(key_it, _root);
 			return const_rb_iterator(result);
 		}
 
@@ -204,7 +281,7 @@ namespace cpprelude {
 		bool
 		is_rb_tree()
 		{
-			return (-1 != _is_llrb(_root, false));
+			return (-1 != _is_rb(_root, false));
 		}
 
 		void
@@ -264,78 +341,237 @@ namespace cpprelude {
 		}
 
 		//inserts new node else if exists return the old value
-		RB_Node*
-		_insert(RB_Node* parent, RB_Node*& node)
+		void
+		_rb_insert(RB_Node*& z)
 		{
-			if (parent == nullptr)
-				return node;
-			
-			if (_less_than(node->data, parent->data)) //left branch
+			RB_Node* y = nullptr;
+			RB_Node* x = _root;
+
+			while (x != nullptr)
 			{
-				if(parent->left == nullptr)
-					node->parent = parent;
-				parent->left = _insert(parent->left, node);
-				
+				y = x;
+				if (_less_than(z->data, x->data))
+					x = x->left;
+				else if (_less_than(x->data, z->data))
+					x = x->right;
+				else
+				{
+					_free_mem(z);
+					z = x;
+					return;
+				}
 			}
-			else if (_less_than(parent->data, node->data)) // right branch
+			z->parent = y;
+			if (y == nullptr)
+				_root = z;
+			else
 			{
-				if (parent->right == nullptr)
-					node->parent = parent;
-				parent->right = _insert(parent->right, node);
-				
+				if (_less_than(z->data, y->data))
+					y->left = z;
+				else
+					y->right = z;
 			}
-			else //node points to the old value in the tree
-				node = parent;
-
-			//fix the tree after insertion
-			auto is_red = [](RB_Node* p) {return (p != nullptr && p->is_red()) ? true : false; };
-
-			if (is_red(parent->right) && !is_red(parent->left))
-				parent = _rotate_left(parent);
-			if (is_red(parent->left) && is_red(parent->left->left))
-				parent = _rotate_right(parent);
-			if (is_red(parent->left) && is_red(parent->right))
-				_flip_colors(parent);
-
-			return parent;
-		}
-
-		RB_Node*
-		_rotate_left(RB_Node* node)
-		{
-			RB_Node* temp = node->right;
-			node->right = temp->left;
-			if (temp->left != nullptr)
-				temp->left->parent = node;
-			temp->parent = node->parent;
-			temp->left = node;
-			node->parent = temp;
-			temp->color = temp->left->color;
-			temp->left->color = COLOR::RED;
-			return temp;
-		}
-
-		RB_Node*
-		_rotate_right(RB_Node* node)
-		{
-			RB_Node* temp = node->left;
-			node->left = temp->right;
-			if (temp->right != nullptr)
-				temp->right->parent = node;
-			temp->parent = node->parent;
-			temp->right = node;
-			node->parent = temp;
-			temp->color = temp->right->color;
-			temp->right->color = COLOR::RED;
-			return temp;
+			z->left = nullptr;
+			z->right = nullptr;
+			z->color = COLOR::RED;
+			_insert_fixup(z);
 		}
 
 		void
-		_flip_colors(RB_Node* node)
+		_insert_fixup(RB_Node* z)
 		{
-			node->color = COLOR::RED;
-			node->left->color = COLOR::BLACK;
-			node->right->color = COLOR::BLACK;
+			auto is_red = [](RB_Node* p) { return p != nullptr && p->is_red(); };
+			
+			while (is_red(z->parent))
+			{
+				if (z->parent == z->parent->parent->left)
+				{
+					RB_Node* y = z->parent->parent->right;
+					if (is_red(y))
+					{ //Casse 1
+						z->parent->color = COLOR::BLACK;
+						y->color = COLOR::BLACK;
+						z->parent->parent->color = COLOR::RED;
+						z = z->parent->parent;
+					}
+					else 
+					{
+						if (z == z->parent->right)
+						{ //case 2
+							z = z->parent;
+							_left_rotation(z);
+						}
+						//case 3
+						z->parent->color = COLOR::BLACK;
+						z->parent->parent->color = COLOR::RED;
+						_right_rotation(z->parent->parent);
+					}
+				}
+				else
+				{// right instead of left
+
+					RB_Node* y = z->parent->parent->left;
+					if (is_red(y))
+					{ //Casse 1
+						z->parent->color = COLOR::BLACK;
+						y->color = COLOR::BLACK;
+						z->parent->parent->color = COLOR::RED;
+						z = z->parent->parent;
+					}
+					else
+					{
+						if (z == z->parent->left)
+						{ //case 2
+							z = z->parent;
+							_right_rotation(z);
+						}
+						//case 3
+						z->parent->color = COLOR::BLACK;
+						z->parent->parent->color = COLOR::RED;
+						_left_rotation(z->parent->parent);
+					}
+				}
+			}
+			_root->color = COLOR::BLACK;			
+		}
+
+		void
+		_rb_delete_fixup(RB_Node* node, RB_Node* node_parent)
+		{
+			RB_Node* w = nullptr;
+			bool is_node_black = true;
+			if (node != nullptr)
+				is_node_black = node->color == COLOR::BLACK;
+
+			while (node != _root && is_node_black)
+			{
+				if (node == node_parent->left)
+				{
+					w = node_parent->right;
+					if (w->color == COLOR::RED)
+					{	//Case 1
+						w->color = COLOR::BLACK;
+						node_parent->color = COLOR::RED;
+						_left_rotation(node_parent);
+						w = node_parent->right;
+					}
+					bool is_w_left_black = true;
+					bool is_w_right_black = true;
+					if (w->left != nullptr)
+						is_w_left_black = w->left->color == COLOR::BLACK;
+					if (w->right != nullptr)
+						is_w_right_black = w->right->color == COLOR::BLACK;
+
+					if (is_w_left_black	&& is_w_right_black)
+					{ //Case 2: black sibling with black childern
+						w->color = COLOR::RED;
+						node = node_parent;
+						node_parent = node->parent;
+						is_node_black = node->color == COLOR::BLACK;
+					}
+					else
+					{
+						if (is_w_right_black)
+						{	//Case 3
+							w->left->color = COLOR::BLACK;
+							w->color = COLOR::RED;
+							_right_rotation(w);
+							w = node_parent->right;
+						}
+						//Case 4
+						w->color = node_parent->color;
+						node_parent->color = COLOR::BLACK;
+						if (w->right != nullptr)
+							w->right->color = COLOR::BLACK;
+						_left_rotation(node_parent);
+						node = _root;
+						node_parent = nullptr;
+					}
+
+				}
+				else
+				{
+					w = node_parent->left;
+					if (w->color == COLOR::RED)
+					{	//Case 1
+						w->color = COLOR::BLACK;
+						node_parent->color = COLOR::RED;
+						_right_rotation(node_parent);
+						w = node_parent->left;
+					}
+
+					bool is_w_left_black = true;
+					bool is_w_right_black = true;
+					if (w->left != nullptr)
+						is_w_left_black = w->left->color == COLOR::BLACK;
+					if (w->right != nullptr)
+						is_w_right_black = w->right->color == COLOR::BLACK;
+
+					if (is_w_left_black	&& is_w_right_black)
+					{	//Case 2
+						w->color = COLOR::RED;
+						node = node_parent;
+						node_parent = node->parent;
+						is_node_black = node->color == COLOR::BLACK;
+					}
+					else
+					{
+						if (is_w_left_black)
+						{	//Case 3
+							w->right->color = COLOR::BLACK;
+							w->color = COLOR::RED;
+							_left_rotation(w);
+							w = node_parent->left;
+						}
+						//Case 4
+						w->color = node_parent->color;
+						node_parent->color = COLOR::BLACK;
+						if (w->left != nullptr)// check this
+							w->left->color = COLOR::BLACK;
+						_right_rotation(node_parent);
+						node = _root;
+						node_parent = nullptr;
+					}
+				}
+			}
+			if (node != nullptr)
+				node->color = COLOR::BLACK;
+		}
+
+		void
+		_left_rotation(RB_Node* x)
+		{
+			RB_Node* y = x->right;
+			x->right = y->left;
+			if (y->left != nullptr)
+				y->left->parent = x;
+			y->parent = x->parent;
+			if (x->parent == nullptr)
+				_root = y;
+			else if (x == x->parent->left)
+				x->parent->left = y;
+			else
+				x->parent->right = y;
+			y->left = x;
+			x->parent = y;
+		}
+
+		void
+		_right_rotation(RB_Node* x)
+		{
+			RB_Node* y = x->left;
+			x->left = y->right;
+			if (y->right != nullptr)
+				y->right->parent = x;
+			y->parent = x->parent;
+			if (x->parent == nullptr)
+				_root = y;
+			else if (x == x->parent->right)
+				x->parent->right = y;
+			else
+				x->parent->left = y;
+			y->right = x;
+			x->parent = y;
 		}
 
 		RB_Node*
@@ -380,14 +616,14 @@ namespace cpprelude {
 		}
 
 		isize
-		_is_llrb(RB_Node* it, bool right)
+		_is_rb(RB_Node* it, bool right)
 		{
 			if (it == nullptr) return 0;
 
-			isize left_count = _is_llrb(it->left, false);
-			isize right_count = _is_llrb(it->right, true);
+			isize left_count = _is_rb(it->left, false);
+			isize right_count = _is_rb(it->right, true);
 
-			if (left_count == -1 || right_count == -1 || right_count != left_count || (right&& it->color == COLOR::RED))
+			if (left_count == -1 || right_count == -1 || right_count != left_count)
 				return -1;
 			else
 				return (it->color == COLOR::RED) ? left_count : left_count + 1;
@@ -469,9 +705,9 @@ namespace cpprelude {
 		}
 
 		RB_Node*
-		_lookup(const T& k, RB_Node* it) 
+		_lookup(RB_Node* k, RB_Node* it) 
 		{
-			if (_less_than(k , it->data))
+			if (_less_than(k->data , it->data))
 			{
 				if (it->left != nullptr)
 					return _lookup(k, it->left);
@@ -479,7 +715,7 @@ namespace cpprelude {
 				else
 					return it->left;
 			}
-			else if (_less_than(it->data, k ))
+			else if (_less_than(it->data, k->data ))
 			{
 				if (it->right != nullptr)
 					return _lookup(k, it->right);
@@ -490,4 +726,7 @@ namespace cpprelude {
 				return it;
 		}
 	};
+
+	template<typename key, typename value, typename Comparator = tmp::default_less_than<details::pair_node<key, value>>, typename AllocatorT = global_allocator>
+	using ordered_map = rb_tree<details::pair_node<key, value>, Comparator, AllocatorT>;
 }

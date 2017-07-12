@@ -51,7 +51,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		tree.insert('h');
 		CHECK(tree.is_rb_tree());
 
-		auto it = tree.root();
+		/*auto it = tree.root();
 		CHECK(it->data == 'e');
 		auto suc = it++;
 		CHECK(suc->data == 'e');
@@ -68,7 +68,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 		pre = --it;
 		CHECK(pre->data == 'c');
-		CHECK(it->data == 'c');
+		CHECK(it->data == 'c');*/
 	}
 
 	SECTION("Case 2")
@@ -93,13 +93,6 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(tree.is_rb_tree());
 		tree.insert(809);
 		CHECK(tree.is_rb_tree());
-
-
-		uRB_TREE t;
-		t._root = t._create_node(5);
-		t._root->color = details::color_type::BLACK;
-		t._root->right = t._create_node(8);
-		CHECK(!t.is_rb_tree());
 	}
 
 	SECTION("Case 03")
@@ -187,7 +180,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 	SECTION("Case 08")
 	{
 		using pair_node = details::pair_node<usize, std::string>;
-		rb_tree<pair_node> tree;
+		ordered_map<usize,std::string> tree;
 
 		dynamic_array<pair_node> arr1;
 		std::function <void(rb_tree_iterator<pair_node> it)> insert = [&arr1](rb_tree_iterator<pair_node> it) {
@@ -292,283 +285,285 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
 	}
 
-	////deleting root
-	//SECTION("Case 10")
-	//{
-	//	rb_tree<usize> array;
-	//	array.insert(3);
-	//	CHECK(array.count() == 1);
-	//	CHECK(array.is_rb_tree());
+	//deleting root
+	SECTION("Case 13")
+	{
+		uRB_TREE array;
+		array.insert(3);
+		CHECK(array.count() == 1);
+		CHECK(array.is_rb_tree());
 
-	//	//deleting non-existed element
-	//	array.delete_rb_tree(0);
-	//	CHECK(array.count() == 1);
-	//	CHECK(array.is_rb_tree());
+		//deleting non-existed element
+		array.delete_rb_tree(0);
+		CHECK(array.count() == 1);
+		CHECK(array.is_rb_tree());
 
-	//	//deleting root wuth no children
-	//	array.delete_rb_tree(3);
-	//	CHECK(array.count() == 0);
-	//	CHECK(array.is_rb_tree());
+		//deleting root wuth no children
+		array.delete_rb_tree(3);
+		CHECK(array.count() == 0);
+		CHECK(array.is_rb_tree());
 
-	//}
+	}
 
-	////deleting root with one child
-	//SECTION("Case 11")
-	//{
-	//	rb_tree<usize> array;
+	//deleting root with one child
+	SECTION("Case 14")
+	{
+		uRB_TREE array;
 
-	//	//deleting root with left children
-	//	array.insert(3);
-	//	array.insert(1);
-	//	CHECK(array.count() == 2);
-	//	array.delete_rb_tree(3);
-	//	CHECK(array.count() == 1);
-	//	CHECK(array.get_root()->data == 1);
-	//	//array.insert(3);
-	//	//CHECK(array.count() == 2);
-	//	CHECK(array.is_rb_tree());
+		//deleting root with left children
+		array.insert(3);
+		array.insert(1);
+		CHECK(array.count() == 2);
+		array.delete_rb_tree(3);
+		CHECK(array.count() == 1);
+		CHECK(array.root()->data == 1);
+		//array.insert(3);
+		//CHECK(array.count() == 2);
+		CHECK(array.is_rb_tree());
 
-	//	rb_tree<usize> array1;
-	//	//deleting root with right children
+		uRB_TREE array1;
+		//deleting root with right children
 
-	//	array1.insert(3);
-	//	array1.insert(4);
-	//	CHECK(array1.count() == 2);
-	//	array1.delete_rb_tree(3);
-	//	CHECK(array1.count() == 1);
-	//	CHECK(array1.get_root()->data == 4);
-	//	CHECK(array.is_rb_tree());
-	//}
+		array1.insert(3);
+		array1.insert(4);
+		CHECK(array1.count() == 2);
+		array1.delete_rb_tree(3);
+		CHECK(array1.count() == 1);
+		CHECK(array1.root()->data == 4);
+		CHECK(array.is_rb_tree());
+	}
 
-	////deleting root with two children
-	//SECTION("Case 12")
-	//{
-	//	rb_tree<usize> array;
+	//deleting root with two children
+	SECTION("Case 15")
+	{
+		uRB_TREE array;
 
-	//	array.insert(3);
-	//	array.insert(1);
-	//	array.insert(6);
-	//	CHECK(array.count() == 3);
-	//	array.delete_rb_tree(3);
-	//	CHECK(array.count() == 2);
-	//	CHECK(array.get_root()->data == 6);
-	//	array.insert(3);
-	//	CHECK(array.count() == 3);
-	//	CHECK(array.is_rb_tree());
-	//}
+		array.insert(3);
+		array.insert(1);
+		array.insert(6);
+		CHECK(array.count() == 3);
+		array.delete_rb_tree(3);
+		CHECK(array.count() == 2);
+		CHECK(array.root()->data == 6);
+		array.insert(3);
+		CHECK(array.count() == 3);
+		CHECK(array.is_rb_tree());
+	}
 
-	////deleting node with two children ex 1
-	////Case 3 & 4
-	//SECTION("Case 13")
-	//{
-	//	rb_tree<usize> array;
-	//	usize count = 0;
-	//	array.insert(10);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(9);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(15);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(1);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(5);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(12);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(20);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(14);
-	//	CHECK(array.count() == 8);
-	//	//array.inorder_traverse(print);
-	//	array.delete_rb_tree(15);
-	//	CHECK(array.count() == 7);
-	//	//array.inorder_traverse(print);
-	//	array.inorder_traverse(insert);
-	//	CHECK(arr.count() == 7);
-	//	CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
-	//	CHECK(array.is_rb_tree());
-	//}
+	//deleting node with two children ex 1
+	//Case 3 & 4
+	SECTION("Case 16")
+	{
+		uRB_TREE array;
+		usize count = 0;
+		array.insert(10);
+		CHECK(array.count() == ++count);
+		array.insert(9);
+		CHECK(array.count() == ++count);
+		array.insert(15);
+		CHECK(array.count() == ++count);
+		array.insert(1);
+		CHECK(array.count() == ++count);
+		array.insert(5);
+		CHECK(array.count() == ++count);
+		array.insert(12);
+		CHECK(array.count() == ++count);
+		array.insert(20);
+		CHECK(array.count() == ++count);
+		array.insert(14);
+		CHECK(array.count() == 8);
+		//array.inorder_traverse(print);
+		array.delete_rb_tree(15);
+		CHECK(array.count() == 7);
+		//array.inorder_traverse(print);
+		array.inorder_traverse(insert);
+		CHECK(arr.count() == 7);
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
+		CHECK(array.is_rb_tree());
+	}
 
-	////deleting node with two children ex 2
-	////Case 3 & 4
-	//SECTION("Case 14")
-	//{
-	//	rb_tree<usize> array;
-	//	usize count = 0;
-	//	array.insert(10);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(9);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(15);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(1);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(5);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(12);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(20);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(14);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(19);
-	//	CHECK(array.count() == ++count);
-	//	//array.inorder_traverse(print);
-	//	array.delete_rb_tree(15);
-	//	CHECK(array.count() == --count);
-	//	//array.inorder_traverse(print);
-	//	array.inorder_traverse(insert);
-	//	CHECK(arr.count() == count);
-	//	CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
-	//	CHECK(array.is_rb_tree());
-	//}
+	//deleting node with two children ex 2
+	//Case 3 & 4
+	SECTION("Case 17")
+	{
+		uRB_TREE array;
+		usize count = 0;
+		array.insert(10);
+		CHECK(array.count() == ++count);
+		array.insert(9);
+		CHECK(array.count() == ++count);
+		array.insert(15);
+		CHECK(array.count() == ++count);
+		array.insert(1);
+		CHECK(array.count() == ++count);
+		array.insert(5);
+		CHECK(array.count() == ++count);
+		array.insert(12);
+		CHECK(array.count() == ++count);
+		array.insert(20);
+		CHECK(array.count() == ++count);
+		array.insert(14);
+		CHECK(array.count() == ++count);
+		array.insert(19);
+		CHECK(array.count() == ++count);
+		//array.inorder_traverse(print);
+		array.delete_rb_tree(15);
+		CHECK(array.count() == --count);
+		//array.inorder_traverse(print);
+		array.inorder_traverse(insert);
+		CHECK(arr.count() == count);
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
+		CHECK(array.is_rb_tree());
+	}
 
-	////deleting node with one children ex 1
-	//SECTION("Case 15")
-	//{
-	//	rb_tree<usize> array;
-	//	usize count = 0;
-	//	//deleting root with left children
-	//	array.insert(10);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(9);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(15);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(1);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(5);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(12);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(20);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(14);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(19);
-	//	CHECK(array.count() == ++count);
-	//	//array.inorder_traverse(print);
-	//	array.delete_rb_tree(12);
-	//	CHECK(array.count() == --count);
-	//	//array.inorder_traverse(print);
-	//	array.inorder_traverse(insert);
-	//	CHECK(arr.count() == count);
-	//	CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
-	//	CHECK(array.is_rb_tree());
-	//}
+	//deleting node with one children ex 1
+	SECTION("Case 18")
+	{
+		uRB_TREE array;
+		usize count = 0;
+		//deleting root with left children
+		array.insert(10);
+		CHECK(array.count() == ++count);
+		array.insert(9);
+		CHECK(array.count() == ++count);
+		array.insert(15);
+		CHECK(array.count() == ++count);
+		array.insert(1);
+		CHECK(array.count() == ++count);
+		array.insert(5);
+		CHECK(array.count() == ++count);
+		array.insert(12);
+		CHECK(array.count() == ++count);
+		array.insert(20);
+		CHECK(array.count() == ++count);
+		array.insert(14);
+		CHECK(array.count() == ++count);
+		array.insert(19);
+		CHECK(array.count() == ++count);
+		//array.inorder_traverse(print);
+		array.delete_rb_tree(12);
+		CHECK(array.count() == --count);
+		//array.inorder_traverse(print);
+		array.inorder_traverse(insert);
+		CHECK(arr.count() == count);
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
+		CHECK(array.is_rb_tree());
+	}
 
-	////deleting node with one children ex 2
-	//SECTION("Case 16")
-	//{
-	//	rb_tree<usize> array;
-	//	usize count = 0;
-	//	//deleting root with left children
-	//	array.insert(10);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(9);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(15);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(1);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(5);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(12);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(20);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(14);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(19);
-	//	CHECK(array.count() == ++count);
-	//	//array.inorder_traverse(print);
-	//	array.delete_rb_tree(20);
-	//	CHECK(array.count() == --count);
-	//	//array.inorder_traverse(print);
-	//	array.inorder_traverse(insert);
-	//	CHECK(arr.count() == count);
-	//	CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
-	//	CHECK(array.is_rb_tree());
-	//}
+	//deleting node with one children ex 2
+	SECTION("Case 19")
+	{
+		uRB_TREE array;
+		usize count = 0;
+		//deleting root with left children
+		array.insert(10);
+		CHECK(array.count() == ++count);
+		array.insert(9);
+		CHECK(array.count() == ++count);
+		array.insert(15);
+		CHECK(array.count() == ++count);
+		array.insert(1);
+		CHECK(array.count() == ++count);
+		array.insert(5);
+		CHECK(array.count() == ++count);
+		array.insert(12);
+		CHECK(array.count() == ++count);
+		array.insert(20);
+		CHECK(array.count() == ++count);
+		array.insert(14);
+		CHECK(array.count() == ++count);
+		array.insert(19);
+		CHECK(array.count() == ++count);
+		//array.inorder_traverse(print);
+		array.delete_rb_tree(20);
+		CHECK(array.count() == --count);
+		//array.inorder_traverse(print);
+		array.inorder_traverse(insert);
+		CHECK(arr.count() == count);
+		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
+		CHECK(array.is_rb_tree());
+	}
 
-	////Case 2 ex 1
-	//SECTION("Case 18")
-	//{
-	//	rb_tree<usize> array;
-	//	usize count = 0;
-	//	//deleting root with left children
-	//	array.insert(10);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(9);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(15);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(1);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(5);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(12);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(20);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(14);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(19);
-	//	CHECK(array.count() == ++count);
-	//	//array.inorder_traverse(print);
-	//	array.delete_rb_tree(20);
-	//	CHECK(array.count() == --count);
-	//	CHECK(array.is_rb_tree());
-	//	array.delete_rb_tree(14);
-	//	CHECK(array.count() == --count);
-	//	CHECK(array.is_rb_tree());
-	//	array.delete_rb_tree(12);
-	//	CHECK(array.count() == --count);
-	//	CHECK(array.is_rb_tree());
-	//	//array.inorder_traverse(print);
-	//}
+	//Case 2 ex 1
+	SECTION("Case 20")
+	{
+		uRB_TREE array;
+		usize count = 0;
+		//deleting root with left children
+		array.insert(10);
+		CHECK(array.count() == ++count);
+		array.insert(9);
+		CHECK(array.count() == ++count);
+		array.insert(15);
+		CHECK(array.count() == ++count);
+		array.insert(1);
+		CHECK(array.count() == ++count);
+		array.insert(5);
+		CHECK(array.count() == ++count);
+		array.insert(12);
+		CHECK(array.count() == ++count);
+		array.insert(20);
+		CHECK(array.count() == ++count);
+		array.insert(14);
+		CHECK(array.count() == ++count);
+		array.insert(19);
+		CHECK(array.count() == ++count);
+		//array.inorder_traverse(print);
+		array.delete_rb_tree(20);
+		CHECK(array.count() == --count);
+		CHECK(array.is_rb_tree());
+		array.delete_rb_tree(14);
+		CHECK(array.count() == --count);
+		CHECK(array.is_rb_tree());
+		array.delete_rb_tree(12);
+		CHECK(array.count() == --count);
+		CHECK(array.is_rb_tree());
+		//array.inorder_traverse(print);
+	}
 
 
-	//SECTION("Case 19")
-	//{
-	//	rb_tree<usize> array;
-	//	usize count = 0;
-	//	array.insert(10);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(9);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(15);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(1);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(5);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(12);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(20);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(14);
-	//	CHECK(array.count() == ++count);
-	//	array.insert(19);
-	//	CHECK(array.count() == ++count);
-	//	//Case 2 ex 2
-	//	array.delete_rb_tree(20);
-	//	CHECK(array.is_rb_tree());
-	//	CHECK(array.count() == --count);
-	//	array.delete_rb_tree(14);
-	//	CHECK(array.is_rb_tree());
-	//	CHECK(array.count() == --count);
-	//	//Case 2
-	//	array.delete_rb_tree(19);
-	//	CHECK(array.is_rb_tree());
-	//	CHECK(array.count() == --count);
-	//	CHECK(array.is_rb_tree());
-	//	array.delete_rb_tree(15);
-	//	CHECK(array.is_rb_tree());
-	//	CHECK(array.count() == --count);
-	//	//Case 4
-	//	array.delete_rb_tree(12);
-	//	CHECK(array.is_rb_tree());
-	//	CHECK(array.count() == --count);
-	//}
+	SECTION("Case 21")
+	{
+		uRB_TREE array;
+		usize count = 0;
+		array.insert(10);
+		CHECK(array.count() == ++count);
+		array.insert(9);
+		CHECK(array.count() == ++count);
+		array.insert(15);
+		CHECK(array.count() == ++count);
+		array.insert(1);
+		CHECK(array.count() == ++count);
+		array.insert(5);
+		CHECK(array.count() == ++count);
+		array.insert(12);
+		CHECK(array.count() == ++count);
+		array.insert(20);
+		CHECK(array.count() == ++count);
+		array.insert(14);
+		CHECK(array.count() == ++count);
+		array.insert(19);
+		CHECK(array.count() == ++count);
+		//Case 2 ex 2
+		array.delete_rb_tree(20);
+		CHECK(array.is_rb_tree());
+		CHECK(array.count() == --count);
+		array.delete_rb_tree(14);
+		CHECK(array.is_rb_tree());
+		CHECK(array.count() == --count);
+		//Case 2
+		array.delete_rb_tree(19);
+		CHECK(array.is_rb_tree());
+		CHECK(array.count() == --count);
+		CHECK(array.is_rb_tree());
+		array.delete_rb_tree(15);
+		CHECK(array.is_rb_tree());
+		CHECK(array.count() == --count);
+		//Case 4
+		array.delete_rb_tree(12);
+		CHECK(array.is_rb_tree());
+		CHECK(array.count() == --count);
+	}
+
+
 }
