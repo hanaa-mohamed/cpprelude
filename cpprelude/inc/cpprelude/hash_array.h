@@ -5,6 +5,7 @@
 #include "cpprelude/allocator.h"
 #include "cpprelude/string.h"
 #include "cpprelude/memory.h"
+#include "cpprelude/iterator.h"
 
 namespace cpprelude
 {
@@ -223,6 +224,8 @@ namespace cpprelude
 		using key_type = keyType;
 		using value_type = valueType;
 		using hash_type = hashType;
+		using iterator = hash_array_iterator<keyType, valueType>;
+		using const_iterator = const_hash_array_iterator<keyType, valueType>;
 
 		dynamic_array<key_type, AllocatorT> _keys;
 		dynamic_array<value_type, AllocatorT> _values;
@@ -340,6 +343,98 @@ namespace cpprelude
 			return true;
 		}
 
+		value_type&
+		operator[](const key_type& key)
+		{
+			auto index = _find_position(key);
+
+			//if not found then create and init one
+			if(_flags[index] == 0)
+			{
+				_keys[index] = key;
+				
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return _values[index];
+		}
+
+		const value_type&
+		operator[](const key_type& key) const
+		{
+			auto index = _find_position(key);
+
+			//if not found then create and init one
+			if(_flags[index] == 0)
+			{
+				_keys[index] = key;
+				
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return _values[index];
+		}
+
+		value_type&
+		operator[](key_type&& key)
+		{
+			auto index = _find_position(key);
+
+			//if not found then create and init one
+			if(_flags[index] == 0)
+			{
+				_keys[index] = tmp::move(key);
+				
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return _values[index];
+		}
+
+		const value_type&
+		operator[](key_type&& key) const
+		{
+			auto index = _find_position(key);
+
+			//if not found then create and init one
+			if(_flags[index] == 0)
+			{
+				_keys[index] = tmp::move(key);
+				
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return _values[index];
+		}
+
+		bool
+		remove(const key_type& key)
+		{
+			auto index = _find_position(key);
+
+			//if not found then don't remove
+			if(_flags[index] == 0)
+				return false;
+
+			_flags[index] = 0;
+			_keys[index].~key_type();
+			_values[index].~value_type();
+			--_count;
+			return true;
+		}
+
+		
+
+		bool
+		empty() const
+		{
+			return _count == 0;
+		}
+
 		usize
 		capacity() const
 		{
@@ -354,6 +449,81 @@ namespace cpprelude
 			_flags.expand_back(new_count, 0);
 		}
 
+		void
+		clear()
+		{
+			auto flag_it = _flags.begin();
+			auto key_it = _keys.begin();
+			auto value_it = _values.begin();
+
+			usize count = _flags.count();
+			while(count--)
+			{
+				if(*flag_it != 0)
+				{
+					*flag_it = 0;
+					key_it->~key_type();
+					value_it->~value_type();
+				}
+
+				flag_it = next(flag_it);
+				key_it = next(key_it);
+				value_it = next(value_it);
+			}
+
+			_count = 0;
+		}
+
+		iterator
+		begin()
+		{
+			iterator result(_keys.cbegin(), _values.begin(), _flags.begin(), capacity());
+			if(*result._flag_it == 0)
+				++result;
+			
+			return result;
+		}
+
+		const_iterator
+		begin() const
+		{
+			const_iterator result(_keys.cbegin(), _values.begin(), _flags.begin(), capacity());
+
+			if(*result._flag_it == 0)
+				++result;
+
+			return result;
+		}
+
+		const_iterator
+		cbegin() const
+		{
+			const_iterator result(_keys.cbegin(), _values.begin(), _flags.begin(), capacity());
+
+			if(*result._flag_it == 0)
+				++result;
+
+			return result;
+		}
+
+		iterator
+		end()
+		{
+			return iterator(_keys.cend(), _values.end(), _flags.end(), 0);
+		}
+
+		const_iterator
+		end() const
+		{
+			return const_iterator(_keys.cend(), _values.end(), _flags.end(), 0);
+		}
+
+		const_iterator
+		cend() const
+		{
+			return const_iterator(_keys.cend(), _values.end(), _flags.end(), 0);
+		}
+		
 		usize
 		_find_position(const key_type& key) const
 		{

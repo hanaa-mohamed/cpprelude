@@ -20,7 +20,7 @@ namespace cpprelude
 	struct slinked_list
 	{
 		using iterator = forward_iterator<T>;
-		using const_iterator = const forward_iterator<T>;
+		using const_iterator = const_forward_iterator<T>;
 		using data_type = T;
 		using node_type = details::single_node<T>;
 
@@ -310,6 +310,12 @@ namespace cpprelude
 		}
 
 		const_iterator
+		cbegin() const
+		{
+			return const_iterator(_head);
+		}
+
+		const_iterator
 		begin() const
 		{
 			return const_iterator(_head);
@@ -319,6 +325,12 @@ namespace cpprelude
 		begin()
 		{
 			return iterator(_head);
+		}
+
+		const_iterator
+		cend() const
+		{
+			return const_iterator();
 		}
 
 		const_iterator

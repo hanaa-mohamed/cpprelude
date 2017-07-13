@@ -7,7 +7,10 @@ namespace cpprelude
 	template<typename T, usize fixed_count>
 	struct array
 	{
+		using iterator = T*;
+		using const_iterator = const T*;
 		using data_type = T;
+		
 		T _data[fixed_count];
 
 		T&
@@ -38,6 +41,42 @@ namespace cpprelude
 		data()
 		{
 			return _data;
+		}
+
+		iterator
+		begin()
+		{
+			return _data;
+		}
+
+		const_iterator
+		begin() const
+		{
+			return _data;
+		}
+
+		const_iterator
+		cbegin() const
+		{
+			return _data;
+		}
+
+		iterator
+		end()
+		{
+			return _data + fixed_count;
+		}
+
+		const_iterator
+		end() const
+		{
+			return _data + fixed_count;
+		}
+
+		const_iterator
+		cend() const
+		{
+			return _data + fixed_count;
 		}
 	};
 }

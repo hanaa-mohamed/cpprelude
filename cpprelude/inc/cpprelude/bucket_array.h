@@ -25,7 +25,7 @@ namespace cpprelude
 		using bucket_type = T*;
 		using map_type = bucket_type*;
 		using iterator = bucket_array_iterator<T, bucket_size>;
-		using const_iterator = const iterator;
+		using const_iterator = const_bucket_array_iterator<T, bucket_size>;
 		using data_type = T;
 
 		map_type _map;
@@ -139,7 +139,7 @@ namespace cpprelude
 		{
 			reset();
 
-			for(auto& value: other)
+			for(const auto& value: other)
 				insert_back(value);
 
 			return *this;
@@ -382,6 +382,12 @@ namespace cpprelude
 		}
 
 		const_iterator
+		cbegin() const
+		{
+			return _begin;
+		}
+
+		const_iterator
 		begin() const
 		{
 			return _begin;
@@ -391,6 +397,12 @@ namespace cpprelude
 		begin()
 		{
 			return _begin;
+		}
+
+		const_iterator
+		cend() const
+		{
+			return _end;
 		}
 
 		const_iterator

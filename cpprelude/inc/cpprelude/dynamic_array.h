@@ -19,7 +19,7 @@ namespace cpprelude
 	struct dynamic_array
 	{
 		using iterator = sequential_iterator<T>;
-		using const_iterator = const sequential_iterator<T>;
+		using const_iterator = sequential_iterator<const T>;
 		using data_type = T;
 
 		slice<T> _data_block;
@@ -294,37 +294,49 @@ namespace cpprelude
 		const_iterator
 		front() const
 		{
-			return const_iterator(_data_block);
+			return const_iterator(_data_block.ptr);
 		}
 
 		iterator
 		front()
 		{
-			return iterator(_data_block);
+			return iterator(_data_block.ptr);
 		}
 
 		const_iterator
 		back() const
 		{
-			return const_iterator(&_data_block[_count-1]);
+			return const_iterator(_data_block.ptr + _count - 1);
 		}
 
 		iterator
 		back()
 		{
-			return iterator(&_data_block[_count-1]);
+			return iterator(_data_block.ptr + _count - 1);
 		}
 
 		const_iterator
 		begin() const
 		{
-			return const_iterator(_data_block);
+			return const_iterator(_data_block.ptr);
+		}
+
+		const_iterator
+		cbegin() const
+		{
+			return const_iterator(_data_block.ptr);
 		}
 
 		iterator
 		begin()
 		{
-			return iterator(_data_block);
+			return iterator(_data_block.ptr);
+		}
+
+		const_iterator
+		cend() const
+		{
+			return const_iterator(_data_block.ptr + _count);
 		}
 
 		const_iterator

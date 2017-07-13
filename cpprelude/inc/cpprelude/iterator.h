@@ -43,7 +43,7 @@ namespace cpprelude
 
 		sequential_iterator(T* ptr)
 			:_element(ptr)
-		{}
+		{}	
 
 		sequential_iterator<T>&
 		operator++()
@@ -123,6 +123,9 @@ namespace cpprelude
 	};
 
 	template<typename T>
+	struct const_forward_iterator;
+
+	template<typename T>
 	struct forward_iterator
 	{
 		using data_type = T;
@@ -165,6 +168,18 @@ namespace cpprelude
 			return !operator==(other);
 		}
 
+		bool
+		operator==(const const_forward_iterator<T>& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool
+		operator!=(const const_forward_iterator<T>& other) const
+		{
+			return !operator==(other);
+		}
+
 		const T&
 		operator*() const
 		{
@@ -189,6 +204,81 @@ namespace cpprelude
 			return &_node->data;
 		}
 	};
+
+	template<typename T>
+	struct const_forward_iterator
+	{
+		using data_type = const T;
+		const details::single_node<T>* _node;
+
+		const_forward_iterator()
+			:_node(nullptr)
+		{}
+
+		const_forward_iterator(const details::single_node<T>* node)
+			:_node(node)
+		{}
+
+		const_forward_iterator(const forward_iterator<T>& other)
+			:_node(other._node)
+		{}
+
+		const_forward_iterator&
+		operator++()
+		{
+			if(_node)
+				_node = _node->next;
+			return *this;
+		}
+
+		const_forward_iterator
+		operator++(int)
+		{
+			auto result = *this;
+			if(_node)
+				_node = _node->next;
+			return result;
+		}
+
+		bool
+		operator==(const forward_iterator<T>& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool
+		operator!=(const forward_iterator<T>& other) const
+		{
+			return !operator==(other);
+		}
+
+		bool
+		operator==(const const_forward_iterator& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool
+		operator!=(const const_forward_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		const T&
+		operator*() const
+		{
+			return _node->data;
+		}
+
+		const T*
+		operator->() const
+		{
+			return &_node->data;
+		}
+	};
+
+	template<typename T>
+	struct const_bidirectional_iterator;
 
 	template<typename T>
 	struct bidirectional_iterator
@@ -255,6 +345,18 @@ namespace cpprelude
 			return !operator==(other);
 		}
 
+		bool
+		operator==(const const_bidirectional_iterator<T>& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool
+		operator!=(const const_bidirectional_iterator<T>& other) const
+		{
+			return !operator==(other);
+		}
+
 		const T&
 		operator*() const
 		{
@@ -279,6 +381,103 @@ namespace cpprelude
 			return &_node->data;
 		}
 	};
+
+	template<typename T>
+	struct const_bidirectional_iterator
+	{
+		using data_type = T;
+		const details::double_node<T>* _node;
+
+		const_bidirectional_iterator()
+			:_node(nullptr)
+		{}
+
+		const_bidirectional_iterator(const details::double_node<T>* node)
+			:_node(node)
+		{}
+
+		const_bidirectional_iterator(const bidirectional_iterator<T>& other)
+			:_node(other._node)
+		{}
+
+		const_bidirectional_iterator&
+		operator++()
+		{
+			if(_node->next)
+				_node = _node->next;
+
+			return *this;
+		}
+
+		const_bidirectional_iterator
+		operator++(int)
+		{
+			auto result = *this;
+
+			if(_node->next)
+				_node = _node->next;
+
+			return result;
+		}
+
+		const_bidirectional_iterator&
+		operator--()
+		{
+			if(_node->prev)
+				_node = _node->prev;
+			return *this;
+		}
+
+		const_bidirectional_iterator
+		operator--(int)
+		{
+			auto result = *this;
+			
+			if(_node->prev)
+				_node = _node->prev;
+
+			return result;
+		}
+
+		bool
+		operator==(const bidirectional_iterator<T>& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool
+		operator!=(const bidirectional_iterator<T>& other) const
+		{
+			return !operator==(other);
+		}
+
+		bool
+		operator==(const const_bidirectional_iterator& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool
+		operator!=(const const_bidirectional_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		const T&
+		operator*() const
+		{
+			return _node->data;
+		}
+
+		const T*
+		operator->() const
+		{
+			return &_node->data;
+		}
+	};
+
+	template<typename T, usize bucket_size>
+	struct const_bucket_array_iterator;
 
 	template<typename T, usize bucket_size>
 	struct bucket_array_iterator
@@ -387,6 +586,18 @@ namespace cpprelude
 			return !operator==(other);
 		}
 
+		bool
+		operator==(const const_bucket_array_iterator<T, bucket_size>& other) const
+		{
+			return _element_it == other._element_it;
+		}
+
+		bool
+		operator!=(const const_bucket_array_iterator<T, bucket_size>& other) const
+		{
+			return !operator==(other);
+		}
+
 		const T&
 		operator*() const
 		{
@@ -409,6 +620,386 @@ namespace cpprelude
 		operator->() const
 		{
 			return &(*_element_it);
+		}
+	};
+
+	template<typename T, usize bucket_size>
+	struct const_bucket_array_iterator
+	{
+		using data_type = T;
+		const T** _bucket_it;
+		const T* _element_it;
+		usize _index;
+
+		const_bucket_array_iterator()
+			:_bucket_it(nullptr), _element_it(nullptr), _index(0)
+		{}
+
+		const_bucket_array_iterator(const T** bucket_it,
+							  const T* element_it, usize index)
+			:_bucket_it(bucket_it), _element_it(element_it), _index(index)
+		{}
+
+		const_bucket_array_iterator(const bucket_array_iterator<T, bucket_size>& other)
+			:_bucket_it(const_cast<const T**>(other._bucket_it)),
+			 _element_it(const_cast<const T*>(other._element_it)),
+			 _index(other._index)
+		{}
+
+		const_bucket_array_iterator&
+		operator++()
+		{
+			++_index;
+
+			if (_index >= bucket_size)
+			{
+				_index = 0;
+				++_bucket_it;
+				_element_it = *_bucket_it;
+			}
+			else
+			{
+				++_element_it;
+			}
+
+			return *this;
+		}
+
+		const_bucket_array_iterator
+		operator++(int)
+		{
+			auto result = *this;
+
+			++_index;
+
+			if (_index >= bucket_size)
+			{
+				_index = 0;
+				++_bucket_it;
+				_element_it = *_bucket_it;
+			}
+			else
+			{
+				++_element_it;
+			}
+
+			return result;
+		}
+
+		const_bucket_array_iterator&
+		operator--()
+		{
+			if(_index != 0)
+			{
+				--_element_it;
+				--_index;
+			}
+			else
+			{
+				--_bucket_it;
+				_index = bucket_size - 1;
+				_element_it = *_bucket_it + _index;
+			}
+
+			return *this;
+		}
+
+		const_bucket_array_iterator
+		operator--(int)
+		{
+			auto result = *this;
+
+			if(_index != 0)
+			{
+				--_element_it;
+				--_index;
+			}
+			else
+			{
+				--_bucket_it;
+				_index = bucket_size - 1;
+				_element_it = *_bucket_it + _index;
+			}
+
+			return result;
+		}
+
+		bool
+		operator==(const bucket_array_iterator<T, bucket_size>& other) const
+		{
+			return _element_it == other._element_it;
+		}
+
+		bool
+		operator!=(const bucket_array_iterator<T, bucket_size>& other) const
+		{
+			return !operator==(other);
+		}
+
+		bool
+		operator==(const const_bucket_array_iterator& other) const
+		{
+			return _element_it == other._element_it;
+		}
+
+		bool
+		operator!=(const const_bucket_array_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		const T&
+		operator*() const
+		{
+			return *_element_it;
+		}
+
+		const T*
+		operator->() const
+		{
+			return &(*_element_it);
+		}
+	};
+
+	template<typename key_type, typename value_type>
+	struct const_hash_array_iterator;
+
+	template<typename key_type, typename value_type>
+	struct hash_array_iterator
+	{
+		sequential_iterator<const key_type> key_it;
+		sequential_iterator<value_type> value_it;
+		sequential_iterator<u8> _flag_it;
+		usize _capacity;
+
+		hash_array_iterator()
+		{_capacity = 0;}
+
+		hash_array_iterator(const key_type* key, value_type* value, u8* flag, usize capacity)
+			:key_it(key), value_it(value), _flag_it(flag), _capacity(capacity)
+		{}
+
+		hash_array_iterator&
+		operator++()
+		{
+			++_flag_it;
+			++key_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++key_it;
+				++value_it;
+				--_capacity;
+			}
+
+			return *this;
+		}
+
+		hash_array_iterator&
+		operator++(int)
+		{
+			auto result = *this;
+
+			++_flag_it;
+			++key_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++key_it;
+				++value_it;
+				--_capacity;
+			}
+			
+			return result;
+		}
+
+		bool
+		operator==(const hash_array_iterator& other) const
+		{
+			return _flag_it 	== other._flag_it &&
+				   key_it 		== other.key_it   &&
+				   value_it 	== other.value_it &&
+				   _capacity	== other._capacity;
+		}
+
+		bool
+		operator!=(const hash_array_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		bool
+		operator==(const const_hash_array_iterator<key_type, value_type>& other) const
+		{
+			return _flag_it 	== other._flag_it &&
+				   key_it 		== other.key_it   &&
+				   value_it 	== other.value_it &&
+				   _capacity	== other._capacity;
+		}
+
+		bool
+		operator!=(const const_hash_array_iterator<key_type, value_type>& other) const
+		{
+			return !operator==(other);
+		}
+
+		const key_type&
+		operator*() const
+		{
+			return *key_it;
+		}
+
+		const key_type&
+		key() const
+		{
+			return *key_it;
+		}
+
+		value_type&
+		value()
+		{
+			return *value_it;
+		}
+
+		const value_type&
+		value() const
+		{
+			return *value_it;
+		}
+
+		value_type*
+		operator->()
+		{
+			return value_it;
+		}
+
+		const value_type*
+		operator->() const
+		{
+			return value_it;
+		}
+	};
+
+	template<typename key_type, typename value_type>
+	struct const_hash_array_iterator
+	{
+		sequential_iterator<const key_type> key_it;
+		sequential_iterator<const value_type> value_it;
+		sequential_iterator<const u8> _flag_it;
+		usize _capacity;
+
+		const_hash_array_iterator()
+		{_capacity = 0;}
+
+		const_hash_array_iterator(const key_type* key, const value_type* value, const u8* flag, usize capacity)
+			:key_it(key), value_it(value), _flag_it(flag), _capacity(capacity)
+		{}
+
+		const_hash_array_iterator(const hash_array_iterator<key_type, value_type>& other)
+			:key_it(other.key_it),
+			 value_it(other.value_it),
+			 _flag_it(other._flag_it),
+			 _capacity(other._capacity)
+		{}
+
+		const_hash_array_iterator&
+		operator++()
+		{
+			++_flag_it;
+			++key_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++key_it;
+				++value_it;
+				--_capacity;
+			}
+
+			return *this;
+		}
+
+		const_hash_array_iterator&
+		operator++(int)
+		{
+			auto result = *this;
+
+			++_flag_it;
+			++key_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++key_it;
+				++value_it;
+				--_capacity;
+			}
+			
+			return result;
+		}
+
+		bool
+		operator==(const hash_array_iterator<key_type, value_type>& other) const
+		{
+			return _flag_it 	== other._flag_it &&
+				   key_it 		== other.key_it   &&
+				   value_it 	== other.value_it &&
+				   _capacity	== other._capacity;
+		}
+
+		bool
+		operator!=(const hash_array_iterator<key_type, value_type>& other) const
+		{
+			return !operator==(other);
+		}
+
+		bool
+		operator==(const const_hash_array_iterator& other) const
+		{
+			return _flag_it 	== other._flag_it &&
+				   key_it 		== other.key_it   &&
+				   value_it 	== other.value_it &&
+				   _capacity	== other._capacity;
+		}
+
+		bool
+		operator!=(const const_hash_array_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		const key_type&
+		operator*() const
+		{
+			return *key_it;
+		}
+
+		const key_type&
+		key() const
+		{
+			return *key_it;
+		}
+
+		const value_type&
+		value() const
+		{
+			return *value_it;
+		}
+
+		const value_type*
+		operator->() const
+		{
+			return value_it;
 		}
 	};
 

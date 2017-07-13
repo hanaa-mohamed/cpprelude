@@ -20,7 +20,7 @@ namespace cpprelude
 	struct dlinked_list
 	{
 		using iterator = bidirectional_iterator<T>;
-		using const_iterator = const bidirectional_iterator<T>;
+		using const_iterator = const_bidirectional_iterator<T>;
 		using data_type = T;
 		using node_type = details::double_node<T>;
 
@@ -401,6 +401,12 @@ namespace cpprelude
 		}
 
 		const_iterator
+		cbegin() const
+		{
+			return const_iterator(_head->next);
+		}
+
+		const_iterator
 		begin() const
 		{
 			return const_iterator(_head->next);
@@ -410,6 +416,12 @@ namespace cpprelude
 		begin()
 		{
 			return iterator(_head->next);
+		}
+
+		const_iterator
+		cend() const
+		{
+			return const_iterator(_tail);
 		}
 
 		const_iterator

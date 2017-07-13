@@ -149,6 +149,16 @@ do_hash(const T& value)
 	return hasher(value);
 }
 
+void func_const(const cpprelude::dynamic_array<int>& art)
+{
+	for(cpprelude::dynamic_array<int>::const_iterator it = art.begin();
+		it != art.end();
+		++it)
+	{
+		std::cout << *it << std::endl;
+	}
+}
+
 void
 scratch()
 {
@@ -215,9 +225,34 @@ scratch()
 	std::cout << "hash(\"moustapha\"): " << do_hash("moustapha"_l) << std::endl;
 
 	cpprelude::hash_array<int, char> h_table;
-	h_table.insert(3, 5);
-	h_table.insert(4, 6);
-	h_table.insert(3, 9);
+	char ch = 'a';
+
+	for(int i=0;i<26;++i)
+		h_table.insert(i, ch++);
+
+	for(auto it = h_table.begin();
+		it != h_table.end();
+		++it)
+	{
+		std::cout << "key: " << *it << ", value: " << it.value() << std::endl;
+	}
+
+	
+	for(auto it = h_table.cbegin();
+		it != h_table.end();
+		++it)
+	{
+		std::cout << "key: " << *it << ", value: " << it.value() << std::endl;
+	}
+
+	cpprelude::dynamic_array<int> art;
+	art.insert_back(4);
+
+	for(const auto& x: art)
+		std::cout << x << std::endl;
+
+	func_const(art);
+		
 }
 
 void
@@ -284,7 +319,7 @@ test_string_conversion()
 	i32 num;
 	auto res = cpprelude::read(str_literal, num);
 	std::cout << res << std::endl;
-	std::cout << num << std::endl;
+	std::cout << num << std::endl;	
 }
 
 void
