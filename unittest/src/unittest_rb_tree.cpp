@@ -208,14 +208,14 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 	SECTION("Case 09")
 	{
-		rb_tree<usize> tree;
+		uRB_TREE tree;
 
 		usize i = 3;
 		tree.insert(i);
 		tree.insert(5);
 		//tree.inorder_traverse(print);
 		//Copy constructor
-		rb_tree<usize> tree2(tree);
+		uRB_TREE tree2(tree);
 		tree2.inorder_traverse(insert);
 		CHECK(tree2.count() == 2);
 		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
@@ -232,7 +232,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 	SECTION("Case 10")
 	{
-		rb_tree<usize> array;
+		uRB_TREE array;
 		array.insert(3);
 		CHECK(array.count() == 1);
 		array.insert(1);
@@ -255,7 +255,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 	SECTION("Case 11")
 	{
-		rb_tree<usize> array;
+		uRB_TREE array;
 		array.insert(3);
 		CHECK(array.count() == 1);
 		array.insert(1);
@@ -269,7 +269,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 	//insertion 
 	SECTION("Case 12")
 	{
-		rb_tree<usize> tree;
+		uRB_TREE tree;
 		tree.insert(15);
 		tree.insert(1);
 		tree.insert(20);

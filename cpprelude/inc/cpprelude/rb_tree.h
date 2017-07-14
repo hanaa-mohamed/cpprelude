@@ -62,27 +62,35 @@ namespace cpprelude {
 		}
 
 		rb_tree(rb_tree<T>&& other)
-			:_root(nullptr), _count(0), _allocator(tmp::move(other._allocator)), _less_than(other._less_than)
+			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator))
+			, _less_than(tmp::move(other._less_than))
 		{
-			_copy_content(tmp::move(other));
+			other._root = nullptr;
+			other._count = 0;
 		}
 
 		rb_tree(rb_tree<T>&& other, Comparator compare_function)
-			:_root(nullptr), _count(0), _allocator(tmp::move(other._allocator)), _less_than(compare_function)
+			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator))
+			, _less_than(compare_function)
 		{
-			_copy_content(tmp::move(other));
+			other._root = nullptr;
+			other._count = 0;
 		}
 
 		rb_tree(rb_tree<T>&& other, const AllocatorT& allocator)
-			:_root(nullptr), _count(0), _allocator(allocator), _less_than(other._less_than)
+			:_root(other._root), _count(other._count), _allocator(allocator)
+			, _less_than(tmp::move(other._less_than))
 		{
-			_copy_content(tmp::move(other));
+			other._root = nullptr;
+			other._count = 0;
 		}
 
 		rb_tree(rb_tree<T>&& other, const AllocatorT& allocator, Comparator compare_function)
-			:_root(nullptr), _count(0), _allocator(allocator), _less_than(compare_function)
+			:_root(other._root), _count(other._count), _allocator(allocator)
+			, _less_than(compare_function)
 		{
-			_copy_content(tmp::move(other));
+			other._root = nullptr;
+			other._count = 0;
 		}
 
 		~rb_tree()
@@ -103,10 +111,13 @@ namespace cpprelude {
 		rb_tree<T>&
 		operator=(rb_tree<T>&& other)
 		{
-			clear();
+			_reset(_root);
 			_allocator = tmp::move(other._allocator);
-			_less_than = other._less_than;
-			_copy_content(tmp::move(other));
+			_less_than = tmp::move(other._less_than);
+			_count = other._count;
+			other._count = 0;
+			_root = other._root;
+			other._root = nullptr;
 			return *this;
 		}
 
@@ -119,7 +130,7 @@ namespace cpprelude {
 		rb_iterator
 		operator[](T&& key)
 		{	//this function either returns the existed node or the new inserted node
-			return insert(key);
+			return insert(tmp::move(key));
 		}
 
 		void
@@ -161,7 +172,7 @@ namespace cpprelude {
 		void
 		delete_rb_tree(T&&k)
 		{
-			rb_iterator node_to_delete = lookup(k);
+			rb_iterator node_to_delete = lookup(tmp::move(k));
 			delete_rb_tree(node_to_delete);
 		}
 
@@ -235,7 +246,7 @@ namespace cpprelude {
 		lookup(T&& key)
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(key);
+			RB_Node* key_it = _create_node(tmp::move(key));
 			if (result != nullptr)
 				result = _lookup(key_it, _root);
 			return rb_iterator(result);
@@ -245,7 +256,7 @@ namespace cpprelude {
 		lookup(T&& key) const
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(key);
+			RB_Node* key_it = _create_node(tmp::move(key));
 			if (result != nullptr)
 				result = _lookup(key_it, _root);
 			return const_rb_iterator(result);
@@ -290,15 +301,6 @@ namespace cpprelude {
 			tmp::swap(_root, other._root);
 			tmp::swap(_count, other._count);
 			tmp::swap(_allocator, other._allocator);
-			tmp::swap(_less_than, other._less_than);
-		}
-
-		void
-		swap(rb_tree&& other)
-		{
-			tmp::swap(_root, other._root);
-			tmp::swap(_count, tmp::move(other._count));
-			tmp::swap(_allocator, tmp::move(other._allocator));
 			tmp::swap(_less_than, other._less_than);
 		}
 
@@ -586,7 +588,7 @@ namespace cpprelude {
 		_create_node(T&& k)
 		{
 			auto temp = _allocator.template alloc<RB_Node>();
-			new (temp) RB_Node(k);
+			new (temp) RB_Node(tmp::move(k));
 			return temp;
 		}
 
@@ -646,24 +648,6 @@ namespace cpprelude {
 				queue.enqueue(it->right);
 			}
 		}
-
-		void
-		_copy_content(rb_tree<T>&& other)
-		{
-			queue_array<rb_iterator> queue;
-			queue.enqueue(tmp::move(other.root()));
-
-			while (!queue.empty())
-			{
-				auto it = queue.front();
-				queue.dequeue();
-				if (it == nullptr) continue;
-
-				insert(tmp::move(it->data));
-				queue.enqueue(tmp::move(it->left));
-				queue.enqueue(tmp::move(it->right));
-			}
-		}	
 
 		template<typename function_type>
 		void
