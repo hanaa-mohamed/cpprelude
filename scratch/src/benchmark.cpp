@@ -1098,7 +1098,11 @@ benchmark_hash_array(cpprelude::usize limit)
 
 		w.start();
 		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
 			array.insert(i, i+9);
+			auto it = array.lookup(i);
+			array.remove(it);
+		}
 		w.stop();
 
 		avg_sec += w.seconds();
@@ -1559,7 +1563,11 @@ benchmark_std_unordered_map(cpprelude::usize limit)
 
 		w.start();
 		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
 			array.insert({i, i+9});
+			auto it = array.find(i);
+			array.erase(it);
+		}
 		w.stop();
 
 		avg_sec += w.seconds();

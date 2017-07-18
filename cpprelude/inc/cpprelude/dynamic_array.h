@@ -163,11 +163,10 @@ namespace cpprelude
 		{
 			_mem_expand((_count+additional_count));
 
-			auto old_count = _count;
-			_count += additional_count;
+			for(usize i = 0; i < additional_count; ++i)
+				new (&_data_block[_count+i]) T(fill_value);
 
-			for(usize i = old_count; i < _count; ++i)
-				new (&_data_block[i]) T(fill_value);
+			_count += additional_count;
 		}
 
 		void

@@ -245,6 +245,28 @@ scratch()
 		std::cout << "key: " << *it << ", value: " << it.value() << std::endl;
 	}
 
+	std::cout << "key range: " << std::endl;
+	for(auto& key: h_table.keys())
+	{
+		std::cout << key << std::endl;
+	}
+
+	std::cout << "value range: " << std::endl;
+	for(const auto& value: h_table.values())
+	{
+		std::cout << value << std::endl;
+	}
+
+	std::cout << "const value range: " << std::endl;
+	for(auto& value: h_table.cvalues())
+	{
+		std::cout << value << std::endl;
+	}
+
+	std::cout << "find 5: " << h_table.lookup(5).value() << std::endl;
+	std::cout << "find 23: " << h_table.lookup(23).value() << std::endl;
+	std::cout << "find 0: " << h_table.lookup(0).value() << std::endl;
+
 	cpprelude::dynamic_array<int> art;
 	art.insert_back(4);
 

@@ -1003,6 +1003,380 @@ namespace cpprelude
 		}
 	};
 
+	template<typename key_type>
+	struct hash_array_key_iterator
+	{
+		sequential_iterator<const key_type> key_it;
+		sequential_iterator<const u8> _flag_it;
+		usize _capacity;
+
+		hash_array_key_iterator()
+		{_capacity = 0;}
+
+		hash_array_key_iterator(const key_type* key,const u8* flag, usize capacity)
+			:key_it(key), _flag_it(flag), _capacity(capacity)
+		{}
+
+		hash_array_key_iterator&
+		operator++()
+		{
+			++_flag_it;
+			++key_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++key_it;
+				--_capacity;
+			}
+
+			return *this;
+		}
+
+		hash_array_key_iterator&
+		operator++(int)
+		{
+			auto result = *this;
+
+			++_flag_it;
+			++key_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++key_it;
+				--_capacity;
+			}
+			
+			return result;
+		}
+
+		bool
+		operator==(const hash_array_key_iterator& other) const
+		{
+			return _flag_it 	== other._flag_it &&
+				   key_it 		== other.key_it   &&
+				   _capacity	== other._capacity;
+		}
+
+		bool
+		operator!=(const hash_array_key_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		const key_type&
+		operator*() const
+		{
+			return *key_it;
+		}
+
+		const key_type&
+		key() const
+		{
+			return *key_it;
+		}
+
+		const key_type*
+		operator->() const
+		{
+			return key_it;
+		}
+	};
+
+	template<typename value_type>
+	struct hash_array_value_iterator
+	{
+		sequential_iterator<value_type> value_it;
+		sequential_iterator<u8> _flag_it;
+		usize _capacity;
+
+		hash_array_value_iterator()
+		{_capacity = 0;}
+
+		hash_array_value_iterator(value_type* value, u8* flag, usize capacity)
+			:value_it(value), _flag_it(flag), _capacity(capacity)
+		{}
+
+		hash_array_value_iterator&
+		operator++()
+		{
+			++_flag_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++value_it;
+				--_capacity;
+			}
+
+			return *this;
+		}
+
+		hash_array_value_iterator&
+		operator++(int)
+		{
+			auto result = *this;
+
+			++_flag_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++value_it;
+				--_capacity;
+			}
+			
+			return result;
+		}
+
+		bool
+		operator==(const hash_array_value_iterator& other) const
+		{
+			return _flag_it 	== other._flag_it &&
+				   value_it 	== other.value_it &&
+				   _capacity	== other._capacity;
+		}
+
+		bool
+		operator!=(const hash_array_value_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		value_type&
+		operator*()
+		{
+			return *value_it;
+		}
+
+		const value_type&
+		operator*() const
+		{
+			return *value_it;
+		}
+
+		value_type&
+		value()
+		{
+			return *value_it;
+		}
+
+		const value_type&
+		value() const
+		{
+			return *value_it;
+		}
+
+		value_type*
+		operator->()
+		{
+			return value_it;
+		}
+
+		const value_type*
+		operator->() const
+		{
+			return value_it;
+		}
+	};
+
+	template<typename value_type>
+	struct const_hash_array_value_iterator
+	{
+		sequential_iterator<const value_type> value_it;
+		sequential_iterator<const u8> _flag_it;
+		usize _capacity;
+
+		const_hash_array_value_iterator()
+		{_capacity = 0;}
+
+		const_hash_array_value_iterator(const value_type* value, const u8* flag, usize capacity)
+			:value_it(value), _flag_it(flag), _capacity(capacity)
+		{}
+
+		const_hash_array_value_iterator&
+		operator++()
+		{
+			++_flag_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++value_it;
+				--_capacity;
+			}
+
+			return *this;
+		}
+
+		const_hash_array_value_iterator&
+		operator++(int)
+		{
+			auto result = *this;
+
+			++_flag_it;
+			++value_it;
+			--_capacity;
+
+			while(*_flag_it == 0 && _capacity > 0)
+			{
+				++_flag_it;
+				++value_it;
+				--_capacity;
+			}
+			
+			return result;
+		}
+
+		bool
+		operator==(const const_hash_array_value_iterator& other) const
+		{
+			return _flag_it 	== other._flag_it &&
+				   value_it 	== other.value_it &&
+				   _capacity	== other._capacity;
+		}
+
+		bool
+		operator!=(const const_hash_array_value_iterator& other) const
+		{
+			return !operator==(other);
+		}
+
+		const value_type&
+		operator*() const
+		{
+			return *value_it;
+		}
+
+		const value_type&
+		value() const
+		{
+			return *value_it;
+		}
+
+		const value_type*
+		operator->() const
+		{
+			return value_it;
+		}
+	};
+
+   	template<typename iterator, typename const_iterator>
+	struct view
+	{
+		iterator _begin_it;
+		iterator _end_it;
+		const_iterator _cbegin_it;
+		const_iterator _cend_it;
+
+		view(const iterator& begin_it, const iterator& end_it,
+			 const const_iterator& cbegin_it, const const_iterator& cend_it)
+			:_begin_it(begin_it), _end_it(end_it),
+			 _cbegin_it(cbegin_it), _cend_it(cend_it)
+		{}
+
+		view()
+		{}
+
+		iterator
+		begin()
+		{
+			auto result = _begin_it;
+			if(*result._flag_it == 0)
+				++result;
+			return result;
+		}
+
+		const_iterator
+		begin() const
+		{
+			auto result = _cbegin_it;
+			if(*result._flag_it == 0)
+				++result;
+			return result;
+		}
+
+		const_iterator
+		cbegin() const
+		{
+			auto result = _cbegin_it;
+			if(*result._flag_it == 0)
+				++result;
+			return result;
+		}
+
+		iterator
+		end()
+		{
+			return _end_it;
+		}
+
+		const_iterator
+		end() const
+		{
+			return _cend_it;
+		}
+
+		const_iterator
+		cend() const
+		{
+			return _cend_it;
+		}
+	};
+
+	template<typename const_iterator>
+	struct const_view
+	{
+		const_iterator _cbegin_it;
+		const_iterator _cend_it;
+
+		const_view(const const_iterator& cbegin_it, const const_iterator&  cend_it)
+			:_cbegin_it(cbegin_it), _cend_it(cend_it)
+		{}
+
+		const_view()
+		{}
+
+		const_iterator
+		begin() const
+		{
+			auto result = _cbegin_it;
+			if(*result._flag_it == 0)
+				++result;
+			return result;
+		}
+
+		const_iterator
+		cbegin() const
+		{
+			auto result = _cbegin_it;
+			if(*result._flag_it == 0)
+				++result;
+			return result;
+		}
+
+		const_iterator
+		end() const
+		{
+			return _cend_it;
+		}
+
+		const_iterator
+		cend() const
+		{
+			return _cend_it;
+		}
+	};
+
 	template<typename T>
 	T
 	next(T it, usize n = 1)

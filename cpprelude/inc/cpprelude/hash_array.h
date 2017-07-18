@@ -7,6 +7,9 @@
 #include "cpprelude/memory.h"
 #include "cpprelude/iterator.h"
 
+#include <new>
+#include <iostream>
+
 namespace cpprelude
 {
 	namespace details
@@ -226,6 +229,10 @@ namespace cpprelude
 		using hash_type = hashType;
 		using iterator = hash_array_iterator<keyType, valueType>;
 		using const_iterator = const_hash_array_iterator<keyType, valueType>;
+		using key_view = const_view<hash_array_key_iterator<key_type>>;
+		using value_view = view<hash_array_value_iterator<value_type>,
+								const_hash_array_value_iterator<value_type>>;
+		using const_value_view = const_view<const_hash_array_value_iterator<value_type>>;
 
 		dynamic_array<key_type, AllocatorT> _keys;
 		dynamic_array<value_type, AllocatorT> _values;
@@ -236,24 +243,75 @@ namespace cpprelude
 		hash_array(const AllocatorT& allocator = AllocatorT())
 			:_keys(allocator), _values(allocator), _flags(allocator), _count(0)
 		{
-			constexpr usize starting_count = 128;
+			constexpr usize starting_count = 16;
 			
 			_keys.expand_back(starting_count);
 			_values.expand_back(starting_count);
 			_flags.expand_back(starting_count, 0);
 		}
 
-		bool
+		iterator
+		insert(const key_type& key)
+		{
+			_maintain_space_complexity();
+
+			auto index = _find_position(key);
+
+			//we couldn't find a position
+			if(index == capacity())
+				return end();
+			
+			_keys[index] = key;
+
+			//if this cell is empty mark it full and increment _count
+			if(_flags[index] == 0)
+			{
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return iterator(_keys.data() + index,
+							_values.data() + index,
+							_flags.data() + index,
+							capacity() - index);
+		}
+
+		iterator
+		insert(key_type&& key)
+		{
+			_maintain_space_complexity();
+
+			auto index = _find_position(key);
+
+			//we couldn't find a position
+			if(index == capacity())
+				return end();
+			
+			_keys[index] = tmp::move(key);
+
+			//if this cell is empty mark it full and increment _count
+			if(_flags[index] == 0)
+			{
+				_flags[index] = 1;
+				++_count;
+			}
+
+			return iterator(_keys.data() + index,
+							_values.data() + index,
+							_flags.data() + index,
+							capacity() - index);
+		}
+
+		iterator
 		insert(const key_type& key, const value_type& value)
 		{
-			if(_count > capacity() / 2)
-				reserve(capacity() * 2);
+			_maintain_space_complexity();
 
 			auto index = _find_position(key);
 
 			//we couldn't find a position
 			if(index == capacity())
-				return false;
+				return end();
 			
 			_keys[index] = key;
 			_values[index] = value;
@@ -265,20 +323,22 @@ namespace cpprelude
 				++_count;
 			}
 
-			return true;
+			return iterator(_keys.data() + index,
+							_values.data() + index,
+							_flags.data() + index,
+							capacity() - index);
 		}
 
-		bool
+		iterator
 		insert(key_type&& key, const value_type& value)
 		{
-			if(_count > capacity() / 2)
-				reserve(capacity() * 2);
+			_maintain_space_complexity();
 
 			auto index = _find_position(key);
 
 			//we couldn't find a position
 			if(index == capacity())
-				return false;
+				return end();
 			
 			_keys[index] = tmp::move(key);
 			_values[index] = value;
@@ -290,20 +350,22 @@ namespace cpprelude
 				++_count;
 			}
 
-			return true;
+			return iterator(_keys.data() + index,
+							_values.data() + index,
+							_flags.data() + index,
+							capacity() - index);
 		}
 
-		bool
+		iterator
 		insert(const key_type& key, value_type&& value)
 		{
-			if(_count > capacity() / 2)
-				reserve(capacity() * 2);
+			_maintain_space_complexity();
 
 			auto index = _find_position(key);
 
 			//we couldn't find a position
 			if(index == capacity())
-				return false;
+				return end();
 			
 			_keys[index] = key;
 			_values[index] = tmp::move(value);
@@ -315,20 +377,22 @@ namespace cpprelude
 				++_count;
 			}
 
-			return true;
+			return iterator(_keys.data() + index,
+							_values.data() + index,
+							_flags.data() + index,
+							capacity() - index);
 		}
 
-		bool
+		iterator
 		insert(key_type&& key, value_type&& value)
 		{
-			if(_count > capacity() / 2)
-				reserve(capacity() * 2);
+			_maintain_space_complexity();
 
 			auto index = _find_position(key);
 
 			//we couldn't find a position
 			if(index == capacity())
-				return false;
+				return end();
 			
 			_keys[index] = tmp::move(key);
 			_values[index] = tmp::move(value);
@@ -340,7 +404,38 @@ namespace cpprelude
 				++_count;
 			}
 
-			return true;
+			return iterator(_keys.data() + index,
+							_values.data() + index,
+							_flags.data() + index,
+							capacity() - index);
+		}
+
+		iterator
+		lookup(const key_type& key)
+		{
+			auto index = _find_position(key);
+
+			if(_flags[index] == 0)
+				return end();
+
+			return iterator(_keys.data() + index,
+							_values.data() + index,
+							_flags.data() + index,
+							capacity() - index);
+		}
+
+		const_iterator
+		lookup(const key_type& key) const
+		{
+			auto index = _find_position(key);
+
+			if(_flags[index] == 0)
+				return cend();
+
+			return const_iterator(_keys.data() + index,
+								  _values.data() + index,
+								  _flags.data() + index,
+								  capacity() - index);
 		}
 
 		value_type&
@@ -424,15 +519,40 @@ namespace cpprelude
 			_keys[index].~key_type();
 			_values[index].~value_type();
 			--_count;
+			_remove_rehash(index, _hasher(key));
 			return true;
 		}
 
-		
+		bool
+		remove(const iterator& it)
+		{
+			//since the user has send an iterator we can deduce index
+			const key_type* key_ptr = it.key_it;
+			auto key_hash = _hasher(*key_ptr);
+			auto index = key_ptr > _keys.data() ? key_ptr - _keys.data() :    _keys.data() - key_ptr;
+
+			//if not found then don't remove
+			if(_flags[index] == 0)
+				return false;
+
+			_flags[index] = 0;
+			_keys[index].~key_type();
+			_values[index].~value_type();
+			--_count;
+			_remove_rehash(index, key_hash);
+			return true;
+		}
 
 		bool
 		empty() const
 		{
 			return _count == 0;
+		}
+
+		usize
+		count() const
+		{
+			return _count;
 		}
 
 		usize
@@ -444,9 +564,18 @@ namespace cpprelude
 		void
 		reserve(usize new_count)
 		{
+			usize cap = capacity();
+			
+			if(new_count <= cap)
+				return;
+
+			new_count = new_count - cap;
+			
 			_keys.expand_back(new_count);
 			_values.expand_back(new_count);
 			_flags.expand_back(new_count, 0);
+
+			_reserve_rehash(cap);
 		}
 
 		void
@@ -462,8 +591,8 @@ namespace cpprelude
 				if(*flag_it != 0)
 				{
 					*flag_it = 0;
-					key_it->~key_type();
-					value_it->~value_type();
+					(*key_it).~key_type();
+					(*value_it).~value_type();
 				}
 
 				flag_it = next(flag_it);
@@ -484,7 +613,7 @@ namespace cpprelude
 			return result;
 		}
 
-		const_iterator
+		const_iterator	
 		begin() const
 		{
 			const_iterator result(_keys.cbegin(), _values.begin(), _flags.begin(), capacity());
@@ -523,12 +652,143 @@ namespace cpprelude
 		{
 			return const_iterator(_keys.cend(), _values.end(), _flags.end(), 0);
 		}
+
+		key_view
+		keys() const
+		{
+			return key_view(
+				hash_array_key_iterator<key_type>(_keys.cbegin(),
+										_flags.cbegin(),
+										capacity()),
+				hash_array_key_iterator<key_type>(_keys.cend(),
+										_flags.cend(),
+										0)
+							);
+		}
+
+		value_view
+		values()
+		{
+			return value_view(
+				hash_array_value_iterator<value_type>(_values.begin(),
+										  _flags.begin(),
+										  capacity()),
+				hash_array_value_iterator<value_type>(_values.end(),
+										  _flags.end(),
+										  0),
+				const_hash_array_value_iterator<value_type>(_values.cbegin(),
+												_flags.cbegin(),
+												capacity()),
+				const_hash_array_value_iterator<value_type>(_values.cend(),
+												_flags.cend(),
+												0)
+							 );
+		}
+
+		const_value_view
+		values() const
+		{
+			return const_value_view(
+				const_hash_array_value_iterator<value_type>(_values.cbegin(),
+												_flags.cbegin(),
+												capacity()),
+				const_hash_array_value_iterator<value_type>(_values.cend(),
+												_flags.cend(),
+												0)
+									);
+		}
+
+		const_value_view
+		cvalues() const
+		{
+			return const_value_view(
+				const_hash_array_value_iterator<value_type>(_values.cbegin(),
+												_flags.cbegin(),
+												capacity()),
+				const_hash_array_value_iterator<value_type>(_values.cend(),
+												_flags.cend(),
+												0)
+									);
+		}
+
+		void
+		_maintain_space_complexity()
+		{
+			if(_count > capacity() * 0.75f)
+				reserve(capacity() * 2);
+		}
+
+		void
+		_reserve_rehash(usize old_count)
+		{
+			//here we rehash everything in the old data to the new space
+			usize cap = capacity();
+
+			for(usize i = 0;
+				i < old_count;
+				++i)
+			{
+				//if there's value here
+				if(_flags[i] != 0)
+				{
+					//calc the new position
+					usize new_index = _find_position(_keys[i]);
+					//if the new index is not the same as the old then
+					if(new_index != i)
+					{
+						//move the elements to the new index
+						new (_keys.data() + new_index)  key_type(tmp::move(_keys[i]));
+						new (_values.data() + new_index)  value_type(tmp::move(_values[i]));
+						tmp::swap(_flags[i], _flags[new_index]);
+						
+					}
+				}
+			}
+		}
+
+		void
+		_remove_rehash(usize index, usize hash)
+		{
+			//when remove we must linear probe and find all equal hashes and
+			// relocate them one by one starting from the empty removed cell
+			usize cap = capacity();
+			usize i, j;
+			i = (index + 1) % cap;
+			j = index;
+			
+			while(i != index)
+			{
+				//if this is an empty cell then go out
+				if(_flags[i] == 0)
+					return;
+
+				//if the hash of this key is equal to the removed hash
+				//move the key of i into j
+				//move the value of i into j
+				//move the flag of i into j
+				if(_hasher(_keys[i]) % cap == hash % cap)
+				{
+					new (_keys.data() + j) key_type(tmp::move(_keys[i]));
+					new (_values.data() + j) value_type(tmp::move(_values[i]));
+					tmp::swap(_flags[j], _flags[i]);
+				}
+				//we finished the linearly probed elements in table
+				else
+				{
+					return;
+				}
+
+				j = i; //j is behind i by one
+				++i;
+				i %= cap;
+			}
+		}
 		
 		usize
 		_find_position(const key_type& key) const
 		{
-			usize hash_value = _hasher(key);
 			usize cap = capacity();
+			usize hash_value = _hasher(key);
 			usize index = hash_value % cap;
 			usize it = index;
 

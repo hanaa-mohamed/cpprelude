@@ -285,12 +285,13 @@ namespace cpprelude
 		{
 			_buffer[slice_size-1] = '\0';
 			auto it = str;
-			auto count = slice_size;
+			auto count = slice_size - 1;
 			auto buffer_it = this->data();
 			while(*it && count--)
 			{
 				*buffer_it++ = *it++;
 			}
+			*buffer_it = '\0';
 		}
 
 		local_string_slice(const literal_slice<T>& str)
@@ -298,24 +299,26 @@ namespace cpprelude
 		{
 			_buffer[slice_size-1] = '\0';
 			auto it = str.data();
-			auto count = slice_size;
+			auto count = slice_size - 1;
 			auto buffer_it = this->data();
 			while(*it && count--)
 			{
 				*buffer_it++ = *it++;
 			}
+			*buffer_it = '\0';
 		}
 
 		local_string_slice&
 		operator=(const T* str)
 		{
 			auto it = str;
-			auto count = slice_size;
+			auto count = slice_size - 1;
 			auto buffer_it = this->data();
 			while(*it && count--)
 			{
 				*buffer_it++ = *it++;
 			}
+			*buffer_it = '\0';
 			return *this;
 		}
 
@@ -323,12 +326,13 @@ namespace cpprelude
 		operator=(const literal_slice<T>& str)
 		{
 			auto it = str.data();
-			auto count = slice_size;
+			auto count = slice_size - 1;
 			auto buffer_it = this->data();
 			while(*it && count--)
 			{
 				*buffer_it++ = *it++;
 			}
+			*buffer_it = '\0';
 			return *this;
 		}
 	};
@@ -1031,4 +1035,10 @@ namespace cpprelude
 
 	API cpprelude::uliteral
 	operator"" _l(const wchar_t* str, std::size_t str_count);
+
+	API cpprelude::string
+	operator"" _s(const char* str, std::size_t str_count);
+
+	API cpprelude::ustring
+	operator"" _s(const wchar_t* str, std::size_t str_count);
 }
