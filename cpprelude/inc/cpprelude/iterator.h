@@ -72,10 +72,11 @@ namespace cpprelude
 			}
 		};
 
-		enum  color_type { RED, BLACK };
+		
 		template<typename T>
 		struct rb_node
 		{
+			enum color_type:bool { RED, BLACK };
 			T data;
 			color_type color;
 			rb_node<T> * left;

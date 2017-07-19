@@ -14,7 +14,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 	using uRB_TREE = rb_tree<usize>;
 	using bRB_TREE = rb_tree<cpprelude::byte>;
 	using uIterator = rb_tree_iterator<usize>;
-
+	using color_type = typename details::rb_node<usize>::color_type;
 	dynamic_array<usize> arr;
 	std::function <void(uIterator it)> insert = [&arr](uIterator it) {
 		arr.insert_back(it->data);
@@ -22,7 +22,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 
 	std::function <void(uIterator it)> print = [](uIterator it) {
-		auto c = it->color == details::color_type::RED ? "RED" : "BLACK";
+		auto c = it->color == color_type::RED ? "RED" : "BLACK";
 		std::cout << "key: " << it->data /*<< " value: " << obj.value*/ << " color: " << c << std::endl;
 		auto temp = it->parent != nullptr ? it->parent->data : 0;
 		std::cout << "parent: " << temp << " ";
@@ -180,7 +180,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 	SECTION("Case 08")
 	{
 		using pair_node = details::pair_node<usize, std::string>;
-		ordered_map<usize,std::string> tree;
+		rb_tree<pair_node> tree;
 
 		dynamic_array<pair_node> arr1;
 		std::function <void(rb_tree_iterator<pair_node> it)> insert = [&arr1](rb_tree_iterator<pair_node> it) {

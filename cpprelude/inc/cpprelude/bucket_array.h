@@ -94,7 +94,7 @@ namespace cpprelude
 		}
 
 		bucket_array(bucket_array&& other, const AllocatorT& allocator)
-			:_allocator(tmp::move(other._allocator)),
+			:_allocator(allocator),
 			 _count(other._count),
 			 _bucket_count(other._bucket_count),
 			 _cap_begin(tmp::move(other._cap_begin)),

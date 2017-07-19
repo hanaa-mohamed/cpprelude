@@ -14,7 +14,7 @@ namespace cpprelude {
 		using RB_Node = details::rb_node<T>;
 		using rb_iterator = rb_tree_iterator<T>;
 		using const_rb_iterator = const rb_tree_iterator<T>;
-		using COLOR = details::color_type;
+		using COLOR = typename RB_Node::color_type;
 		using data_type = T;
 
 		RB_Node* _root;
@@ -710,7 +710,4 @@ namespace cpprelude {
 				return it;
 		}
 	};
-
-	template<typename key, typename value, typename Comparator = tmp::default_less_than<details::pair_node<key, value>>, typename AllocatorT = global_allocator>
-	using ordered_map = rb_tree<details::pair_node<key, value>, Comparator, AllocatorT>;
 }
