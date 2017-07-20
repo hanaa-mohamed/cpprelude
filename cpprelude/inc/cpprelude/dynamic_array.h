@@ -154,7 +154,7 @@ namespace cpprelude
 
 			for(usize i = 0; i < additional_count; ++i)
 				new (&_data_block[_count+i]) T();
-			
+
 			_count += additional_count;
 		}
 
@@ -363,7 +363,7 @@ namespace cpprelude
 		{
 			slice<T> result = tmp::move(_data_block);
 			_count = 0;
-			return result;	
+			return result;
 		}
 
 		void

@@ -120,9 +120,9 @@ namespace cpprelude
 		operator=(const slinked_list<T>& other)
 		{
 			reset();
-			
+
 			_allocator = other._allocator;
-			
+
 			auto* other_it = &other._head;
 			auto* it = &_head;
 

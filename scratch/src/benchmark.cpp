@@ -1078,7 +1078,7 @@ benchmark_string_writer(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-	
+
 	std::cout << "benchmark string_writer" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
@@ -1115,7 +1115,7 @@ benchmark_hash_array(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-	
+
 	std::cout << "benchmark hash_array" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
@@ -1580,7 +1580,7 @@ benchmark_std_unordered_map(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-	
+
 	std::cout << "benchmark unordered_map" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
@@ -1595,7 +1595,7 @@ benchmark()
 	cpprelude::usize limit = 10000;
 
 	std::cout << "\nBENCHMARK START\n" << std::endl;
-	
+
 	benchmark_vector(limit);
 	std::cout << std::endl;
 	benchmark_dynamic_array(limit);
@@ -1652,7 +1652,7 @@ benchmark()
 	benchmark_std_priority_queue(limit);
 
 	std::cout <<"============================================================"<< std::endl;
-	
+
 	benchmark_string_writer(limit);
 	std::cout << std::endl;
 	benchmark_std_string(limit);
@@ -1664,7 +1664,7 @@ benchmark()
 	benchmark_hash_array(limit);
 	std::cout << std::endl;
 	benchmark_std_unordered_map(limit);
-	
+
 	std::cout <<"============================================================"<< std::endl;
 	benchmark_std_sort(limit);
 	std::cout << std::endl;
@@ -1689,7 +1689,7 @@ benchmark()
 	benchmark_thread_unique(limit/10);
 	std::cout << std::endl;
 	benchmark_thread_multi_reader(limit/10);
-	
+
 
 	std::cout << "\nBENCHMARK END\n" << std::endl;
 }

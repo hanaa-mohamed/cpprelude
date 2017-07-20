@@ -44,7 +44,7 @@ namespace cpprelude
 			ptr = other.ptr;
 			size = other.size;
 			other.ptr = nullptr;
-			other.size = 0;	
+			other.size = 0;
 			return *this;
 		}
 

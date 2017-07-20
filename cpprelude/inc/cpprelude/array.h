@@ -10,7 +10,7 @@ namespace cpprelude
 		using iterator = T*;
 		using const_iterator = const T*;
 		using data_type = T;
-		
+
 		T _data[fixed_count];
 
 		T&

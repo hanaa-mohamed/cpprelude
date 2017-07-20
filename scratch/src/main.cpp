@@ -135,7 +135,7 @@ quick_select_test()
 	cpprelude::dlinked_list<int> array;
 	for (int i = 0; i < 10; ++i)
 		array.insert_back(i);
-	
+
 	for (auto& n : array)
 		std::cout << n << " ";
 	std::cout << "\nquick_select(4): " << *quick_select(array.begin(), array.count(), 4) << std::endl;
@@ -238,7 +238,7 @@ scratch()
 		std::cout << "key: " << *it << ", value: " << it.value() << std::endl;
 	}
 
-	
+
 	for(auto it = h_table.cbegin();
 		it != h_table.end();
 		++it)
@@ -275,7 +275,7 @@ scratch()
 		std::cout << x << std::endl;
 
 	func_const(art);
-	
+
 	cpprelude::hash_set<usize> ss;
 	ss.insert(3);
 }
@@ -339,12 +339,12 @@ test_string_conversion()
 	std::cout << cpprelude::write(str, 1, " ", 2.0f, " ", 3.0, " ", 4u) << std::endl;
 
 	std::cout << str << std::endl;
-	
+
 	auto str_literal = "-123456587646457687"_l;
 	i32 num;
 	auto res = cpprelude::read(str_literal, num);
 	std::cout << res << std::endl;
-	std::cout << num << std::endl;	
+	std::cout << num << std::endl;
 }
 
 void

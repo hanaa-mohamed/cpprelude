@@ -43,7 +43,7 @@ namespace cpprelude
 
 		sequential_iterator(T* ptr)
 			:_element(ptr)
-		{}	
+		{}
 
 		sequential_iterator<T>&
 		operator++()
@@ -326,7 +326,7 @@ namespace cpprelude
 		operator--(int)
 		{
 			auto result = *this;
-			
+
 			if(_node->prev)
 				_node = _node->prev;
 
@@ -432,7 +432,7 @@ namespace cpprelude
 		operator--(int)
 		{
 			auto result = *this;
-			
+
 			if(_node->prev)
 				_node = _node->prev;
 
@@ -815,7 +815,7 @@ namespace cpprelude
 				++value_it;
 				--_capacity;
 			}
-			
+
 			return result;
 		}
 
@@ -944,7 +944,7 @@ namespace cpprelude
 				++value_it;
 				--_capacity;
 			}
-			
+
 			return result;
 		}
 
@@ -1049,7 +1049,7 @@ namespace cpprelude
 				++key_it;
 				--_capacity;
 			}
-			
+
 			return result;
 		}
 
@@ -1132,7 +1132,7 @@ namespace cpprelude
 				++value_it;
 				--_capacity;
 			}
-			
+
 			return result;
 		}
 
@@ -1233,7 +1233,7 @@ namespace cpprelude
 				++value_it;
 				--_capacity;
 			}
-			
+
 			return result;
 		}
 

@@ -189,7 +189,7 @@ namespace cpprelude
 		from_cstring(const T* str, AllocatorT&& allocator = AllocatorT())
 		{
 			usize str_count = 0;
-			
+
 			auto it = str;
 			while(*it++)
 				++str_count;
@@ -200,7 +200,7 @@ namespace cpprelude
 			auto res_it = result.data();
 			while(str_count--)
 				*res_it++ = *it++;
-			
+
 			*res_it = '\0';
 
 			return result;
@@ -216,7 +216,7 @@ namespace cpprelude
 			auto res_it = result.data();
 			while(count--)
 				*res_it++ = *it++;
-			
+
 			*res_it = '\0';
 
 			return result;
@@ -235,10 +235,10 @@ namespace cpprelude
 		{
 			usize count = str.count();
 			string_slice result(allocator.template alloc<T>(count + 1));
-			
+
 			auto it = str.data();
 			auto res_it = result.data();
-			
+
 			while(count--)
 				*res_it++ = *it++;
 
@@ -373,10 +373,10 @@ namespace cpprelude
 
 		void
 		write_front(const string_slice<T>& str)
-		{	
+		{
 			auto it = str.back();
 			usize count = str.count();
-			
+
 			while(count--)
 				_buffer.insert_front(*it--);
 		}
@@ -393,7 +393,7 @@ namespace cpprelude
 		{
 			auto it = str.back();
 			usize count = str.count();
-			
+
 			while(count--)
 				_buffer.insert_front(*it--);
 		}
@@ -407,10 +407,10 @@ namespace cpprelude
 
 		void
 		write_front(const literal_slice<T>& str)
-		{	
+		{
 			auto it = str.back();
 			usize count = str.count();
-			
+
 			while(count--)
 				_buffer.insert_front(*it--);
 		}
@@ -427,7 +427,7 @@ namespace cpprelude
 		{
 			auto it = str.back();
 			usize count = str.count();
-			
+
 			while(count--)
 				_buffer.insert_front(*it--);
 		}
@@ -481,7 +481,7 @@ namespace cpprelude
 			return result;
 		}
 	};
-	
+
 	template<typename AllocatorT = global_allocator>
 	using string_writer = writer<char, AllocatorT>;
 
@@ -490,7 +490,7 @@ namespace cpprelude
 
 	//convert to string
 	//convert ubyte = u8
-	
+
 	//convert byte
 	template<typename T>
 	i32
@@ -498,7 +498,7 @@ namespace cpprelude
 	{
 		return std::snprintf(str.data(), str.count(), "%c", val);
 	}
-	
+
 	template<typename T>
 	i32
 	show(string_slice<T>&& str, byte val)
@@ -520,7 +520,7 @@ namespace cpprelude
 	{
 		return show(str, val);
 	}
-	
+
 	//convert u8
 	template<typename T>
 	i32
@@ -550,7 +550,7 @@ namespace cpprelude
 	{
 		return show(str, val);
 	}
-	
+
 	//convert u16
 	template<typename T>
 	i32
@@ -580,7 +580,7 @@ namespace cpprelude
 	{
 		return show(str, val);
 	}
-	
+
 	//convert u32
 	template<typename T>
 	i32
@@ -610,7 +610,7 @@ namespace cpprelude
 	{
 		return show(str, val);
 	}
-	
+
 	//convert u64
 	template<typename T>
 	i32
@@ -640,7 +640,7 @@ namespace cpprelude
 	{
 		return show(str, val);
 	}
-	
+
 	//convert r64
 	template<typename T>
 	i32
@@ -731,10 +731,10 @@ namespace cpprelude
 		auto str_it = str.data();
 		auto val_it = val;
 		usize result = 0;
-		
+
 		while(*val_it && str_count--)
 		{
-			*str_it++ = *val_it++;	
+			*str_it++ = *val_it++;
 			++result;
 		}
 		return result;
@@ -753,7 +753,7 @@ namespace cpprelude
 	{
 		return show(str, tmp::forward<FirstT>(first_arg));
 	}
-	
+
 	template<typename T, typename FirstT>
 	i32
 	write(string_slice<T>&& str, FirstT&& first_arg)
@@ -784,7 +784,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoll(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -802,7 +802,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoll(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -820,7 +820,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoll(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -838,7 +838,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoll(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -856,7 +856,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoll(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -870,7 +870,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoll(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -884,7 +884,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoull(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -901,7 +901,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoull(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -918,7 +918,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoull(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -935,7 +935,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoull(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -952,7 +952,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoull(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -966,7 +966,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtoull(str.begin(), &end, base);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -980,7 +980,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtof(str.begin(), &end);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -994,7 +994,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtof(str.begin(), &end);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -1008,7 +1008,7 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtod(str.begin(), &end);
-		
+
 		if(end == nullptr)
 			return false;
 
@@ -1022,14 +1022,14 @@ namespace cpprelude
 	{
 		T* end = nullptr;
 		auto result_ = std::strtod(str.begin(), &end);
-		
+
 		if(end == nullptr)
 			return false;
 
 		result = result_;
 		return true;
 	}
-	
+
 	API cpprelude::literal
 	operator"" _l(const char* str, std::size_t str_count);
 

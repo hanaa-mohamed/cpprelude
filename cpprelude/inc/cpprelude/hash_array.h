@@ -244,7 +244,7 @@ namespace cpprelude
 			:_keys(allocator), _values(allocator), _flags(allocator), _count(0)
 		{
 			constexpr usize starting_count = 16;
-			
+
 			_keys.expand_back(starting_count);
 			_values.expand_back(starting_count);
 			_flags.expand_back(starting_count, 0);
@@ -260,7 +260,7 @@ namespace cpprelude
 			//we couldn't find a position
 			if(index == capacity())
 				return end();
-			
+
 			_keys[index] = key;
 
 			//if this cell is empty mark it full and increment _count
@@ -286,7 +286,7 @@ namespace cpprelude
 			//we couldn't find a position
 			if(index == capacity())
 				return end();
-			
+
 			_keys[index] = tmp::move(key);
 
 			//if this cell is empty mark it full and increment _count
@@ -312,7 +312,7 @@ namespace cpprelude
 			//we couldn't find a position
 			if(index == capacity())
 				return end();
-			
+
 			_keys[index] = key;
 			_values[index] = value;
 
@@ -339,7 +339,7 @@ namespace cpprelude
 			//we couldn't find a position
 			if(index == capacity())
 				return end();
-			
+
 			_keys[index] = tmp::move(key);
 			_values[index] = value;
 
@@ -366,7 +366,7 @@ namespace cpprelude
 			//we couldn't find a position
 			if(index == capacity())
 				return end();
-			
+
 			_keys[index] = key;
 			_values[index] = tmp::move(value);
 
@@ -393,7 +393,7 @@ namespace cpprelude
 			//we couldn't find a position
 			if(index == capacity())
 				return end();
-			
+
 			_keys[index] = tmp::move(key);
 			_values[index] = tmp::move(value);
 
@@ -447,7 +447,7 @@ namespace cpprelude
 			if(_flags[index] == 0)
 			{
 				_keys[index] = key;
-				
+
 				_flags[index] = 1;
 				++_count;
 			}
@@ -464,7 +464,7 @@ namespace cpprelude
 			if(_flags[index] == 0)
 			{
 				_keys[index] = key;
-				
+
 				_flags[index] = 1;
 				++_count;
 			}
@@ -481,7 +481,7 @@ namespace cpprelude
 			if(_flags[index] == 0)
 			{
 				_keys[index] = tmp::move(key);
-				
+
 				_flags[index] = 1;
 				++_count;
 			}
@@ -498,7 +498,7 @@ namespace cpprelude
 			if(_flags[index] == 0)
 			{
 				_keys[index] = tmp::move(key);
-				
+
 				_flags[index] = 1;
 				++_count;
 			}
@@ -565,12 +565,12 @@ namespace cpprelude
 		reserve(usize new_count)
 		{
 			usize cap = capacity();
-			
+
 			if(new_count <= cap)
 				return;
 
 			new_count = new_count - cap;
-			
+
 			_keys.expand_back(new_count);
 			_values.expand_back(new_count);
 			_flags.expand_back(new_count, 0);
@@ -609,11 +609,11 @@ namespace cpprelude
 			iterator result(_keys.cbegin(), _values.begin(), _flags.begin(), capacity());
 			if(*result._flag_it == 0)
 				++result;
-			
+
 			return result;
 		}
 
-		const_iterator	
+		const_iterator
 		begin() const
 		{
 			const_iterator result(_keys.cbegin(), _values.begin(), _flags.begin(), capacity());
@@ -740,7 +740,7 @@ namespace cpprelude
 						new (_keys.data() + new_index)  key_type(tmp::move(_keys[i]));
 						new (_values.data() + new_index)  value_type(tmp::move(_values[i]));
 						tmp::swap(_flags[i], _flags[new_index]);
-						
+
 					}
 				}
 			}
@@ -755,7 +755,7 @@ namespace cpprelude
 			usize i, j;
 			i = (index + 1) % cap;
 			j = index;
-			
+
 			while(i != index)
 			{
 				//if this is an empty cell then go out
@@ -783,7 +783,7 @@ namespace cpprelude
 				i %= cap;
 			}
 		}
-		
+
 		usize
 		_find_position(const key_type& key) const
 		{

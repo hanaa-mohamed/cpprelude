@@ -83,13 +83,13 @@ TEST_CASE("hash_array test", "[hash_array]")
 		usize i = 0;
 		for(auto& key: array.keys())
 			++i;
-		
+
 		CHECK(i == array.count());
-		
+
 		i = 0;
 		for(auto& value: array.values())
 			++i;
-		
+
 		CHECK(i == array.count());
 
 		for(i = 0;
@@ -97,7 +97,7 @@ TEST_CASE("hash_array test", "[hash_array]")
 			++i)
 			array.remove(i);
 
-		
+
 		CHECK(array.empty() == true);
 		CHECK(array.count() == 0);
 	}
@@ -133,7 +133,7 @@ TEST_CASE("hash_array test", "[hash_array]")
 		}
 
 		slinked_list<usize> keys;
-		
+
 		for(auto& key: array.keys())
 		{
 			keys.insert_front(key);
@@ -155,7 +155,7 @@ TEST_CASE("hash_array test", "[hash_array]")
 				CHECK(array.remove(array.lookup(key)));
 			}
 		}
-		
+
 		CHECK(array.empty() == true);
 		CHECK(array.count() == 0);
 	}
