@@ -117,6 +117,9 @@ namespace cpprelude
 		operator=(dlinked_list<T>&& other)
 		{
 			reset();
+			//free the sentinals as we are going to steal them
+			_allocator.free(make_slice(_head));
+			_allocator.free(make_slice(_tail));
 			_allocator = other._allocator;
 
 			_count = other._count;

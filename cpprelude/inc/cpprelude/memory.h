@@ -4,6 +4,7 @@
 #include "cpprelude/tmp.h"
 
 #include <cstdlib>
+#include <iostream>
 
 #ifdef OS_WINDOWS
 #include <Windows.h>
@@ -189,7 +190,7 @@ namespace cpprelude
 	void
 	free(slice<T>&& slice_)
 	{
-		if(slice_.ptr != nullptr)
+		if (slice_.ptr != nullptr)
 			std::free(slice_.ptr);
 
 		slice_.ptr = nullptr;

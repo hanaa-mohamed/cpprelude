@@ -168,6 +168,8 @@ TEST_CASE("string test", "[string]")
 
 		for(auto& ch: b)
 			CHECK(ch != '\0');
+
+		string::dispose(a);
 	}
 
 	SECTION("Case 09")

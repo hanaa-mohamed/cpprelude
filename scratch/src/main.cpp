@@ -223,6 +223,7 @@ scratch()
 	std::cout << "hash(\"mostafa\"): " << do_hash(str) << std::endl;
 	std::cout << "hash(\"moustafa\"): " << do_hash("moustafa"_l) << std::endl;
 	std::cout << "hash(\"moustapha\"): " << do_hash("moustapha"_l) << std::endl;
+	cpprelude::string::dispose(str);
 
 	cpprelude::hash_array<int, char> h_table;
 	char ch = 'a';
@@ -274,7 +275,9 @@ scratch()
 		std::cout << x << std::endl;
 
 	func_const(art);
-		
+	
+	cpprelude::hash_set<usize> ss;
+	ss.insert(3);
 }
 
 void

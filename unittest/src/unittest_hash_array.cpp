@@ -162,14 +162,14 @@ TEST_CASE("hash_array test", "[hash_array]")
 
 	SECTION("Case 05")
 	{
-		hash_array<string, usize> str_hash;
+		hash_array<literal, usize> str_hash;
 
-		str_hash["abcd"_s] = 1;
-		str_hash["ab"_s] = 1;
-		str_hash["ba"_s] = 1;
-		str_hash["dcba"_s] = 1;
-		str_hash["fegh"_s] = 1;
-		str_hash["cdab"_s] = 1;
+		str_hash["abcd"_l] = 1;
+		str_hash["ab"_l] = 1;
+		str_hash["ba"_l] = 1;
+		str_hash["dcba"_l] = 1;
+		str_hash["fegh"_l] = 1;
+		str_hash["cdab"_l] = 1;
 
 		CHECK(str_hash.empty() == false);
 		CHECK(str_hash.count() == 6);

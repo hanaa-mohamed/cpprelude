@@ -816,6 +816,8 @@ namespace cpprelude
 
 			return cap;
 		}
-
 	};
+
+	template<typename T, typename hashType = hash<T>, typename AllocatorT = global_allocator>
+	using hash_set = hash_array<T, bool, hashType, AllocatorT>;
 }
