@@ -8,9 +8,12 @@
 
 namespace cpprelude {
 
-	template<typename T, typename Comparator = tmp::default_less_than<T>, typename AllocatorT = global_allocator>
+	template<typename key_type, typename value_type,
+		typename Comparator = tmp::default_less_than<details::pair_node<key_type, value_type>>,
+		typename AllocatorT = global_allocator>
 	struct rb_tree
 	{
+		using T = details::pair_node<key_type, value_type>;
 		using RB_Node = details::rb_node<T>;
 		using rb_iterator = rb_tree_iterator<T>;
 		using const_rb_iterator = const rb_tree_iterator<T>;
@@ -37,31 +40,31 @@ namespace cpprelude {
 			}
 		}
 
-		rb_tree(const rb_tree<T>& other)
+		rb_tree(const rb_tree<key_type, value_type>& other)
 			:_root(nullptr), _count(0), _allocator(other._allocator), _less_than(other._less_than)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(const rb_tree<T>& other, Comparator compare_function)
+		rb_tree(const rb_tree<key_type, value_type>& other, Comparator compare_function)
 			:_root(nullptr), _count(0), _allocator(other._allocator), _less_than(compare_function)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(const rb_tree<T>& other, const AllocatorT& allocator)
+		rb_tree(const rb_tree<key_type, value_type>& other, const AllocatorT& allocator)
 			:_root(nullptr), _count(0), _allocator(allocator), _less_than(other._less_than)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(const rb_tree<T>& other, const AllocatorT& allocator, Comparator compare_function)
+		rb_tree(const rb_tree<key_type, value_type>& other, const AllocatorT& allocator, Comparator compare_function)
 			:_root(nullptr), _count(0), _allocator(allocator), _less_than(compare_function)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(rb_tree<T>&& other)
+		rb_tree(rb_tree<key_type, value_type>&& other)
 			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator))
 			, _less_than(tmp::move(other._less_than))
 		{
@@ -69,7 +72,7 @@ namespace cpprelude {
 			other._count = 0;
 		}
 
-		rb_tree(rb_tree<T>&& other, Comparator compare_function)
+		rb_tree(rb_tree<key_type, value_type>&& other, Comparator compare_function)
 			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator))
 			, _less_than(compare_function)
 		{
@@ -77,7 +80,7 @@ namespace cpprelude {
 			other._count = 0;
 		}
 
-		rb_tree(rb_tree<T>&& other, const AllocatorT& allocator)
+		rb_tree(rb_tree<key_type, value_type>&& other, const AllocatorT& allocator)
 			:_root(other._root), _count(other._count), _allocator(allocator)
 			, _less_than(tmp::move(other._less_than))
 		{
@@ -85,7 +88,7 @@ namespace cpprelude {
 			other._count = 0;
 		}
 
-		rb_tree(rb_tree<T>&& other, const AllocatorT& allocator, Comparator compare_function)
+		rb_tree(rb_tree<key_type, value_type>&& other, const AllocatorT& allocator, Comparator compare_function)
 			:_root(other._root), _count(other._count), _allocator(allocator)
 			, _less_than(compare_function)
 		{
@@ -98,8 +101,8 @@ namespace cpprelude {
 			clear();
 		}
 
-		rb_tree<T>&
-		operator=(const rb_tree<T>& other)
+		rb_tree<key_type, value_type>&
+		operator=(const rb_tree<key_type, value_type>& other)
 		{
 			clear();
 			_allocator = other._allocator;
@@ -108,8 +111,8 @@ namespace cpprelude {
 			return *this;
 		}
 
-		rb_tree<T>&
-		operator=(rb_tree<T>&& other)
+		rb_tree<key_type, value_type>&
+		operator=(rb_tree<key_type, value_type>&& other)
 		{
 			_reset(_root);
 			_allocator = tmp::move(other._allocator);
@@ -121,18 +124,20 @@ namespace cpprelude {
 			return *this;
 		}
 
-		rb_iterator
-		operator[](const T& key)
-		{	//this function either returns the existed node or the new inserted node
-			return insert(key);
+		value_type&
+		operator[](const key_type& key)
+		{
+			T n(key);
+			return insert(n)->data.value;
 		}
 
-		rb_iterator
-		operator[](T&& key)
-		{	//this function either returns the existed node or the new inserted node
-			return insert(tmp::move(key));
+		value_type
+		operator[](const key_type& key) const
+		{
+			T n(key);
+			return insert(n)->data.value;
 		}
-
+		
 		void
 		clear()
 		{
@@ -145,34 +150,66 @@ namespace cpprelude {
 
 		//modify if exisits, and insert if not.
 		rb_iterator
-		insert(const T& key)
+		insert(const key_type& k)
 		{
-			RB_Node* new_node = _create_node(key);
+			RB_Node* new_node = _create_node(tmp::move(T(k)));
 			_rb_insert(new_node);
 			++_count;
 			return rb_iterator(new_node);
 		}
 
 		rb_iterator
-		insert(T&& key)
+		insert(const T& p)
 		{
-			RB_Node* new_node = _create_node(tmp::move(key));
+			RB_Node* new_node = _create_node(p);
+			_rb_insert(new_node);
+			++_count;
+			return rb_iterator(new_node);
+		}
+
+		rb_iterator
+		insert(key_type&& k)
+		{
+			RB_Node* new_node = _create_node(tmp::move(T(tmp::move(k))));
+			_rb_insert(new_node);
+			++_count;
+			return rb_iterator(new_node);
+		}
+
+		rb_iterator
+		insert(T&& p)
+		{
+			RB_Node* new_node = _create_node(tmp::move(p));
 			_rb_insert(new_node);
 			++_count;
 			return rb_iterator(new_node);
 		}
 
 		void
-		delete_rb_tree(const T&k)
+		delete_rb_tree(const key_type& k)
 		{
 			rb_iterator node_to_delete = lookup(k);
 			delete_rb_tree(node_to_delete);
 		}
 
 		void
-		delete_rb_tree(T&&k)
+		delete_rb_tree(const T&p)
+		{
+			rb_iterator node_to_delete = lookup(p.key);
+			delete_rb_tree(node_to_delete);
+		}
+		
+		void
+		delete_rb_tree(key_type&& k)
 		{
 			rb_iterator node_to_delete = lookup(tmp::move(k));
+			delete_rb_tree(node_to_delete);
+		}
+
+		void
+		delete_rb_tree(T&& p)
+		{
+			rb_iterator node_to_delete = lookup(tmp::move(p.key));
 			delete_rb_tree(node_to_delete);
 		}
 
@@ -223,40 +260,40 @@ namespace cpprelude {
 		}
 
 		rb_iterator
-		lookup(const T& key)
+		lookup(const key_type& k)
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(key);
+			RB_Node* key_it = _create_node(T(k));
 			if (result != nullptr)
 				result = _lookup(key_it, _root);
 			return rb_iterator(result);
 		}
 
 		const_rb_iterator
-		lookup(const T& key) const
+		lookup(const key_type& k) const
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(key);
+			RB_Node* key_it = _create_node(T(k));
 			if (result != nullptr)
 				result = _lookup(key_it, _root);
 			return const_rb_iterator(result);
 		}
 
 		rb_iterator
-		lookup(T&& key)
+		lookup(key_type&& key)
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(tmp::move(key));
+			RB_Node* key_it = _create_node(tmp::move(T(tmp::move(key))));
 			if (result != nullptr)
 				result = _lookup(key_it, _root);
 			return rb_iterator(result);
 		}
 
 		const_rb_iterator
-		lookup(T&& key) const
+		lookup(key_type&& key) const
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(tmp::move(key));
+			RB_Node* key_it = _create_node(tmp::move(T(tmp::move(key))));
 			if (result != nullptr)
 				result = _lookup(key_it, _root);
 			return const_rb_iterator(result);
@@ -632,7 +669,7 @@ namespace cpprelude {
 		}
 
 		void
-		_copy_content(const rb_tree<T>& other)
+		_copy_content(const rb_tree<key_type, value_type>& other)
 		{
 			queue_array<rb_iterator> queue;
 			queue.enqueue(other.root());
@@ -710,4 +747,9 @@ namespace cpprelude {
 				return it;
 		}
 	};
+
+	template<typename key_type, typename value_type,
+		typename Comparator = tmp::default_less_than<details::pair_node<key_type, value_type>>,
+		typename AllocatorT = global_allocator>
+		using tree_map = rb_tree<key_type, value_type, Comparator, AllocatorT>;
 }

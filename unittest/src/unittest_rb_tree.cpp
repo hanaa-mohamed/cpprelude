@@ -11,31 +11,35 @@ using namespace cpprelude;
 
 TEST_CASE("rb_tree test", "[rb_tree]")
 {
-	using uRB_TREE = rb_tree<usize>;
-	using bRB_TREE = rb_tree<cpprelude::byte>;
-	using uIterator = rb_tree_iterator<usize>;
-	using color_type = typename details::rb_node<usize>::color_type;
+	using uPair_node = details::pair_node<usize, bool>;
+	using bPair_node = details::pair_node<cpprelude::byte, bool>;
+	using uRB_TREE = rb_tree<usize, bool>;
+	using bRB_TREE = rb_tree<cpprelude::byte, bool>;
+	using uIterator = rb_tree_iterator<uPair_node>;
+	using bIterator = rb_tree_iterator<bPair_node>;
+	using color_type = typename details::rb_node<uPair_node>::color_type;
+
 	dynamic_array<usize> arr;
 	std::function <void(uIterator it)> insert = [&arr](uIterator it) {
-		arr.insert_back(it->data);
+		arr.insert_back(it->data.key);
 	};
 
 
 	std::function <void(uIterator it)> print = [](uIterator it) {
 		auto c = it->color == color_type::RED ? "RED" : "BLACK";
-		std::cout << "key: " << it->data /*<< " value: " << obj.value*/ << " color: " << c << std::endl;
-		auto temp = it->parent != nullptr ? it->parent->data : 0;
+		std::cout << "key: " << it->data.key << " value: " << it->data.key << " color: " << c << std::endl;
+		auto temp = it->parent != nullptr ? it->parent->data.key : 0;
 		std::cout << "parent: " << temp << " ";
-		temp = it->left != nullptr ? it->left->data : 0;
+		temp = it->left != nullptr ? it->left->data.key : 0;
 		std::cout << "left child: " << temp << " ";
-		temp = it->right != nullptr ? it->right->data : 0;
+		temp = it->right != nullptr ? it->right->data.key : 0;
 		std::cout << "right child: " << temp << std::endl;
 		std::cout << "==================================\n";
 	};
 
 	SECTION("Case 01")
 	{
-		bRB_TREE tree;
+		tree_map<cpprelude::byte, bool> tree;
 		tree.insert('e');
 		CHECK(tree.is_rb_tree());
 		tree.insert('c');
@@ -179,31 +183,34 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 	//node type is pair 
 	SECTION("Case 08")
 	{
-		using pair_node = details::pair_node<usize, std::string>;
-		rb_tree<pair_node> tree;
+		using sPair_node = details::pair_node<usize, std::string>;
+		using sIterator = rb_tree_iterator<sPair_node>;
+		rb_tree<usize, std::string> tree;
 
-		dynamic_array<pair_node> arr1;
-		std::function <void(rb_tree_iterator<pair_node> it)> insert = [&arr1](rb_tree_iterator<pair_node> it) {
+		dynamic_array<usize> arr1;
+		std::function <void(sIterator it)> insert = [&arr1](sIterator it) {
 			arr1.insert_back(it->data.key);
 		};
-		pair_node f(2, "22");
+
+		sPair_node f(2, "22");
 		CHECK(f == 2);
 		CHECK(f.value == "22");
-		tree.insert(pair_node(3, "33"));
+		tree.insert(sPair_node(3, "33"));
 		CHECK(tree.count() == 1);
-		tree.insert(pair_node(1, "11"));
+		tree.insert(sPair_node(1, "11"));
 		CHECK(tree.count() == 2);
-		tree.insert(pair_node(2, "22"));
+		tree.insert(sPair_node(2, "22"));
 		CHECK(tree.count() == 3);
 		tree.inorder_traverse(insert);
 		CHECK(arr1.count() == 3);
 		CHECK(cpprelude::is_sorted(arr1.begin(), arr1.count()));
 		CHECK(tree.is_rb_tree());
-		//edit value
-		auto x = pair_node(1);
-		auto h = tree[x];
+		//search
+		tree[1] = "11";
+		auto h = tree.lookup(1);
 		CHECK(h->data.key == 1);
 		CHECK(h->data.value == "11");
+
 	}
 
 	SECTION("Case 09")
@@ -245,7 +252,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(array.is_rb_tree());
 		CHECK(arr.count() == 3);
 		//search 
-		CHECK(array[3]->data == 3);
+		CHECK(array[3]);
 
 		CHECK(array.lookup(99) == nullptr);
 		auto res = array.lookup(1);
