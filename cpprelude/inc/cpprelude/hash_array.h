@@ -243,7 +243,7 @@ namespace cpprelude
 		hash_array(const AllocatorT& allocator = AllocatorT())
 			:_keys(allocator), _values(allocator), _flags(allocator), _count(0)
 		{
-			constexpr usize starting_count = 16;
+			constexpr usize starting_count = 256;
 
 			_keys.expand_back(starting_count);
 			_values.expand_back(starting_count);
