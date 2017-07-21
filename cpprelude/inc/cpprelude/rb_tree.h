@@ -23,7 +23,7 @@ namespace cpprelude
 		using value_type = ValueType;
 		using RB_Node = details::rb_node<T>;
 		using iterator = rb_tree_iterator<T>;
-		using const_iterator = const rb_tree_iterator<T>;
+		using const_iterator = const_rb_tree_iterator<T>;
 		using COLOR = typename RB_Node::color_type;
 		using data_type = T;
 
@@ -244,7 +244,7 @@ namespace cpprelude
 		void
 		delete_rb_tree(iterator node_to_delete)
 		{
-			if (node_to_delete == nullptr) return;
+			if (node_to_delete == end()) return;
 
 			RB_Node *x = nullptr, *x_parent = nullptr;
 			iterator y;
@@ -273,7 +273,7 @@ namespace cpprelude
 				if (x != nullptr)
 					x->color = COLOR::BLACK;
 			}
-			else if (y == y._node->parent->left)
+			else if (y._node == y._node->parent->left)
 				y._node->parent->left = x;
 			else
 				y._node->parent->right = x;
@@ -760,7 +760,7 @@ namespace cpprelude
 		_copy_content(const rb_tree& other)
 		{
 			auto this_ptr = this;
-			auto func = [&this_ptr](iterator it)
+			auto func = [&this_ptr](const_iterator it)
 			{
 				this_ptr->insert(*it);
 			};

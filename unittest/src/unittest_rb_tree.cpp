@@ -254,9 +254,9 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		//search
 		CHECK(array.lookup(3) != array.end());
 
-		CHECK(array.lookup(99) == nullptr);
+		CHECK(array.lookup(99) == array.end());
 		auto res = array.lookup(1);
-		bool f = res != nullptr && res->key == 1;
+		bool f = res != array.end() && res->key == 1;
 		CHECK(f);
 	}
 
