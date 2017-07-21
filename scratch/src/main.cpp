@@ -9,6 +9,7 @@
 #include <cpprelude/bucket_array.h>
 #include <cpprelude/tmp.h>
 #include <cpprelude/string.h>
+#include <cpprelude/rb_tree.h>
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
@@ -134,7 +135,7 @@ quick_select_test()
 	cpprelude::dlinked_list<int> array;
 	for (int i = 0; i < 10; ++i)
 		array.insert_back(i);
-	
+
 	for (auto& n : array)
 		std::cout << n << " ";
 	std::cout << "\nquick_select(4): " << *quick_select(array.begin(), array.count(), 4) << std::endl;
@@ -189,6 +190,18 @@ scratch()
 	// }
 
 	// std::cout << "\n";
+
+	tree_map<usize, bool> my_map;
+	my_map.insert(1, true);
+	my_map.insert(2, true);
+	my_map.insert(3, true);
+
+	std::cout << "iteration begin" << std::endl;
+	for(auto& x: my_map)
+	{
+		std::cout << x.key << ", " << x.value << std::endl;
+	}
+	std::cout << "iteration end" << std::endl;
 }
 
 void
@@ -250,7 +263,7 @@ test_string_conversion()
 	std::cout << cpprelude::write(str, 1, " ", 2.0f, " ", 3.0, " ", 4u) << std::endl;
 
 	std::cout << str << std::endl;
-	
+
 	auto str_literal = "-123456587646457687"_l;
 	i32 num;
 	auto res = cpprelude::read(str_literal, num);
@@ -297,6 +310,6 @@ main(int argc, char** argv)
 	scratch();
 	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
 	test_string_conversion();
-	
+
 	return 0;
 }

@@ -6,17 +6,24 @@
 #include "cpprelude/tmp.h"
 #include "cpprelude/queue_array.h"
 
-namespace cpprelude {
+#undef min
+#undef max
 
-	template<typename key_type, typename value_type,
-		typename Comparator = tmp::default_less_than<details::pair_node<key_type, value_type>>,
+namespace cpprelude
+{
+
+	//red black tree implmenetion follows Introduction to Algorithms, Second Edition,” by Thomas H. Cormen, Charles E, Chapter 14
+	template<typename KeyType, typename ValueType,
+		typename Comparator = tmp::default_less_than<details::pair_node<KeyType, ValueType>>,
 		typename AllocatorT = global_allocator>
 	struct rb_tree
 	{
-		using T = details::pair_node<key_type, value_type>;
+		using T = details::pair_node<KeyType, ValueType>;
+		using key_type = KeyType;
+		using value_type = ValueType;
 		using RB_Node = details::rb_node<T>;
-		using rb_iterator = rb_tree_iterator<T>;
-		using const_rb_iterator = const rb_tree_iterator<T>;
+		using iterator = rb_tree_iterator<T>;
+		using const_iterator = const rb_tree_iterator<T>;
 		using COLOR = typename RB_Node::color_type;
 		using data_type = T;
 
@@ -26,7 +33,7 @@ namespace cpprelude {
 		Comparator _less_than;
 
 		rb_tree(Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator), _root(nullptr) , _less_than(compare_function)
+			:_root(nullptr), _count(0), _allocator(allocator), _less_than(compare_function)
 		{}
 
 		rb_tree(std::initializer_list<T> list, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
@@ -40,55 +47,54 @@ namespace cpprelude {
 			}
 		}
 
-		rb_tree(const rb_tree<key_type, value_type>& other)
+		rb_tree(const rb_tree& other)
 			:_root(nullptr), _count(0), _allocator(other._allocator), _less_than(other._less_than)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(const rb_tree<key_type, value_type>& other, Comparator compare_function)
+		rb_tree(const rb_tree& other, Comparator compare_function)
 			:_root(nullptr), _count(0), _allocator(other._allocator), _less_than(compare_function)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(const rb_tree<key_type, value_type>& other, const AllocatorT& allocator)
+		rb_tree(const rb_tree& other, const AllocatorT& allocator)
 			:_root(nullptr), _count(0), _allocator(allocator), _less_than(other._less_than)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(const rb_tree<key_type, value_type>& other, const AllocatorT& allocator, Comparator compare_function)
+		rb_tree(const rb_tree& other, const AllocatorT& allocator, Comparator compare_function)
 			:_root(nullptr), _count(0), _allocator(allocator), _less_than(compare_function)
 		{
 			_copy_content(other);
 		}
 
-		rb_tree(rb_tree<key_type, value_type>&& other)
-			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator))
-			, _less_than(tmp::move(other._less_than))
+		rb_tree(rb_tree&& other)
+			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator)), _less_than(tmp::move(other._less_than))
 		{
 			other._root = nullptr;
 			other._count = 0;
 		}
 
-		rb_tree(rb_tree<key_type, value_type>&& other, Comparator compare_function)
-			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator))
-			, _less_than(compare_function)
+		rb_tree(rb_tree&& other, Comparator compare_function)
+			:_root(other._root), _count(other._count), _allocator(tmp::move(other._allocator)), _less_than(compare_function)
 		{
 			other._root = nullptr;
 			other._count = 0;
 		}
 
-		rb_tree(rb_tree<key_type, value_type>&& other, const AllocatorT& allocator)
-			:_root(other._root), _count(other._count), _allocator(allocator)
-			, _less_than(tmp::move(other._less_than))
+		rb_tree(rb_tree&& other, const AllocatorT& allocator)
+			:_root(other._root), _count(other._count),
+			_allocator(allocator),
+			_less_than(tmp::move(other._less_than))
 		{
 			other._root = nullptr;
 			other._count = 0;
 		}
 
-		rb_tree(rb_tree<key_type, value_type>&& other, const AllocatorT& allocator, Comparator compare_function)
+		rb_tree(rb_tree&& other, const AllocatorT& allocator, Comparator compare_function)
 			:_root(other._root), _count(other._count), _allocator(allocator)
 			, _less_than(compare_function)
 		{
@@ -101,8 +107,8 @@ namespace cpprelude {
 			clear();
 		}
 
-		rb_tree<key_type, value_type>&
-		operator=(const rb_tree<key_type, value_type>& other)
+		rb_tree&
+		operator=(const rb_tree& other)
 		{
 			clear();
 			_allocator = other._allocator;
@@ -111,8 +117,8 @@ namespace cpprelude {
 			return *this;
 		}
 
-		rb_tree<key_type, value_type>&
-		operator=(rb_tree<key_type, value_type>&& other)
+		rb_tree&
+		operator=(rb_tree&& other)
 		{
 			_reset(_root);
 			_allocator = tmp::move(other._allocator);
@@ -127,106 +133,128 @@ namespace cpprelude {
 		value_type&
 		operator[](const key_type& key)
 		{
-			T n(key);
-			return insert(n)->data.value;
+			T node(key);
+			return insert(node)->data.value;
 		}
 
-		value_type
+		const value_type&
 		operator[](const key_type& key) const
 		{
-			T n(key);
-			return insert(n)->data.value;
+			T node(key);
+			return insert(node)->data.value;
 		}
-		
+
 		void
 		clear()
 		{
 			_reset(_root);
 			_root = nullptr;
 			_count = 0;
-			_allocator = AllocatorT();
-			_less_than = Comparator();
 		}
 
 		//modify if exisits, and insert if not.
-		rb_iterator
+		iterator
 		insert(const key_type& k)
 		{
-			RB_Node* new_node = _create_node(tmp::move(T(k)));
+			RB_Node* new_node = _create_node(T(k));
 			_rb_insert(new_node);
 			++_count;
-			return rb_iterator(new_node);
+			return iterator(new_node);
 		}
 
-		rb_iterator
+		iterator
+		insert(const key_type& key, const value_type& value)
+		{
+			return insert(T(key, value));
+		}
+
+		iterator
+		insert(key_type&& key, const value_type& value)
+		{
+			return insert(T(tmp::move(key), value));
+		}
+
+		iterator
+		insert(const key_type& key, value_type&& value)
+		{
+			return insert(T(key, tmp::move(value)));
+		}
+
+		iterator
+		insert(key_type&& key, value_type&& value)
+		{
+			return insert(T(tmp::move(key), tmp::move(value)));
+		}
+
+		iterator
 		insert(const T& p)
 		{
 			RB_Node* new_node = _create_node(p);
 			_rb_insert(new_node);
 			++_count;
-			return rb_iterator(new_node);
+			return iterator(new_node);
 		}
 
-		rb_iterator
+		iterator
 		insert(key_type&& k)
 		{
-			RB_Node* new_node = _create_node(tmp::move(T(tmp::move(k))));
+			RB_Node* new_node = _create_node(T(tmp::move(k)));
 			_rb_insert(new_node);
 			++_count;
-			return rb_iterator(new_node);
+			return iterator(new_node);
 		}
 
-		rb_iterator
+		iterator
 		insert(T&& p)
 		{
 			RB_Node* new_node = _create_node(tmp::move(p));
 			_rb_insert(new_node);
 			++_count;
-			return rb_iterator(new_node);
+			return iterator(new_node);
 		}
 
 		void
 		delete_rb_tree(const key_type& k)
 		{
-			rb_iterator node_to_delete = lookup(k);
+			iterator node_to_delete = lookup(k);
 			delete_rb_tree(node_to_delete);
 		}
 
 		void
 		delete_rb_tree(const T&p)
 		{
-			rb_iterator node_to_delete = lookup(p.key);
+			iterator node_to_delete = lookup(p.key);
 			delete_rb_tree(node_to_delete);
 		}
-		
+
 		void
 		delete_rb_tree(key_type&& k)
 		{
-			rb_iterator node_to_delete = lookup(tmp::move(k));
+			iterator node_to_delete = lookup(tmp::move(k));
 			delete_rb_tree(node_to_delete);
 		}
 
 		void
 		delete_rb_tree(T&& p)
 		{
-			rb_iterator node_to_delete = lookup(tmp::move(p.key));
+			iterator node_to_delete = lookup(tmp::move(p.key));
 			delete_rb_tree(node_to_delete);
 		}
 
 		void
-		delete_rb_tree(rb_iterator node_to_delete)
+		delete_rb_tree(iterator node_to_delete)
 		{
 			if (node_to_delete == nullptr) return;
 
 			RB_Node *x = nullptr, *x_parent = nullptr;
-			rb_iterator y;
+			iterator y;
 
 			if (node_to_delete->left == nullptr || node_to_delete->right == nullptr)
 				y = node_to_delete;
 			else
 			{
-				y = ++node_to_delete;
-				--node_to_delete;
+				y = node_to_delete;
+				++y;
 			}
 
 			if (y->left != nullptr)
@@ -259,77 +287,94 @@ namespace cpprelude {
 			_free_mem(y._node);
 		}
 
-		rb_iterator
-		lookup(const key_type& k)
+		iterator
+		lookup(const key_type& key)
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(T(k));
 			if (result != nullptr)
-				result = _lookup(key_it, _root);
-			return rb_iterator(result);
+				result = _lookup(key, _root);
+			return iterator(result);
 		}
 
-		const_rb_iterator
-		lookup(const key_type& k) const
+		const_iterator
+		lookup(const key_type& key) const
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(T(k));
 			if (result != nullptr)
-				result = _lookup(key_it, _root);
-			return const_rb_iterator(result);
+				result = _lookup(key, _root);
+			return const_iterator(result);
 		}
 
-		rb_iterator
+		iterator
 		lookup(key_type&& key)
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(tmp::move(T(tmp::move(key))));
 			if (result != nullptr)
-				result = _lookup(key_it, _root);
-			return rb_iterator(result);
+				result = _lookup(key, _root);
+			return iterator(result);
 		}
 
-		const_rb_iterator
+		const_iterator
 		lookup(key_type&& key) const
 		{
 			RB_Node* result = _root;
-			RB_Node* key_it = _create_node(tmp::move(T(tmp::move(key))));
 			if (result != nullptr)
-				result = _lookup(key_it, _root);
-			return const_rb_iterator(result);
+				result = _lookup(key, _root);
+			return const_iterator(result);
 		}
 
 		template<typename function_type>
 		void
-		inorder_traverse(function_type FT)
+		inorder_traverse(function_type&& FT)
 		{
-			_inorder_traverse(FT, _root);
+			_inorder_traverse(tmp::forward<function_type>(FT), _root);
 		}
 
 		template<typename function_type>
 		void
-		postorder_traverse(function_type FT)
+		postorder_traverse(function_type&& FT)
 		{
-			_postorder_traverse(FT, _root);
+			_postorder_traverse(tmp::forward<function_type>(FT), _root);
 		}
 
 		template<typename function_type>
 		void
-		preorder_traverse(function_type FT)
+		preorder_traverse(function_type&& FT)
 		{
-			_preorder_traverse(FT, _root);
+			_preorder_traverse(tmp::forward<function_type>(FT), _root);
 		}
 
-		rb_iterator
+		template<typename function_type>
+		void
+		inorder_traverse(function_type&& FT) const
+		{
+			_inorder_traverse(tmp::forward<function_type>(FT), _root);
+		}
+
+		template<typename function_type>
+		void
+		postorder_traverse(function_type&& FT) const
+		{
+			_postorder_traverse(tmp::forward<function_type>(FT), _root);
+		}
+
+		template<typename function_type>
+		void
+		preorder_traverse(function_type&& FT) const
+		{
+			_preorder_traverse(tmp::forward<function_type>(FT), _root);
+		}
+
+		iterator
 		root() const
 		{
-			return rb_iterator(_root);
+			return iterator(_root);
 		}
 
 		bool
 		is_rb_tree()
 		{
-			return (-1 != _is_rb(_root, false));
+			return (-1 != _is_rb(_root));
 		}
 
 		void
@@ -341,11 +386,11 @@ namespace cpprelude {
 			tmp::swap(_less_than, other._less_than);
 		}
 
-		rb_iterator
-		get_min() const
+		iterator
+		min() const
 		{
 			auto m = _root;
-			if (m == nullptr) return rb_iterator();
+			if (m == nullptr) return iterator();
 
 			while (m->left != nullptr)
 			{
@@ -354,17 +399,53 @@ namespace cpprelude {
 			return m;
 		}
 
-		rb_iterator
-		get_max() const
+		iterator
+		max() const
 		{
 			auto m = _root;
-			if (m == nullptr) return rb_iterator();
+			if (m == nullptr) return iterator();
 
 			while (m->right != nullptr)
 			{
 				m = m->right;
 			}
 			return m;
+		}
+
+		iterator
+		begin()
+		{
+			return min();
+		}
+
+		const_iterator
+		begin() const
+		{
+			return min();
+		}
+
+		const_iterator
+		cbegin() const
+		{
+			return min();
+		}
+
+		iterator
+		end()
+		{
+			return nullptr;
+		}
+
+		const_iterator
+		end() const
+		{
+			return nullptr;
+		}
+
+		const_iterator
+		cend() const
+		{
+			return nullptr;
 		}
 
 		usize
@@ -420,7 +501,7 @@ namespace cpprelude {
 		_insert_fixup(RB_Node* z)
 		{
 			auto is_red = [](RB_Node* p) { return p != nullptr && p->is_red(); };
-			
+
 			while (is_red(z->parent))
 			{
 				if (z->parent == z->parent->parent->left)
@@ -433,7 +514,7 @@ namespace cpprelude {
 						z->parent->parent->color = COLOR::RED;
 						z = z->parent->parent;
 					}
-					else 
+					else
 					{
 						if (z == z->parent->right)
 						{ //case 2
@@ -471,7 +552,7 @@ namespace cpprelude {
 					}
 				}
 			}
-			_root->color = COLOR::BLACK;			
+			_root->color = COLOR::BLACK;
 		}
 
 		void
@@ -655,12 +736,12 @@ namespace cpprelude {
 		}
 
 		isize
-		_is_rb(RB_Node* it, bool right)
+		_is_rb(RB_Node* it)
 		{
 			if (it == nullptr) return 0;
 
-			isize left_count = _is_rb(it->left, false);
-			isize right_count = _is_rb(it->right, true);
+			isize left_count = _is_rb(it->left);
+			isize right_count = _is_rb(it->right);
 
 			if (left_count == -1 || right_count == -1 || right_count != left_count)
 				return -1;
@@ -669,82 +750,133 @@ namespace cpprelude {
 		}
 
 		void
-		_copy_content(const rb_tree<key_type, value_type>& other)
+		_copy_content(const rb_tree& other)
 		{
-			queue_array<rb_iterator> queue;
-			queue.enqueue(other.root());
-
-			while (!queue.empty())
+			auto this_ptr = this;
+			auto func = [&this_ptr](iterator it)
 			{
-				auto it = queue.front();
-				queue.dequeue();
-				if (it == nullptr) continue;
-
-				insert(it->data);
-				queue.enqueue(it->left);
-				queue.enqueue(it->right);
-			}
+				this_ptr->insert(it->data);
+			};
+			other.preorder_traverse(func);
+			// queue_array<rb_iterator> queue;
+			// queue.enqueue(other.root());
+			//
+			// while (!queue.empty())
+			// {
+			// 	auto it = queue.front();
+			// 	queue.dequeue();
+			// 	if (it == nullptr) continue;
+			//
+			// 	insert(it->data);
+			// 	queue.enqueue(it->left);
+			// 	queue.enqueue(it->right);
+			// }
 		}
 
 		template<typename function_type>
 		void
-		_inorder_traverse(function_type fT, rb_iterator it)
+		_inorder_traverse(function_type&& fT, iterator it)
 		{
 			if (it->left != nullptr)
-				_inorder_traverse(fT, it->left);
+				_inorder_traverse(tmp::forward<function_type>(fT), it->left);
 
 			fT(it);
 
 			if (it->right != nullptr)
-				_inorder_traverse(fT, it->right);
+				_inorder_traverse(tmp::forward<function_type>(fT), it->right);
 		}
 
 		template<typename function_type>
 		void
-		_postorder_traverse(function_type fT, rb_iterator it)
+		_postorder_traverse(function_type&& fT, iterator it)
 		{
 			if (it->left != nullptr)
-				_postorder_traverse(fT, it->left);
+				_postorder_traverse(tmp::forward<function_type>(fT), it->left);
 
 			if (it->right != nullptr)
-				_postorder_traverse(fT, it->right);
+				_postorder_traverse(tmp::forward<function_type>(fT), it->right);
 
 			fT(it);
 		}
 
 		template<typename function_type>
 		void
-		_preorder_traverse(function_type fT, rb_iterator it)
+		_preorder_traverse(function_type&& fT, iterator it)
 		{
 			fT(it);
 
 			if (it->left != nullptr)
-				_preorder_traverse(fT, it->left);
+				_preorder_traverse(tmp::forward<function_type>(fT), it->left);
 
 			if (it->right != nullptr)
-				_preorder_traverse(fT, it->right);
+				_preorder_traverse(tmp::forward<function_type>(fT), it->right);
+		}
+
+		template<typename function_type>
+		void
+		_inorder_traverse(function_type&& fT, const_iterator it) const
+		{
+			if (it->left != nullptr)
+				_inorder_traverse(tmp::forward<function_type>(fT), it->left);
+
+			fT(it);
+
+			if (it->right != nullptr)
+				_inorder_traverse(tmp::forward<function_type>(fT), it->right);
+		}
+
+		template<typename function_type>
+		void
+		_postorder_traverse(function_type&& fT, const_iterator it) const
+		{
+			if (it->left != nullptr)
+				_postorder_traverse(tmp::forward<function_type>(fT), it->left);
+
+			if (it->right != nullptr)
+				_postorder_traverse(tmp::forward<function_type>(fT), it->right);
+
+			fT(it);
+		}
+
+		template<typename function_type>
+		void
+		_preorder_traverse(function_type&& fT, const_iterator it) const
+		{
+			fT(it);
+
+			if (it->left != nullptr)
+				_preorder_traverse(tmp::forward<function_type>(fT), it->left);
+
+			if (it->right != nullptr)
+				_preorder_traverse(tmp::forward<function_type>(fT), it->right);
 		}
 
 		RB_Node*
-		_lookup(RB_Node* k, RB_Node* it) 
+		_lookup(const key_type& key, RB_Node* it) const
 		{
-			if (_less_than(k->data , it->data))
+			if (_less_than(key , it->data.key))
 			{
 				if (it->left != nullptr)
-					return _lookup(k, it->left);
+					return _lookup(key, it->left);
 
 				else
 					return it->left;
 			}
-			else if (_less_than(it->data, k->data ))
+			else if (_less_than(it->data.key, key))
 			{
 				if (it->right != nullptr)
-					return _lookup(k, it->right);
+					return _lookup(key, it->right);
 				else
 					return it->right;
 			}
 			else
 				return it;
+		}
+
+		RB_Node*
+		_lookup(key_type&& key, RB_Node* it) const
+		{
+			return _lookup(key, it);
 		}
 	};
 

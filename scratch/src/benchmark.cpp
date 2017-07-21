@@ -1078,7 +1078,7 @@ benchmark_string_writer(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-	
+
 	std::cout << "benchmark string_writer" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
@@ -1094,7 +1094,7 @@ benchmark_rb_tree(cpprelude::usize limit)
 	stopwatch w;
 	for (cpprelude::usize j = 0; j < 100; ++j)
 	{
-		cpprelude::rb_tree<cpprelude::details::pair_node<usize, bool>> tree;
+		cpprelude::rb_tree<usize, bool> tree;
 
 		w.start();
 		for (cpprelude::usize i = 0; i < limit; ++i)
@@ -1111,7 +1111,7 @@ benchmark_rb_tree(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-	
+
 	std::cout << "benchmark rb_tree" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
@@ -1571,7 +1571,7 @@ benchmark_std_map(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-	
+
 	std::cout << "benchmark map" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
@@ -1586,7 +1586,7 @@ benchmark()
 	cpprelude::usize limit = 10000;
 
 	std::cout << "\nBENCHMARK START\n" << std::endl;
-	
+
 	benchmark_vector(limit);
 	std::cout << std::endl;
 	benchmark_dynamic_array(limit);
@@ -1643,13 +1643,13 @@ benchmark()
 	benchmark_std_priority_queue(limit);
 
 	std::cout <<"============================================================"<< std::endl;
-	
+
 	benchmark_string_writer(limit);
 	std::cout << std::endl;
 	benchmark_std_string(limit);
 	std::cout << std::endl;
 	benchmark_std_stringstream(limit);
-	
+
 	std::cout <<"============================================================"<< std::endl;
 
 	benchmark_rb_tree(limit);
@@ -1657,7 +1657,7 @@ benchmark()
 	benchmark_std_map(limit);
 
 	std::cout <<"============================================================"<< std::endl;
-	
+
 	benchmark_std_sort(limit);
 	std::cout << std::endl;
 	benchmark_std_stable_sort(limit);
@@ -1681,7 +1681,7 @@ benchmark()
 	benchmark_thread_unique(limit/10);
 	std::cout << std::endl;
 	benchmark_thread_multi_reader(limit/10);
-	
+
 
 	std::cout << "\nBENCHMARK END\n" << std::endl;
 }

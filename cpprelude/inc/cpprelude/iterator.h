@@ -3,6 +3,8 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/memory.h"
 
+#include <ostream>
+
 namespace cpprelude
 {
 	namespace details
@@ -43,24 +45,40 @@ namespace cpprelude
 				:key(k)
 			{}
 
+			pair_node(key_type&& k)
+				:key(tmp::move(k))
+			{}
+
 			pair_node(const key_type& k, const value_type& v)
 				:key(k), value(v)
 			{}
 
+			pair_node(key_type&& k, const value_type& v)
+				:key(tmp::move(k)), value(v)
+			{}
+
+			pair_node(const key_type& k, value_type&& v)
+				:key(k), value(tmp::move(v))
+			{}
+
+			pair_node(key_type&& k, value_type&& v)
+				:key(tmp::move(k)), value(tmp::move(v))
+			{}
+
 			bool
-			operator < (const pair_node<key_type, value_type> & other) const
+			operator<(const pair_node& other) const
 			{
 				return key < other.key;
 			}
 
 			bool
-			operator > (const pair_node<key_type, value_type> & other) const
+			operator>(const pair_node& other) const
 			{
 				return key > other.key;
 			}
 
 			bool
-			operator == (const pair_node<key_type, value_type> & other) const
+			operator==(const pair_node& other) const
 			{
 				return key == other.key;
 			}
@@ -72,35 +90,34 @@ namespace cpprelude
 			}
 		};
 
-		
 		template<typename T>
 		struct rb_node
 		{
-			enum color_type:bool { RED, BLACK };
+			enum color_type: bool { RED, BLACK };
 			T data;
 			color_type color;
-			rb_node<T> * left;
-			rb_node<T> * right;
-			rb_node<T> * parent;
+			rb_node<T> *left;
+			rb_node<T> *right;
+			rb_node<T> *parent;
 
 			rb_node()
-				:left(nullptr), right(nullptr), parent(nullptr), color(RED)
+				:color(RED), left(nullptr), right(nullptr), parent(nullptr)
 			{}
 
 			rb_node(const T& d, color_type c = RED)
-				:data(d), left(nullptr), right(nullptr), parent(nullptr), color(c)
+				:data(d), color(c), left(nullptr), right(nullptr), parent(nullptr)
 			{}
 
 			rb_node(const T& d, rb_node<T>* p, color_type c = RED)
-				:data(d), left(nullptr), right(nullptr), parent(p), color(c)
+				:data(d), color(c), left(nullptr), right(nullptr), parent(p)
 			{}
 
 			rb_node(const T& d, rb_node<T>* p, rb_node<T>* l, rb_node<T>* r, color_type c = RED)
-				:data(d), left(l), right(r), parent(p), color(c)
+				:data(d), color(c), left(l), right(r), parent(p)
 			{}
 
 			bool
-			is_red()
+			is_red() const
 			{
 				return color == RED;
 			}
@@ -312,7 +329,7 @@ namespace cpprelude
 		operator--(int)
 		{
 			auto result = *this;
-			
+
 			if(_node->prev)
 				_node = _node->prev;
 
@@ -566,33 +583,39 @@ namespace cpprelude
 		RB_NODE*
 		operator->()
 		{
-			return &(*_node);
+			return _node;
 		}
 
 		const RB_NODE*
 		operator->() const
 		{
-			return &(*_node);
+			return _node;
 		}
 
-		const RB_NODE&
+		const T&
 		operator*() const
 		{
-			return *_node;
+			return _node->data;
 		}
 
-		RB_NODE&
+		T&
 		operator*()
 		{
-			return *_node;
+			return _node->data;
 		}
 
+		//the combination of the next two functions allow this iterator to iterate on all tree nodes starting from the most left smallest key in the tree
+
+		//this function traverses the right branch of a tree
+		//gets the next node in tree which the next larger key
 		RB_NODE*
 		_get_successor(RB_NODE* node)
 		{
 			if (node == nullptr) return node;
+			//get the right node
 			RB_NODE* successor = node->right;
 
+			//if the right node exist then go all the way to its left branch
 			if (successor != nullptr)
 			{
 				while (successor->left != nullptr)
@@ -600,6 +623,7 @@ namespace cpprelude
 				return successor;
 			}
 
+			//if there's no right node then go up all the way along the right branch
 			RB_NODE* temp = node;
 			successor = temp->parent;
 			while (successor != nullptr && temp == successor->right)
@@ -610,12 +634,16 @@ namespace cpprelude
 			return successor;
 		}
 
+		//this function traverses the left branch of a tree
+		//same as above but gets the next smaller key
 		RB_NODE*
 		_get_predecessor(RB_NODE* node)
 		{
 			if (node == nullptr) return node;
+			//check the left node
 			RB_NODE* predecessor = node->left;
 
+			//go all the war through the right branch
 			if (predecessor != nullptr)
 			{
 				while (predecessor->right != nullptr)

@@ -180,7 +180,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(array.is_rb_tree());
 	}
 
-	//node type is pair 
+	//node type is pair
 	SECTION("Case 08")
 	{
 		using sPair_node = details::pair_node<usize, std::string>;
@@ -251,8 +251,8 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(cpprelude::is_sorted(arr.begin(), arr.count()));
 		CHECK(array.is_rb_tree());
 		CHECK(arr.count() == 3);
-		//search 
-		CHECK(array[3]);
+		//search
+		CHECK(array.lookup(3) != array.end());
 
 		CHECK(array.lookup(99) == nullptr);
 		auto res = array.lookup(1);
@@ -273,7 +273,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(array.is_rb_tree());
 	}
 
-	//insertion 
+	//insertion
 	SECTION("Case 12")
 	{
 		uRB_TREE tree;

@@ -85,7 +85,7 @@ namespace cpprelude
 			:_count(other._count),
 			 _head(other._head),
 			 _tail(other._tail),
-			_allocator(allocator)
+			 _allocator(allocator)
 		{
 			other._count = 0;
 			other._head = nullptr;
