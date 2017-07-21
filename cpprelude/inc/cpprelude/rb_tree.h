@@ -134,14 +134,14 @@ namespace cpprelude
 		operator[](const key_type& key)
 		{
 			T node(key);
-			return insert(node)->data.value;
+			return insert(node)->value;
 		}
 
 		const value_type&
 		operator[](const key_type& key) const
 		{
 			T node(key);
-			return insert(node)->data.value;
+			return insert(node)->value;
 		}
 
 		void
@@ -249,7 +249,7 @@ namespace cpprelude
 			RB_Node *x = nullptr, *x_parent = nullptr;
 			iterator y;
 
-			if (node_to_delete->left == nullptr || node_to_delete->right == nullptr)
+			if (node_to_delete._node->left == nullptr || node_to_delete._node->right == nullptr)
 				y = node_to_delete;
 			else
 			{
@@ -257,31 +257,31 @@ namespace cpprelude
 				++y;
 			}
 
-			if (y->left != nullptr)
-				x = y->left;
+			if (y._node->left != nullptr)
+				x = y._node->left;
 			else
-				x = y->right;
+				x = y._node->right;
 
 			if (x != nullptr)
-				x->parent = y->parent;
+				x->parent = y._node->parent;
 
-			x_parent = y->parent;
+			x_parent = y._node->parent;
 
-			if (y->parent == nullptr)
+			if (y._node->parent == nullptr)
 			{
 				_root = x;
 				if (x != nullptr)
 					x->color = COLOR::BLACK;
 			}
-			else if (y == y->parent->left)
-				y->parent->left = x;
+			else if (y == y._node->parent->left)
+				y._node->parent->left = x;
 			else
-				y->parent->right = x;
+				y._node->parent->right = x;
 
 			if (y != node_to_delete)
-				node_to_delete->data = y->data;
+				*node_to_delete = *y;
 
-			if (y->color == COLOR::BLACK)
+			if (y._node->color == COLOR::BLACK)
 				_rb_delete_fixup(x, x_parent);
 
 			_free_mem(y._node);
@@ -723,6 +723,12 @@ namespace cpprelude
 		void
 		_reset(RB_Node* it)
 		{
+			auto this_ptr = this;
+			auto func = [&this_ptr](iterator it)
+			{
+				this_ptr->_free_mem(it._node);
+			};
+			/*
 			if (it == nullptr)
 				return;
 
@@ -733,6 +739,7 @@ namespace cpprelude
 				_reset(it->right);
 
 			_free_mem(it);
+			*/
 		}
 
 		isize
@@ -755,7 +762,7 @@ namespace cpprelude
 			auto this_ptr = this;
 			auto func = [&this_ptr](iterator it)
 			{
-				this_ptr->insert(it->data);
+				this_ptr->insert(*it);
 			};
 			other.preorder_traverse(func);
 			// queue_array<rb_iterator> queue;
@@ -777,24 +784,24 @@ namespace cpprelude
 		void
 		_inorder_traverse(function_type&& fT, iterator it)
 		{
-			if (it->left != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it->left);
+			if (it._node->left != nullptr)
+				_inorder_traverse(tmp::forward<function_type>(fT), it._node->left);
 
 			fT(it);
 
-			if (it->right != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it->right);
+			if (it._node->right != nullptr)
+				_inorder_traverse(tmp::forward<function_type>(fT), it._node->right);
 		}
 
 		template<typename function_type>
 		void
 		_postorder_traverse(function_type&& fT, iterator it)
 		{
-			if (it->left != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it->left);
+			if (it._node->left != nullptr)
+				_postorder_traverse(tmp::forward<function_type>(fT), it._node->left);
 
-			if (it->right != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it->right);
+			if (it._node->right != nullptr)
+				_postorder_traverse(tmp::forward<function_type>(fT), it._node->right);
 
 			fT(it);
 		}
@@ -805,35 +812,35 @@ namespace cpprelude
 		{
 			fT(it);
 
-			if (it->left != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it->left);
+			if (it._node->left != nullptr)
+				_preorder_traverse(tmp::forward<function_type>(fT), it._node->left);
 
-			if (it->right != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it->right);
+			if (it._node->right != nullptr)
+				_preorder_traverse(tmp::forward<function_type>(fT), it._node->right);
 		}
 
 		template<typename function_type>
 		void
 		_inorder_traverse(function_type&& fT, const_iterator it) const
 		{
-			if (it->left != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it->left);
+			if (it._node->left != nullptr)
+				_inorder_traverse(tmp::forward<function_type>(fT), it._node->left);
 
 			fT(it);
 
-			if (it->right != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it->right);
+			if (it._node->right != nullptr)
+				_inorder_traverse(tmp::forward<function_type>(fT), it._node->right);
 		}
 
 		template<typename function_type>
 		void
 		_postorder_traverse(function_type&& fT, const_iterator it) const
 		{
-			if (it->left != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it->left);
+			if (it._node->left != nullptr)
+				_postorder_traverse(tmp::forward<function_type>(fT), it._node->left);
 
-			if (it->right != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it->right);
+			if (it._node->right != nullptr)
+				_postorder_traverse(tmp::forward<function_type>(fT), it._node->right);
 
 			fT(it);
 		}
@@ -844,11 +851,11 @@ namespace cpprelude
 		{
 			fT(it);
 
-			if (it->left != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it->left);
+			if (it._node->left != nullptr)
+				_preorder_traverse(tmp::forward<function_type>(fT), it._node->left);
 
-			if (it->right != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it->right);
+			if (it._node->right != nullptr)
+				_preorder_traverse(tmp::forward<function_type>(fT), it._node->right);
 		}
 
 		RB_Node*

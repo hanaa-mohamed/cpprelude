@@ -580,16 +580,16 @@ namespace cpprelude
 			_node = _node->right;
 		}
 
-		RB_NODE*
+		T*
 		operator->()
 		{
-			return _node;
+			return &_node->data;
 		}
 
-		const RB_NODE*
+		const T*
 		operator->() const
 		{
-			return _node;
+			return &_node->data;
 		}
 
 		const T&

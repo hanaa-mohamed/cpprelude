@@ -21,11 +21,11 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 	dynamic_array<usize> arr;
 	std::function <void(uIterator it)> insert = [&arr](uIterator it) {
-		arr.insert_back(it->data.key);
+		arr.insert_back(it->key);
 	};
 
 
-	std::function <void(uIterator it)> print = [](uIterator it) {
+	/*std::function <void(uIterator it)> print = [](uIterator it) {
 		auto c = it->color == color_type::RED ? "RED" : "BLACK";
 		std::cout << "key: " << it->data.key << " value: " << it->data.key << " color: " << c << std::endl;
 		auto temp = it->parent != nullptr ? it->parent->data.key : 0;
@@ -35,7 +35,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		temp = it->right != nullptr ? it->right->data.key : 0;
 		std::cout << "right child: " << temp << std::endl;
 		std::cout << "==================================\n";
-	};
+	};*/
 
 	SECTION("Case 01")
 	{
@@ -189,7 +189,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 		dynamic_array<usize> arr1;
 		std::function <void(sIterator it)> insert = [&arr1](sIterator it) {
-			arr1.insert_back(it->data.key);
+			arr1.insert_back(it->key);
 		};
 
 		sPair_node f(2, "22");
@@ -208,8 +208,8 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		//search
 		tree[1] = "11";
 		auto h = tree.lookup(1);
-		CHECK(h->data.key == 1);
-		CHECK(h->data.value == "11");
+		CHECK(h->key == 1);
+		CHECK(h->value == "11");
 
 	}
 
@@ -256,7 +256,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 
 		CHECK(array.lookup(99) == nullptr);
 		auto res = array.lookup(1);
-		bool f = res != nullptr && res->data == 1;
+		bool f = res != nullptr && res->key == 1;
 		CHECK(f);
 	}
 
@@ -323,7 +323,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(array.count() == 2);
 		array.delete_rb_tree(3);
 		CHECK(array.count() == 1);
-		CHECK(array.root()->data == 1);
+		CHECK(array.root()->key == 1);
 		//array.insert(3);
 		//CHECK(array.count() == 2);
 		CHECK(array.is_rb_tree());
@@ -336,7 +336,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(array1.count() == 2);
 		array1.delete_rb_tree(3);
 		CHECK(array1.count() == 1);
-		CHECK(array1.root()->data == 4);
+		CHECK(array1.root()->key == 4);
 		CHECK(array.is_rb_tree());
 	}
 
@@ -351,7 +351,7 @@ TEST_CASE("rb_tree test", "[rb_tree]")
 		CHECK(array.count() == 3);
 		array.delete_rb_tree(3);
 		CHECK(array.count() == 2);
-		CHECK(array.root()->data == 6);
+		CHECK(array.root()->key == 6);
 		array.insert(3);
 		CHECK(array.count() == 3);
 		CHECK(array.is_rb_tree());
