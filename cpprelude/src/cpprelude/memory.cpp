@@ -4,5 +4,5 @@
 #endif // OS_WINDOWS
 
 namespace cpprelude
-{	
+{
 }

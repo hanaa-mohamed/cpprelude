@@ -117,10 +117,14 @@ namespace cpprelude
 		operator=(dlinked_list<T>&& other)
 		{
 			reset();
+<<<<<<< HEAD
+			_allocator = tmp::move(other._allocator);
+=======
 			//free the sentinals as we are going to steal them
 			_allocator.free(make_slice(_head));
 			_allocator.free(make_slice(_tail));
-			_allocator = tmp::move(other._allocator);
+			_allocator = other._allocator;
+>>>>>>> master
 
 			_count = other._count;
 			_head = other._head;

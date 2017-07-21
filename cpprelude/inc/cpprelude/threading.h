@@ -6,7 +6,6 @@
 #include <chrono>
 #include <limits>
 
-
 namespace cpprelude
 {
 	struct binary_semaphore

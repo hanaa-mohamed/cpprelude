@@ -48,7 +48,7 @@ TEST_CASE("string test", "[string]")
 		literal b = ""_l;
 
 		CHECK(a==b);
-		
+
 		CHECK(a.count() == 0);
 		CHECK(b.count() == 0);
 
@@ -79,10 +79,10 @@ TEST_CASE("string test", "[string]")
 	SECTION("Case 05")
 	{
 		auto str = string::from_cstring("abc");
-		
+
 		for(auto& ch: str)
 			CHECK(ch != '\0');
-		
+
 		CHECK(str.count() == 3);
 		CHECK(str.empty() == false);
 
@@ -129,7 +129,7 @@ TEST_CASE("string test", "[string]")
 		auto c = string::copy(a);
 
 		CHECK(c == a);
-		
+
 		string::dispose(a);
 
 		CHECK(c != a);
@@ -168,12 +168,14 @@ TEST_CASE("string test", "[string]")
 
 		for(auto& ch: b)
 			CHECK(ch != '\0');
+
+		string::dispose(a);
 	}
 
 	SECTION("Case 09")
 	{
 		string_writer<global_allocator> writer;
-		
+
 		CHECK(writer.empty());
 		writer.clear();
 		CHECK(writer.empty());

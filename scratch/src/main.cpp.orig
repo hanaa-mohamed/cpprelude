@@ -9,8 +9,11 @@
 #include <cpprelude/bucket_array.h>
 #include <cpprelude/tmp.h>
 #include <cpprelude/string.h>
-#include <cpprelude/hash_array.h>
+<<<<<<< HEAD
 #include <cpprelude/rb_tree.h>
+=======
+#include <cpprelude/hash_array.h>
+>>>>>>> master
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
@@ -210,6 +213,7 @@ scratch()
 
 	// std::cout << "\n";
 
+<<<<<<< HEAD
 	tree_map<usize, bool> my_map;
 	my_map.insert(1, true);
 	my_map.insert(2, true);
@@ -221,7 +225,7 @@ scratch()
 		std::cout << x.key << ", " << x.value << std::endl;
 	}
 	std::cout << "iteration end" << std::endl;
-
+=======
 	std::cout << "hash(1): " << do_hash(1) << std::endl;
 	std::cout << "hash(1.5f): " << do_hash(1.5f) << std::endl;
 	std::cout << "hash(1.5f) % 150: " << do_hash(1.5f) % 150 << std::endl;
@@ -291,6 +295,7 @@ scratch()
 
 	cpprelude::hash_set<usize> ss;
 	ss.insert(3);
+>>>>>>> master
 }
 
 void
@@ -397,8 +402,13 @@ main(int argc, char** argv)
 	shuffle_test();
 	quick_select_test();
 	scratch();
+<<<<<<< HEAD
 	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
 	test_string_conversion();
-	
+
+=======
+	//std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
+	//test_string_conversion();
+>>>>>>> master
 	return 0;
 }

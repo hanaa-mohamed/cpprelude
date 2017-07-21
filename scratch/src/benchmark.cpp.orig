@@ -30,10 +30,13 @@
 #include <string>
 #include <sstream>
 
-#include <cpprelude/hash_array.h>
-#include <unordered_map>
+<<<<<<< HEAD
 #include <cpprelude/rb_tree.h>
 #include <map>
+=======
+#include <cpprelude/hash_array.h>
+#include <unordered_map>
+>>>>>>> master
 
 #include <iostream>
 
@@ -1087,14 +1090,26 @@ benchmark_string_writer(cpprelude::usize limit)
 	std::cout << "microseconds: " << avg_micro << std::endl;
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
+
 void
+<<<<<<< HEAD
+benchmark_rb_tree(cpprelude::usize limit)
+=======
 benchmark_hash_array(cpprelude::usize limit)
+>>>>>>> master
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
 	stopwatch w;
 	for (cpprelude::usize j = 0; j < 100; ++j)
 	{
+<<<<<<< HEAD
+		cpprelude::rb_tree<usize, bool> tree;
+
+		w.start();
+		for (cpprelude::usize i = 0; i < limit; ++i)
+			tree.insert(cpprelude::details::pair_node<usize, bool>(i, true));
+=======
 		cpprelude::hash_array<usize, usize> array;
 
 		w.start();
@@ -1104,6 +1119,7 @@ benchmark_hash_array(cpprelude::usize limit)
 			auto it = array.lookup(i);
 			array.remove(it);
 		}
+>>>>>>> master
 		w.stop();
 
 		avg_sec += w.seconds();
@@ -1117,47 +1133,20 @@ benchmark_hash_array(cpprelude::usize limit)
 	avg_micro /= 100;
 	avg_nano /= 100;
 
-	std::cout << "benchmark hash_array" << std::endl;
-	std::cout << "seconds: " << avg_sec << std::endl;
-	std::cout << "milliseconds: " << avg_milli << std::endl;
-	std::cout << "microseconds: " << avg_micro << std::endl;
-	std::cout << "nanoseconds: " << avg_nano << std::endl;
-}
-
-void
-benchmark_rb_tree(cpprelude::usize limit)
-{
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
-	stopwatch w;
-	for (cpprelude::usize j = 0; j < 100; ++j)
-	{
-		cpprelude::rb_tree<usize, bool> tree;
-
-		w.start();
-		for (cpprelude::usize i = 0; i < limit; ++i)
-			tree.insert(cpprelude::details::pair_node<usize, bool>(i, true));
-		w.stop();
-
-		avg_sec += w.seconds();
-		avg_milli += w.milliseconds();
-		avg_micro += w.microseconds();
-		avg_nano += w.nanoseconds();
-	}
-
-	avg_sec /= 100;
-	avg_milli /= 100;
-	avg_micro /= 100;
-	avg_nano /= 100;
-
+<<<<<<< HEAD
 	std::cout << "benchmark rb_tree" << std::endl;
+=======
+	std::cout << "benchmark hash_array" << std::endl;
+>>>>>>> master
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
 	std::cout << "microseconds: " << avg_micro << std::endl;
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
+<<<<<<< HEAD
+=======
 
-
+>>>>>>> master
 //STD
 
 void
@@ -1587,13 +1576,24 @@ benchmark_std_stringstream(cpprelude::usize limit)
 }
 
 void
+<<<<<<< HEAD
+benchmark_std_map(cpprelude::usize limit)
+=======
 benchmark_std_unordered_map(cpprelude::usize limit)
+>>>>>>> master
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
 	stopwatch w;
 	for (cpprelude::usize j = 0; j < 100; ++j)
 	{
+<<<<<<< HEAD
+		std::map<usize, bool> tree;
+
+		w.start();
+		for (cpprelude::usize i = 0; i < limit; ++i)
+			tree.insert(std::make_pair(i, true));
+=======
 		std::unordered_map<usize, usize> array;
 
 		w.start();
@@ -1603,6 +1603,7 @@ benchmark_std_unordered_map(cpprelude::usize limit)
 			auto it = array.find(i);
 			array.erase(it);
 		}
+>>>>>>> master
 		w.stop();
 
 		avg_sec += w.seconds();
@@ -1616,45 +1617,17 @@ benchmark_std_unordered_map(cpprelude::usize limit)
 	avg_micro /= 100;
 	avg_nano /= 100;
 
-	std::cout << "benchmark unordered_map" << std::endl;
-	std::cout << "seconds: " << avg_sec << std::endl;
-	std::cout << "milliseconds: " << avg_milli << std::endl;
-	std::cout << "microseconds: " << avg_micro << std::endl;
-	std::cout << "nanoseconds: " << avg_nano << std::endl;
-}
-
-void
-benchmark_std_map(cpprelude::usize limit)
-{
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
-	stopwatch w;
-	for (cpprelude::usize j = 0; j < 100; ++j)
-	{
-		std::map<usize, bool> tree;
-
-		w.start();
-		for (cpprelude::usize i = 0; i < limit; ++i)
-			tree.insert(std::make_pair(i, true));
-		w.stop();
-
-		avg_sec += w.seconds();
-		avg_milli += w.milliseconds();
-		avg_micro += w.microseconds();
-		avg_nano += w.nanoseconds();
-	}
-
-	avg_sec /= 100;
-	avg_milli /= 100;
-	avg_micro /= 100;
-	avg_nano /= 100;
-
+<<<<<<< HEAD
 	std::cout << "benchmark map" << std::endl;
+=======
+	std::cout << "benchmark unordered_map" << std::endl;
+>>>>>>> master
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
 	std::cout << "microseconds: " << avg_micro << std::endl;
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
+
 
 void
 benchmark()
@@ -1728,13 +1701,15 @@ benchmark()
 
 	std::cout <<"============================================================"<< std::endl;
 
-	benchmark_hash_array(limit);
-	std::cout << std::endl;
-	benchmark_std_unordered_map(limit);
-	std::cout << std::endl;
+<<<<<<< HEAD
 	benchmark_rb_tree(limit);
 	std::cout << std::endl;
 	benchmark_std_map(limit);
+=======
+	benchmark_hash_array(limit);
+	std::cout << std::endl;
+	benchmark_std_unordered_map(limit);
+>>>>>>> master
 
 	std::cout <<"============================================================"<< std::endl;
 
