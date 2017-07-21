@@ -9,6 +9,7 @@
 #include <cpprelude/bucket_array.h>
 #include <cpprelude/tmp.h>
 #include <cpprelude/string.h>
+#include <cpprelude/hash_array.h>
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
@@ -134,10 +135,28 @@ quick_select_test()
 	cpprelude::dlinked_list<int> array;
 	for (int i = 0; i < 10; ++i)
 		array.insert_back(i);
-	
+
 	for (auto& n : array)
 		std::cout << n << " ";
 	std::cout << "\nquick_select(4): " << *quick_select(array.begin(), array.count(), 4) << std::endl;
+}
+
+template<typename T>
+usize
+do_hash(const T& value)
+{
+	cpprelude::hash<T> hasher;
+	return hasher(value);
+}
+
+void func_const(const cpprelude::dynamic_array<int>& art)
+{
+	for(cpprelude::dynamic_array<int>::const_iterator it = art.begin();
+		it != art.end();
+		++it)
+	{
+		std::cout << *it << std::endl;
+	}
 }
 
 void
@@ -189,6 +208,76 @@ scratch()
 	// }
 
 	// std::cout << "\n";
+
+	std::cout << "hash(1): " << do_hash(1) << std::endl;
+	std::cout << "hash(1.5f): " << do_hash(1.5f) << std::endl;
+	std::cout << "hash(1.5f) % 150: " << do_hash(1.5f) % 150 << std::endl;
+	std::cout << "hash(1.56f): " << do_hash(1.56f) << std::endl;
+	std::cout << "hash(1.56f) % 150: " << do_hash(1.56f) % 150 << std::endl;
+	std::cout << "hash(1.567): " << do_hash(1.567) << std::endl;
+	std::cout << "hash('a'): " << do_hash('a') << std::endl;
+	std::cout << "hash('b'): " << do_hash('b') << std::endl;
+	std::cout << "hash(\"mostafa\"): " << do_hash("mostafa"_l) << std::endl;
+	std::cout << "hash(\"mostafa\") % 150: " << do_hash("mostafa"_l) % 150 << std::endl;
+	auto str = cpprelude::string::from_cstring("mostafa");
+	std::cout << "hash(\"mostafa\"): " << do_hash(str) << std::endl;
+	std::cout << "hash(\"moustafa\"): " << do_hash("moustafa"_l) << std::endl;
+	std::cout << "hash(\"moustapha\"): " << do_hash("moustapha"_l) << std::endl;
+	cpprelude::string::dispose(str);
+
+	cpprelude::hash_array<int, char> h_table;
+	char ch = 'a';
+
+	for(int i=0;i<26;++i)
+		h_table.insert(i, ch++);
+
+	for(auto it = h_table.begin();
+		it != h_table.end();
+		++it)
+	{
+		std::cout << "key: " << *it << ", value: " << it.value() << std::endl;
+	}
+
+
+	for(auto it = h_table.cbegin();
+		it != h_table.end();
+		++it)
+	{
+		std::cout << "key: " << *it << ", value: " << it.value() << std::endl;
+	}
+
+	std::cout << "key range: " << std::endl;
+	for(auto& key: h_table.keys())
+	{
+		std::cout << key << std::endl;
+	}
+
+	std::cout << "value range: " << std::endl;
+	for(const auto& value: h_table.values())
+	{
+		std::cout << value << std::endl;
+	}
+
+	std::cout << "const value range: " << std::endl;
+	for(auto& value: h_table.cvalues())
+	{
+		std::cout << value << std::endl;
+	}
+
+	std::cout << "find 5: " << h_table.lookup(5).value() << std::endl;
+	std::cout << "find 23: " << h_table.lookup(23).value() << std::endl;
+	std::cout << "find 0: " << h_table.lookup(0).value() << std::endl;
+
+	cpprelude::dynamic_array<int> art;
+	art.insert_back(4);
+
+	for(const auto& x: art)
+		std::cout << x << std::endl;
+
+	func_const(art);
+
+	cpprelude::hash_set<usize> ss;
+	ss.insert(3);
 }
 
 void
@@ -250,7 +339,7 @@ test_string_conversion()
 	std::cout << cpprelude::write(str, 1, " ", 2.0f, " ", 3.0, " ", 4u) << std::endl;
 
 	std::cout << str << std::endl;
-	
+
 	auto str_literal = "-123456587646457687"_l;
 	i32 num;
 	auto res = cpprelude::read(str_literal, num);
@@ -295,8 +384,7 @@ main(int argc, char** argv)
 	shuffle_test();
 	quick_select_test();
 	scratch();
-	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
-	test_string_conversion();
-	
+	//std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
+	//test_string_conversion();
 	return 0;
 }

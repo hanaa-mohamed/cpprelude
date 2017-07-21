@@ -30,6 +30,9 @@
 #include <string>
 #include <sstream>
 
+#include <cpprelude/hash_array.h>
+#include <unordered_map>
+
 #include <iostream>
 
 using namespace cpprelude;
@@ -1075,13 +1078,51 @@ benchmark_string_writer(cpprelude::usize limit)
 	avg_milli /= 100;
 	avg_micro /= 100;
 	avg_nano /= 100;
-	
+
 	std::cout << "benchmark string_writer" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
 	std::cout << "microseconds: " << avg_micro << std::endl;
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
+
+void
+benchmark_hash_array(cpprelude::usize limit)
+{
+	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
+
+	stopwatch w;
+	for (cpprelude::usize j = 0; j < 100; ++j)
+	{
+		cpprelude::hash_array<usize, usize> array;
+
+		w.start();
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
+			array.insert(i, i+9);
+			auto it = array.lookup(i);
+			array.remove(it);
+		}
+		w.stop();
+
+		avg_sec += w.seconds();
+		avg_milli += w.milliseconds();
+		avg_micro += w.microseconds();
+		avg_nano += w.nanoseconds();
+	}
+
+	avg_sec /= 100;
+	avg_milli /= 100;
+	avg_micro /= 100;
+	avg_nano /= 100;
+
+	std::cout << "benchmark hash_array" << std::endl;
+	std::cout << "seconds: " << avg_sec << std::endl;
+	std::cout << "milliseconds: " << avg_milli << std::endl;
+	std::cout << "microseconds: " << avg_micro << std::endl;
+	std::cout << "nanoseconds: " << avg_nano << std::endl;
+}
+
 //STD
 
 void
@@ -1510,6 +1551,43 @@ benchmark_std_stringstream(cpprelude::usize limit)
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
 
+void
+benchmark_std_unordered_map(cpprelude::usize limit)
+{
+	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
+
+	stopwatch w;
+	for (cpprelude::usize j = 0; j < 100; ++j)
+	{
+		std::unordered_map<usize, usize> array;
+
+		w.start();
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
+			array.insert({i, i+9});
+			auto it = array.find(i);
+			array.erase(it);
+		}
+		w.stop();
+
+		avg_sec += w.seconds();
+		avg_milli += w.milliseconds();
+		avg_micro += w.microseconds();
+		avg_nano += w.nanoseconds();
+	}
+
+	avg_sec /= 100;
+	avg_milli /= 100;
+	avg_micro /= 100;
+	avg_nano /= 100;
+
+	std::cout << "benchmark unordered_map" << std::endl;
+	std::cout << "seconds: " << avg_sec << std::endl;
+	std::cout << "milliseconds: " << avg_milli << std::endl;
+	std::cout << "microseconds: " << avg_micro << std::endl;
+	std::cout << "nanoseconds: " << avg_nano << std::endl;
+}
+
 
 void
 benchmark()
@@ -1517,7 +1595,7 @@ benchmark()
 	cpprelude::usize limit = 10000;
 
 	std::cout << "\nBENCHMARK START\n" << std::endl;
-	
+
 	benchmark_vector(limit);
 	std::cout << std::endl;
 	benchmark_dynamic_array(limit);
@@ -1574,13 +1652,19 @@ benchmark()
 	benchmark_std_priority_queue(limit);
 
 	std::cout <<"============================================================"<< std::endl;
-	
+
 	benchmark_string_writer(limit);
 	std::cout << std::endl;
 	benchmark_std_string(limit);
 	std::cout << std::endl;
 	benchmark_std_stringstream(limit);
-	
+
+	std::cout <<"============================================================"<< std::endl;
+
+	benchmark_hash_array(limit);
+	std::cout << std::endl;
+	benchmark_std_unordered_map(limit);
+
 	std::cout <<"============================================================"<< std::endl;
 	benchmark_std_sort(limit);
 	std::cout << std::endl;
@@ -1605,7 +1689,7 @@ benchmark()
 	benchmark_thread_unique(limit/10);
 	std::cout << std::endl;
 	benchmark_thread_multi_reader(limit/10);
-	
+
 
 	std::cout << "\nBENCHMARK END\n" << std::endl;
 }
