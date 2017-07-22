@@ -91,36 +91,24 @@ namespace cpprelude
 		};
 
 		template<typename T>
-		struct rb_node
+		struct red_black_tree_node
 		{
 			enum color_type: bool { RED, BLACK };
+			red_black_tree_node<T> *left, *right, *parent;
 			T data;
 			color_type color;
-			rb_node<T> *left;
-			rb_node<T> *right;
-			rb_node<T> *parent;
 
-			rb_node()
-				:color(RED), left(nullptr), right(nullptr), parent(nullptr)
+			red_black_tree_node()
+				:left(nullptr),
+				 right(nullptr),
+				 parent(nullptr),
+				 color(RED)
 			{}
 
-			rb_node(const T& d, color_type c = RED)
-				:data(d), color(c), left(nullptr), right(nullptr), parent(nullptr)
+			red_black_tree_node(const T& data_, color_type color_ = color_type::RED)
+				:data(data_),
+				 color(color_)
 			{}
-
-			rb_node(const T& d, rb_node<T>* p, color_type c = RED)
-				:data(d), color(c), left(nullptr), right(nullptr), parent(p)
-			{}
-
-			rb_node(const T& d, rb_node<T>* p, rb_node<T>* l, rb_node<T>* r, color_type c = RED)
-				:data(d), color(c), left(l), right(r), parent(p)
-			{}
-
-			bool
-			is_red() const
-			{
-				return color == RED;
-			}
 		};
 	}
 
@@ -1471,291 +1459,103 @@ namespace cpprelude
 	};
 
 	template<typename T>
-	struct const_rb_tree_iterator;
-
-	template<typename T>
-	struct rb_tree_iterator
-	{
-		using data_type = T;
-		using RB_NODE = details::rb_node<T>;
-		RB_NODE* _node;
-
-		rb_tree_iterator()
-			:_node(nullptr)
-		{}
-
-		rb_tree_iterator(RB_NODE* n)
-			:_node(n)
-		{}
-
-		rb_tree_iterator&
-		operator++()
-		{
-			_node = _get_successor(_node);
-			return *this;
-		}
-
-		rb_tree_iterator
-		operator++(int)
-		{
-			RB_NODE* temp = _node;
-			_node = _get_successor(_node);
-			return rb_tree_iterator(temp);
-		}
-
-		rb_tree_iterator&
-		operator--()
-		{
-			_node = _get_predecessor(_node);
-			return *this;
-		}
-
-		rb_tree_iterator
-		operator--(int)
-		{
-			RB_NODE* temp = _node;
-			_node = _get_predecessor(_node);
-			return rb_tree_iterator(temp);
-		}
-
-		bool
-		operator==(const rb_tree_iterator<T>& other) const
-		{
-			return _node == other._node;
-		}
-
-		bool
-		operator!=(const rb_tree_iterator<T>& other) const
-		{
-			return _node != other._node;
-		}
-
-		bool
-		operator==(const const_rb_tree_iterator<T>& other) const
-		{
-			return _node == other._node;
-		}
-
-		bool
-		operator!=(const const_rb_tree_iterator<T>& other) const
-		{
-			return _node != other._node;
-		}
-
-		void
-		move_up()
-		{
-			_node = _node->parent;
-		}
-
-		void
-		move_left()
-		{
-			_node = _node->left;
-		}
-
-		void
-		move_right()
-		{
-			_node = _node->right;
-		}
-
-		T*
-		operator->()
-		{
-			return &_node->data;
-		}
-
-		const T*
-		operator->() const
-		{
-			return &_node->data;
-		}
-
-		const T&
-		operator*() const
-		{
-			return _node->data;
-		}
-
-		T&
-		operator*()
-		{
-			return _node->data;
-		}
-
-		//the combination of the next two functions allow this iterator to iterate on all tree nodes starting from the most left smallest key in the tree
-
-		//this function traverses the right branch of a tree
-		//gets the next node in tree which the next larger key
-		RB_NODE*
-		_get_successor(RB_NODE* node)
-		{
-			if (node == nullptr) return node;
-			//get the right node
-			RB_NODE* successor = node->right;
-
-			//if the right node exist then go all the way to its left branch
-			if (successor != nullptr)
-			{
-				while (successor->left != nullptr)
-					successor = successor->left;
-				return successor;
-			}
-
-			//if there's no right node then go up all the way along the right branch
-			RB_NODE* temp = node;
-			successor = temp->parent;
-			while (successor != nullptr && temp == successor->right)
-			{
-				temp = successor;
-				successor = successor->parent;
-			}
-			return successor;
-		}
-
-		//this function traverses the left branch of a tree
-		//same as above but gets the next smaller key
-		RB_NODE*
-		_get_predecessor(RB_NODE* node)
-		{
-			if (node == nullptr) return node;
-			//check the left node
-			RB_NODE* predecessor = node->left;
-
-			//go all the war through the right branch
-			if (predecessor != nullptr)
-			{
-				while (predecessor->right != nullptr)
-					predecessor = predecessor->right;
-				return predecessor;
-			}
-
-			RB_NODE* temp = node;
-			predecessor = temp->parent;
-			while (predecessor != nullptr && temp == predecessor->left)
-			{
-				temp = predecessor;
-				predecessor = predecessor->parent;
-			}
-			return predecessor;
-		}
-
-	};
-
-	template<typename T>
-	struct const_rb_tree_iterator
+	struct red_black_tree_iterator
 	{
 		using data_type = const T;
-		using RB_NODE = const details::rb_node<T>;
-		RB_NODE* _node;
+		using node_type = const details::red_black_tree_node<T>;
 
-		const_rb_tree_iterator()
-			:_node(nullptr)
+		node_type* node;
+
+		red_black_tree_iterator()
+			:node(nullptr)
 		{}
 
-		const_rb_tree_iterator(RB_NODE* n)
-			:_node(n)
+		red_black_tree_iterator(node_type* node_)
+			:node(node_)
 		{}
 
-		const_rb_tree_iterator(const const_rb_tree_iterator<T>& other)
-			:_node(other._node)
-		{}
-
-		const_rb_tree_iterator&
+		red_black_tree_iterator&
 		operator++()
 		{
-			_node = _get_successor(_node);
+			node = _get_successor(node);
 			return *this;
 		}
 
-		const_rb_tree_iterator
+		red_black_tree_iterator
 		operator++(int)
 		{
-			RB_NODE* temp = _node;
-			_node = _get_successor(_node);
-			return const_rb_tree_iterator(temp);
+			node_type* result = node;
+			node = _get_successor(node);
+			return red_black_tree_iterator(result);
 		}
 
-		const_rb_tree_iterator&
+		red_black_tree_iterator&
 		operator--()
 		{
-			_node = _get_predecessor(_node);
+			node = _get_predecessor(node);
 			return *this;
 		}
 
-		const_rb_tree_iterator
+		red_black_tree_iterator
 		operator--(int)
 		{
-			RB_NODE* temp = _node;
-			_node = _get_predecessor(_node);
-			return const_rb_tree_iterator(temp);
+			node_type* result = node;
+			node = _get_predecessor(node);
+			return red_black_tree_iterator(result);
 		}
 
 		bool
-		operator==(const rb_tree_iterator<T>& other) const
+		operator==(const red_black_tree_iterator& other) const
 		{
-			return _node == other._node;
+			return node == other.node;
 		}
 
 		bool
-		operator!=(const rb_tree_iterator<T>& other) const
+		operator!=(const red_black_tree_iterator& other) const
 		{
-			return _node != other._node;
-		}
-
-		bool
-		operator==(const const_rb_tree_iterator<T>& other) const
-		{
-			return _node == other._node;
-		}
-
-		bool
-		operator!=(const const_rb_tree_iterator<T>& other) const
-		{
-			return _node != other._node;
+			return node != other.node;
 		}
 
 		void
-		move_up()
+		move_up() const
 		{
-			_node = _node->parent;
+			node = node->parent;
 		}
 
 		void
-		move_left()
+		move_left() const
 		{
-			_node = _node->left;
+			node = node->left;
 		}
 
 		void
-		move_right()
+		move_right() const
 		{
-			_node = _node->right;
+			node = node->right;
 		}
 
-		const T*
+		data_type*
 		operator->() const
 		{
-			return &_node->data;
+			return &node->data;
 		}
 
-		const T&
+		data_type&
 		operator*() const
 		{
-			return _node->data;
+			return node->data;
 		}
 
 		//the combination of the next two functions allow this iterator to iterate on all tree nodes starting from the most left smallest key in the tree
 
 		//this function traverses the right branch of a tree
 		//gets the next node in tree which the next larger key
-		RB_NODE*
-		_get_successor(RB_NODE* node)
+		node_type*
+		_get_successor(node_type* node)
 		{
 			if (node == nullptr) return node;
 			//get the right node
-			RB_NODE* successor = node->right;
+			node_type* successor = node->right;
 
 			//if the right node exist then go all the way to its left branch
 			if (successor != nullptr)
@@ -1766,7 +1566,7 @@ namespace cpprelude
 			}
 
 			//if there's no right node then go up all the way along the right branch
-			RB_NODE* temp = node;
+			node_type* temp = node;
 			successor = temp->parent;
 			while (successor != nullptr && temp == successor->right)
 			{
@@ -1778,12 +1578,12 @@ namespace cpprelude
 
 		//this function traverses the left branch of a tree
 		//same as above but gets the next smaller key
-		RB_NODE*
-		_get_predecessor(RB_NODE* node)
+		node_type*
+		_get_predecessor(node_type* node)
 		{
 			if (node == nullptr) return node;
 			//check the left node
-			RB_NODE* predecessor = node->left;
+			node_type* predecessor = node->left;
 
 			//go all the war through the right branch
 			if (predecessor != nullptr)
@@ -1793,7 +1593,7 @@ namespace cpprelude
 				return predecessor;
 			}
 
-			RB_NODE* temp = node;
+			node_type* temp = node;
 			predecessor = temp->parent;
 			while (predecessor != nullptr && temp == predecessor->left)
 			{
@@ -1802,7 +1602,217 @@ namespace cpprelude
 			}
 			return predecessor;
 		}
+	};
 
+	template<typename KeyType, typename ValueType>
+	struct red_black_tree_const_pair_iterator;
+
+	template<typename KeyType, typename ValueType>
+	struct red_black_tree_pair_iterator: public red_black_tree_iterator<details::pair_node<KeyType, ValueType>>
+	{
+		using key_type = KeyType;
+		using value_type = ValueType;
+		using data_type = const details::pair_node<KeyType, ValueType>;
+		using node_type = const details::red_black_tree_node<details::pair_node<KeyType, ValueType>>;
+		using _implementation = red_black_tree_iterator<details::pair_node<KeyType, ValueType>>;
+
+		red_black_tree_pair_iterator()
+			:_implementation()
+		{}
+
+		red_black_tree_pair_iterator(node_type* node_)
+			:_implementation(node_)
+		{}
+
+		red_black_tree_pair_iterator(const red_black_tree_iterator<details::pair_node<KeyType, ValueType>>& it)
+			:_implementation(it.node)
+		{}
+
+		red_black_tree_pair_iterator&
+		operator++()
+		{
+			this->node = _implementation::_get_successor(this->node);
+			return *this;
+		}
+
+		red_black_tree_pair_iterator
+		operator++(int)
+		{
+			node_type* result = this->node;
+			this->node = _implementation::_get_successor(this->node);
+			return red_black_tree_pair_iterator(result);
+		}
+
+		red_black_tree_pair_iterator&
+		operator--()
+		{
+			this->node = _implementation::_get_predecessor(this->node);
+			return *this;
+		}
+
+		red_black_tree_pair_iterator
+		operator--(int)
+		{
+			node_type* result = this->node;
+			this->node = _implementation::_get_predecessor(this->node);
+			return red_black_tree_pair_iterator(result);
+		}
+
+		bool
+		operator==(const red_black_tree_pair_iterator& other) const
+		{
+			return this->node == other.node;
+		}
+
+		bool
+		operator!=(const red_black_tree_pair_iterator& other) const
+		{
+			return this->node != other.node;
+		}
+
+		bool
+		operator==(const red_black_tree_const_pair_iterator<key_type, value_type>& other) const
+		{
+			return this->node == other.node;
+		}
+
+		bool
+		operator!=(const red_black_tree_const_pair_iterator<key_type, value_type>& other) const
+		{
+			return this->node != other.node;
+		}
+
+		using _implementation::move_up;
+		using _implementation::move_left;
+		using _implementation::move_right;
+
+		value_type*
+		operator->()
+		{
+			return const_cast<value_type*>(&this->node->data.value);
+		}
+
+		const value_type*
+		operator->() const
+		{
+			return &this->node->data.value;
+		}
+
+		const key_type&
+		operator*() const
+		{
+			return this->node->data.key;
+		}
+
+		const key_type&
+		key() const
+		{
+			return this->node->data.key;
+		}
+
+		value_type&
+		value()
+		{
+			return const_cast<value_type&>(this->node->data.value);
+		}
+
+		const value_type&
+		value() const
+		{
+			return this->node->data.value;
+		}
+	};
+
+	template<typename KeyType, typename ValueType>
+	struct red_black_tree_const_pair_iterator: public red_black_tree_iterator<details::pair_node<KeyType, ValueType>>
+	{
+		using key_type = KeyType;
+		using value_type = ValueType;
+		using data_type = const details::pair_node<KeyType, ValueType>;
+		using node_type = const details::red_black_tree_node<details::pair_node<KeyType, ValueType>>;
+		using _implementation = red_black_tree_iterator<details::pair_node<KeyType, ValueType>>;
+
+		red_black_tree_const_pair_iterator()
+			:_implementation()
+		{}
+
+		red_black_tree_const_pair_iterator(node_type* node_)
+			:_implementation(node_)
+		{}
+
+		red_black_tree_const_pair_iterator(const red_black_tree_iterator<details::pair_node<KeyType, ValueType>>& it)
+			:_implementation(it.node)
+		{}
+
+		red_black_tree_const_pair_iterator&
+		operator++()
+		{
+			this->node = _implementation::_get_successor(this->node);
+			return *this;
+		}
+
+		red_black_tree_const_pair_iterator
+		operator++(int)
+		{
+			node_type* result = this->node;
+			this->node = _implementation::_get_successor(this->node);
+			return red_black_tree_const_pair_iterator(result);
+		}
+
+		red_black_tree_const_pair_iterator&
+		operator--()
+		{
+			this->node = _implementation::_get_predecessor(this->node);
+			return *this;
+		}
+
+		red_black_tree_const_pair_iterator
+		operator--(int)
+		{
+			node_type* result = this->node;
+			this->node = _implementation::_get_predecessor(this->node);
+			return red_black_tree_const_pair_iterator(result);
+		}
+
+		bool
+		operator==(const red_black_tree_const_pair_iterator& other) const
+		{
+			return this->node == other.node;
+		}
+
+		bool
+		operator!=(const red_black_tree_const_pair_iterator& other) const
+		{
+			return this->node != other.node;
+		}
+
+		using _implementation::move_up;
+		using _implementation::move_left;
+		using _implementation::move_right;
+
+		const value_type*
+		operator->() const
+		{
+			return &this->node->data.value;
+		}
+
+		const key_type&
+		operator*() const
+		{
+			return this->node->data.key;
+		}
+
+		const key_type&
+		key() const
+		{
+			return this->node->data.key;
+		}
+
+		const value_type&
+		value() const
+		{
+			return this->node->data.value;
+		}
 	};
 
 	template<typename T>

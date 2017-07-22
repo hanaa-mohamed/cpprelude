@@ -10,7 +10,8 @@
 #include <cpprelude/tmp.h>
 #include <cpprelude/string.h>
 #include <cpprelude/hash_array.h>
-#include <cpprelude/rb_tree.h>
+//#include <cpprelude/rb_tree.h>
+#include <cpprelude/tree_map.h>
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
@@ -160,6 +161,14 @@ void func_const(const cpprelude::dynamic_array<int>& art)
 	}
 }
 
+void map_const(const cpprelude::tree_map<usize, bool>& m)
+{
+	for(auto& x: m)
+	{
+		std::cout << "m: " << x << std::endl;
+	}
+}
+
 void
 scratch()
 {
@@ -214,11 +223,12 @@ scratch()
 	my_map.insert(1, true);
 	my_map.insert(2, true);
 	my_map.insert(3, true);
+	map_const(my_map);
 
 	std::cout << "iteration begin" << std::endl;
 	for(auto& x: my_map)
 	{
-		std::cout << x.key << ", " << x.value << std::endl;
+		std::cout << "mi: " << x << std::endl;
 	}
 	std::cout << "iteration end" << std::endl;
 
@@ -399,6 +409,6 @@ main(int argc, char** argv)
 	scratch();
 	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
 	test_string_conversion();
-	
+
 	return 0;
 }

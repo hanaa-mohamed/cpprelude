@@ -32,7 +32,7 @@
 
 #include <cpprelude/hash_array.h>
 #include <unordered_map>
-#include <cpprelude/rb_tree.h>
+#include <cpprelude/tree_map.h>
 #include <map>
 
 #include <iostream>
@@ -1125,18 +1125,22 @@ benchmark_hash_array(cpprelude::usize limit)
 }
 
 void
-benchmark_rb_tree(cpprelude::usize limit)
+benchmark_tree_map(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
 
 	stopwatch w;
 	for (cpprelude::usize j = 0; j < 100; ++j)
 	{
-		cpprelude::rb_tree<usize, bool> tree;
+		cpprelude::tree_map<usize, bool> tree;
 
 		w.start();
 		for (cpprelude::usize i = 0; i < limit; ++i)
-			tree.insert(cpprelude::details::pair_node<usize, bool>(i, true));
+		{
+			tree.insert(i, true);
+			auto it = tree.lookup(i);
+			tree.remove(it);
+		}
 		w.stop();
 
 		avg_sec += w.seconds();
@@ -1150,7 +1154,7 @@ benchmark_rb_tree(cpprelude::usize limit)
 	avg_micro /= 100;
 	avg_nano /= 100;
 
-	std::cout << "benchmark rb_tree" << std::endl;
+	std::cout << "benchmark tree_map" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
 	std::cout << "microseconds: " << avg_micro << std::endl;
@@ -1635,7 +1639,11 @@ benchmark_std_map(cpprelude::usize limit)
 
 		w.start();
 		for (cpprelude::usize i = 0; i < limit; ++i)
-			tree.insert(std::make_pair(i, true));
+		{
+			tree.insert({i, true});
+			auto it = tree.find(i);
+			tree.erase(it);
+		}
 		w.stop();
 
 		avg_sec += w.seconds();
@@ -1732,7 +1740,7 @@ benchmark()
 	std::cout << std::endl;
 	benchmark_std_unordered_map(limit);
 	std::cout << std::endl;
-	benchmark_rb_tree(limit);
+	benchmark_tree_map(limit);
 	std::cout << std::endl;
 	benchmark_std_map(limit);
 
