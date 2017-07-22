@@ -75,7 +75,7 @@ namespace cpprelude
 		}
 
 		bucket_array(bucket_array&& other)
-			:_allocator(other._allocator),
+			:_allocator(tmp::move(other._allocator)),
 			_count(other._count),
 			_bucket_count(other._bucket_count),
 			_cap_begin(tmp::move(other._cap_begin)),
@@ -161,7 +161,7 @@ namespace cpprelude
 				_allocator.free(make_slice(_map, _bucket_count));
 			}
 
-			_allocator = other._allocator;
+			_allocator = tmp::move(other._allocator);
 			_count = other._count;
 			_bucket_count = other._bucket_count;
 			_cap_begin = tmp::move(other._cap_begin);

@@ -10,6 +10,7 @@
 #include <cpprelude/tmp.h>
 #include <cpprelude/string.h>
 #include <cpprelude/hash_array.h>
+#include <cpprelude/rb_tree.h>
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
@@ -209,6 +210,18 @@ scratch()
 
 	// std::cout << "\n";
 
+	tree_map<usize, bool> my_map;
+	my_map.insert(1, true);
+	my_map.insert(2, true);
+	my_map.insert(3, true);
+
+	std::cout << "iteration begin" << std::endl;
+	for(auto& x: my_map)
+	{
+		std::cout << x.key << ", " << x.value << std::endl;
+	}
+	std::cout << "iteration end" << std::endl;
+
 	std::cout << "hash(1): " << do_hash(1) << std::endl;
 	std::cout << "hash(1.5f): " << do_hash(1.5f) << std::endl;
 	std::cout << "hash(1.5f) % 150: " << do_hash(1.5f) % 150 << std::endl;
@@ -384,7 +397,8 @@ main(int argc, char** argv)
 	shuffle_test();
 	quick_select_test();
 	scratch();
-	//std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
-	//test_string_conversion();
+	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
+	test_string_conversion();
+	
 	return 0;
 }

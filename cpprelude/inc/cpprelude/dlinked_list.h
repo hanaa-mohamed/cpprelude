@@ -74,7 +74,7 @@ namespace cpprelude
 			:_count(other._count),
 			 _head(other._head),
 			 _tail(other._tail),
-			 _allocator(other._allocator)
+			_allocator(tmp::move(other._allocator))
 		{
 			other._count = 0;
 			other._head = nullptr;
@@ -120,7 +120,7 @@ namespace cpprelude
 			//free the sentinals as we are going to steal them
 			_allocator.free(make_slice(_head));
 			_allocator.free(make_slice(_tail));
-			_allocator = other._allocator;
+			_allocator = tmp::move(other._allocator);
 
 			_count = other._count;
 			_head = other._head;
