@@ -12,8 +12,8 @@
 #include <limits>
 
 //because of the idiots at microsoft
-#define max max
-#define min min
+#undef min
+#undef max
 
 namespace cpprelude
 {
