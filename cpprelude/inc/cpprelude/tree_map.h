@@ -5,6 +5,10 @@
 #include "cpprelude/memory.h"
 #include "cpprelude/tmp.h"
 
+//because of the idiots at microsoft
+#undef min
+#undef max
+
 namespace cpprelude
 {
 	//red black tree implmenetion follows Introduction to Algorithms, Second Edition,” by Thomas H. Cormen, Charles E, Chapter 14
