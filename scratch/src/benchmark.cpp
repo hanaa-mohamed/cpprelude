@@ -1101,6 +1101,10 @@ benchmark_hash_array(cpprelude::usize limit)
 		for (cpprelude::usize i = 0; i < limit; ++i)
 		{
 			array.insert(i, i+9);
+		}
+
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
 			auto it = array.lookup(i);
 			array.remove(it);
 		}
@@ -1138,6 +1142,10 @@ benchmark_tree_map(cpprelude::usize limit)
 		for (cpprelude::usize i = 0; i < limit; ++i)
 		{
 			tree.insert(i, true);
+		}
+
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
 			auto it = tree.lookup(i);
 			tree.remove(it);
 		}
@@ -1604,6 +1612,10 @@ benchmark_std_unordered_map(cpprelude::usize limit)
 		for (cpprelude::usize i = 0; i < limit; ++i)
 		{
 			array.insert({i, i+9});
+		}
+
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
 			auto it = array.find(i);
 			array.erase(it);
 		}
@@ -1641,6 +1653,10 @@ benchmark_std_map(cpprelude::usize limit)
 		for (cpprelude::usize i = 0; i < limit; ++i)
 		{
 			tree.insert({i, true});
+		}
+
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
 			auto it = tree.find(i);
 			tree.erase(it);
 		}

@@ -264,46 +264,46 @@ namespace cpprelude
 			return const_iterator(_root);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type = void>
 		void
-		inorder_traverse(function_type&& FT)
+		inorder_traverse(function_type&& FT, user_type* user_data = nullptr)
 		{
-			_inorder_traverse(tmp::forward<function_type>(FT), _root);
+			_inorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type = void>
 		void
-		postorder_traverse(function_type&& FT)
+		postorder_traverse(function_type&& FT, user_type* user_data = nullptr)
 		{
-			_postorder_traverse(tmp::forward<function_type>(FT), _root);
+			_postorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type = void>
 		void
-		preorder_traverse(function_type&& FT)
+		preorder_traverse(function_type&& FT, user_type* user_data = nullptr)
 		{
-			_preorder_traverse(tmp::forward<function_type>(FT), _root);
+			_preorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type = void>
 		void
-		inorder_traverse(function_type&& FT) const
+		inorder_traverse(function_type&& FT, user_type* user_data = nullptr) const
 		{
-			_inorder_traverse(tmp::forward<function_type>(FT), _root);
+			_inorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type = void>
 		void
-		postorder_traverse(function_type&& FT) const
+		postorder_traverse(function_type&& FT, user_type* user_data = nullptr) const
 		{
-			_postorder_traverse(tmp::forward<function_type>(FT), _root);
+			_postorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type = void>
 		void
-		preorder_traverse(function_type&& FT) const
+		preorder_traverse(function_type&& FT, user_type* user_data = nullptr) const
 		{
-			_preorder_traverse(tmp::forward<function_type>(FT), _root);
+			_preorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
 		}
 
 		void
@@ -451,9 +451,6 @@ namespace cpprelude
 				else
 					y->right = z;
 			}
-			z->left = nullptr;
-			z->right = nullptr;
-			z->color = color_type::RED;
 			_insert_fixup(z);
 			return z;
 		}
@@ -488,9 +485,6 @@ namespace cpprelude
 				else
 					y->right = z;
 			}
-			z->left = nullptr;
-			z->right = nullptr;
-			z->color = color_type::RED;
 			_insert_fixup(z);
 			return z;
 		}
@@ -724,13 +718,11 @@ namespace cpprelude
 			if(it == nullptr)
 				return;
 
-			if(it->left != nullptr)
-				_reset(it->left);
-
-			if(it->right != nullptr)
-				_reset(it->right);
-
-			_free_mem(it);
+			auto func = [](iterator it, red_black_tree* tree)
+			{
+				tree->_free_mem(const_cast<node_type*>(it.node));
+			};
+			_postorder_traverse(func, _root, this);
 		}
 
 		isize
@@ -750,90 +742,92 @@ namespace cpprelude
 		void
 		_copy_content(const red_black_tree& other)
 		{
-			auto this_ptr = this;
-			auto func = [&this_ptr](const_iterator it)
+			if(other.empty())
+				return;
+
+			auto func = [](const_iterator it, red_black_tree* tree)
 			{
-				this_ptr->insert(*it);
+				tree->insert(*it);
 			};
-			other.preorder_traverse(func);
+			other.preorder_traverse(func, this);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type>
 		void
-		_inorder_traverse(function_type&& fT, iterator it)
+		_inorder_traverse(function_type&& fT, iterator it, user_type* user_data)
 		{
 			if (it.node->left != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->left);
+				_inorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
 
-			fT(it);
+			fT(it, user_data);
 
 			if (it.node->right != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->right);
+				_inorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type>
 		void
-		_postorder_traverse(function_type&& fT, iterator it)
+		_postorder_traverse(function_type&& fT, iterator it, user_type* user_data)
 		{
 			if (it.node->left != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->left);
+				_postorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->right);
+				_postorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
 
-			fT(it);
+			fT(it, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type>
 		void
-		_preorder_traverse(function_type&& fT, iterator it)
+		_preorder_traverse(function_type&& fT, iterator it, user_type* user_data)
 		{
-			fT(it);
+			fT(it, user_data);
 
 			if (it.node->left != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->left);
+				_preorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->right);
+				_preorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type>
 		void
-		_inorder_traverse(function_type&& fT, const_iterator it) const
+		_inorder_traverse(function_type&& fT, const_iterator it, user_type* user_data) const
 		{
 			if (it.node->left != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->left);
+				_inorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
 
-			fT(it);
+			fT(it, user_data);
 
 			if (it.node->right != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->right);
+				_inorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type>
 		void
-		_postorder_traverse(function_type&& fT, const_iterator it) const
+		_postorder_traverse(function_type&& fT, const_iterator it, user_type* user_data) const
 		{
 			if (it.node->left != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->left);
+				_postorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->right);
+				_postorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
 
-			fT(it);
+			fT(it, user_data);
 		}
 
-		template<typename function_type>
+		template<typename function_type, typename user_type>
 		void
-		_preorder_traverse(function_type&& fT, const_iterator it) const
+		_preorder_traverse(function_type&& fT, const_iterator it, user_type* user_data) const
 		{
-			fT(it);
+			fT(it, user_data);
 
 			if (it.node->left != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->left);
+				_preorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->right);
+				_preorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
 		}
 
 		node_type*

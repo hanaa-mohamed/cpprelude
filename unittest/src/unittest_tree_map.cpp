@@ -66,7 +66,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		array.insert(3);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);
@@ -89,7 +89,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == 3);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);
@@ -113,7 +113,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == 3);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);
@@ -137,7 +137,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == 3);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);
@@ -162,7 +162,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == 3);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);
@@ -180,7 +180,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		tree_map<usize, std::string> tree;
 
 		dynamic_array<usize> arr1;
-		auto insert = [&arr1](sIterator it) {
+		auto insert = [&arr1](sIterator it, void* data) {
 			arr1.insert_back(*it);
 		};
 
@@ -222,7 +222,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		tree_set<usize> tree2(tree);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_set<usize>::iterator it) {
+		auto insert = [&arr](tree_set<usize>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 
@@ -259,7 +259,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == 3);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_set<usize>::iterator it) {
+		auto insert = [&arr](tree_set<usize>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 
@@ -308,7 +308,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(tree.count() == 8);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_set<usize>::iterator it) {
+		auto insert = [&arr](tree_set<usize>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 
@@ -410,7 +410,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		//array.inorder_traverse(print);
 
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);
@@ -449,7 +449,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == --count);
 		//array.inorder_traverse(print);
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 
@@ -488,7 +488,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == --count);
 		//array.inorder_traverse(print);
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);
@@ -526,7 +526,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == --count);
 		//array.inorder_traverse(print);
 		dynamic_array<usize> arr;
-		auto insert = [&arr](tree_map<usize, bool>::iterator it) {
+		auto insert = [&arr](tree_map<usize, bool>::iterator it, void* data) {
 			arr.insert_back(*it);
 		};
 		array.inorder_traverse(insert);

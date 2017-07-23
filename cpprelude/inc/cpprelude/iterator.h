@@ -106,7 +106,18 @@ namespace cpprelude
 			{}
 
 			red_black_tree_node(const T& data_, color_type color_ = color_type::RED)
-				:data(data_),
+				:left(nullptr),
+				 right(nullptr),
+				 parent(nullptr),
+				 data(data_),
+				 color(color_)
+			{}
+
+			red_black_tree_node(T&& data_, color_type color_ = color_type::RED)
+				:left(nullptr),
+				 right(nullptr),
+				 parent(nullptr),
+				 data(tmp::move(data_)),
 				 color(color_)
 			{}
 		};
