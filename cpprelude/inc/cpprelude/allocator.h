@@ -43,6 +43,60 @@ namespace cpprelude
 		}
 	};
 
+	template<typename allocator_type>
+	struct ref_allocator
+	{
+		allocator_type* _allocator;
+
+		ref_allocator()
+			:_allocator(nullptr)
+		{}
+
+		ref_allocator(allocator_type* allocator)
+			:_allocator(allocator)
+		{}
+
+		~ref_allocator()
+		{
+			_allocator = nullptr;
+		}
+
+		template<typename T>
+		slice<T>
+		alloc(usize count = 1, ubyte alignment = 4)
+		{
+			return _allocator->template alloc<T>(count, alignment);
+		}
+
+		template<typename T>
+		void
+		free(slice<T>& slice_)
+		{
+			_allocator->template free<T>(slice_);
+		}
+
+		template<typename T>
+		void
+		free(slice<T>&& slice_)
+		{
+			_allocator->template free<T>(tmp::move(slice_));
+		}
+
+		template<typename T>
+		void
+		realloc(slice<T>& slice_, usize count)
+		{
+			_allocator->template realloc<T>(slice_, count);
+		}
+
+		template<typename T>
+		void
+		realloc(slice<T>&& slice_, usize count)
+		{
+			_allocator->template alloc<T>(tmp::move(slice_), count);
+		}
+	};
+
 	struct linear_allocator
 	{
 		slice<ubyte> _memory;
@@ -155,6 +209,13 @@ namespace cpprelude
 				//move the new_slice to the old slice
 				slice_ = tmp::move(new_slice);
 			}
+		}
+
+		void
+		reset()
+		{
+			_alloc_head = 0;
+			_alloc_count = 0;
 		}
 	};
 

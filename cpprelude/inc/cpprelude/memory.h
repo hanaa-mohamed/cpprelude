@@ -218,4 +218,6 @@ namespace cpprelude
 		slice_.size = count * sizeof(T);
 	}
 
+	// API slice<ubyte>
+	// gpa_alloc(usize count, ubyte alignment = 4);
 }

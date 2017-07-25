@@ -1087,6 +1087,7 @@ benchmark_string_writer(cpprelude::usize limit)
 	std::cout << "microseconds: " << avg_micro << std::endl;
 	std::cout << "nanoseconds: " << avg_nano << std::endl;
 }
+
 void
 benchmark_hash_array(cpprelude::usize limit)
 {
@@ -1122,6 +1123,54 @@ benchmark_hash_array(cpprelude::usize limit)
 	avg_nano /= 100;
 
 	std::cout << "benchmark hash_array" << std::endl;
+	std::cout << "seconds: " << avg_sec << std::endl;
+	std::cout << "milliseconds: " << avg_milli << std::endl;
+	std::cout << "microseconds: " << avg_micro << std::endl;
+	std::cout << "nanoseconds: " << avg_nano << std::endl;
+}
+
+void
+benchmark_custom_hash_array(cpprelude::usize limit)
+{
+	cpprelude::slice<cpprelude::ubyte> mem_block;
+	auto arena_allocator = cpprelude::make_arena_allocator(MEGABYTES(25), mem_block);
+
+	auto ref_alloc = cpprelude::ref_allocator<cpprelude::linear_allocator>(&arena_allocator);
+
+	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
+
+	stopwatch w;
+	for (cpprelude::usize j = 0; j < 100; ++j)
+	{
+		cpprelude::hash_array<usize, usize,
+		 					  cpprelude::hash<usize>,
+							  cpprelude::ref_allocator<cpprelude::linear_allocator>> array(ref_alloc);
+
+		w.start();
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
+			array.insert(i, i+9);
+		}
+
+		for (cpprelude::usize i = 0; i < limit; ++i)
+		{
+			auto it = array.lookup(i);
+			array.remove(it);
+		}
+		w.stop();
+
+		avg_sec += w.seconds();
+		avg_milli += w.milliseconds();
+		avg_micro += w.microseconds();
+		avg_nano += w.nanoseconds();
+	}
+
+	avg_sec /= 100;
+	avg_milli /= 100;
+	avg_micro /= 100;
+	avg_nano /= 100;
+
+	std::cout << "benchmark custom hash_array" << std::endl;
 	std::cout << "seconds: " << avg_sec << std::endl;
 	std::cout << "milliseconds: " << avg_milli << std::endl;
 	std::cout << "microseconds: " << avg_micro << std::endl;
@@ -1753,6 +1802,8 @@ benchmark()
 	std::cout <<"============================================================"<< std::endl;
 
 	benchmark_hash_array(limit);
+	std::cout << std::endl;
+	benchmark_custom_hash_array(limit);
 	std::cout << std::endl;
 	benchmark_std_unordered_map(limit);
 	std::cout << std::endl;

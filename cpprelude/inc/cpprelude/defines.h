@@ -12,7 +12,7 @@
 #ifdef COMPILE_DYNAMIC_LIB
     #define API __declspec(dllexport)
 #elif STATIC_LIB
-	#define API 
+	#define API
 #else
 	#define API __declspec(dllimport)
 #endif
