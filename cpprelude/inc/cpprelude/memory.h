@@ -218,4 +218,33 @@ namespace cpprelude
 		slice_.size = count * sizeof(T);
 	}
 
+	template<typename T,typename ...ArgsT>
+	void
+	init(slice<T>& allocated_memory,ArgsT&&... args)
+	{
+		new (allocated_memory) T(tmp::forward<ArgsT>(args)...);
+	}
+
+	template<typename T>
+	void
+	dispose(slice<T>& allocated_memory)
+	{
+		if(allocated_memory.valid())
+			allocated_memory.ptr->~T();
+	}
+
+	template<typename T, typename ...ArgsT>
+	void
+	init(slice<T>&& allocated_memory, ArgsT&&... args)
+	{
+		new (allocated_memory) T(tmp::forward<ArgsT>(args)...);
+	}
+
+	template<typename T>
+	void
+	dispose(slice<T>&& allocated_memory)
+	{
+		if (allocated_memory.valid())
+			allocated_memory.ptr->~T();
+	}
 }
