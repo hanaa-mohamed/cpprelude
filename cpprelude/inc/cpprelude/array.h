@@ -19,7 +19,7 @@ namespace cpprelude
 			return _data[index];
 		}
 
-		T
+		const T&
 		operator[](usize index) const
 		{
 			return _data[index];
