@@ -455,23 +455,6 @@ namespace cpprelude
 			return _values[index];
 		}
 
-		const value_type&
-		operator[](const key_type& key) const
-		{
-			auto index = _find_position(key);
-
-			//if not found then create and init one
-			if(_flags[index] == 0)
-			{
-				_keys[index] = key;
-
-				_flags[index] = 1;
-				++_count;
-			}
-
-			return _values[index];
-		}
-
 		value_type&
 		operator[](key_type&& key)
 		{
