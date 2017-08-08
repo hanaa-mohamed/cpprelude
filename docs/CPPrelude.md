@@ -12,6 +12,10 @@ Developed by:
 
 **CPPrelude** version 1.0 is released under the GNU Lesser General Public License version 3
 
+## Philosophy and Coding standard
+
+For Philosophy and coding standard please refer to this [link](https://moustaphasaad.github.io/2017/08/05/cpprelude/)
+
 ## Content
 
 |           Content           |               Description                |
@@ -22,3 +26,6 @@ Developed by:
 |         Algorithms          | Contains variety of algorithms (shuffle, mergesort, quicksort, quickselect ...) |
 |          Threading          | Contains useful wrappers that help in thread safe operations |
 
+## How to contribute
+
+Feel free to fork and create pull requests at any time. and it would be nice if you involved any one of the developers with you from the start to guide you, or maybe discuss your idea itself. developers mails are up above
