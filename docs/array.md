@@ -18,7 +18,7 @@ struct array;
 
 ```c++
 #include <iostream>
-#include <cpprelude\array.h>
+#include <cpprelude/array.h>
 using namespace cpprelude;
 
 int

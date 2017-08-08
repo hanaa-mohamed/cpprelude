@@ -21,7 +21,7 @@ For Philosophy and coding standard please refer to this [link](https://moustapha
 |           Content           |               Description                |
 | :-------------------------: | :--------------------------------------: |
 |      [Types](Types.md)      | Contains the primitive types that cpprelude uses |
-|           Memory            | Contains the memory management model (slices, alloc, virtual_alloc, free, ...) |
+|     [Memory](memory.md)     | Contains the memory management model (slices, alloc, virtual_alloc, free, ...) |
 | [Containers](Containers.md) | Contains variety of containers (dynamic_array, slinked_list, queue, tree_map, hash_array, ...) |
 |         Algorithms          | Contains variety of algorithms (shuffle, mergesort, quicksort, quickselect ...) |
 |          Threading          | Contains useful wrappers that help in thread safe operations |

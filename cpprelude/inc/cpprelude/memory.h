@@ -100,7 +100,7 @@ namespace cpprelude
 		cut(usize start = 0, usize count = 0) const
 		{
 			if(count == 0)
-				count = size / sizeof(T);
+				count = (size - start) / sizeof(T);
 
 			return slice<T>(ptr+start, count * sizeof(T));
 		}
@@ -159,11 +159,16 @@ namespace cpprelude
 	void
 	virtual_free(slice<T>&& slice_)
 	{
+		if(slice_.ptr != nullptr)
+		{
+			
 	#if defined(OS_WINDOWS)
 		VirtualFree(slice_.ptr, slice_.size, MEM_RELEASE);
 	#elif defined(OS_LINUX)
 		std::free(slice_.ptr);
 	#endif
+
+		}
 
 		slice_.ptr = nullptr;
 		slice_.size = 0;
