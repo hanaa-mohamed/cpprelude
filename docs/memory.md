@@ -242,5 +242,35 @@ Reallocates the memory that this slice pointing to either making it bigger or sm
 
    If `count == 0` then the memory is freed.
 
-   ​
 
+
+## Code Example
+
+```c++
+#include <iostream>
+#include <cpprelude/memory.h>
+using namespace cpprelude;
+
+int
+main(int argc, char** argv)
+{
+	slice<i32> i32_slice = alloc<i32>(100);
+	for (usize i = 0; i < i32_slice.count(); ++i)
+		i32_slice[i] = i + 1;
+
+	realloc(i32_slice, 1000);
+
+	for (usize i = 100; i < i32_slice.count(); ++i)
+		i32_slice[i] = i + 1;
+
+	free(i32_slice);
+
+	auto virtual_slice = virtual_alloc<i32>(1000);
+	for (usize i = 0; i < virtual_slice.count(); ++i)
+		virtual_slice[i] = i + 1;
+
+	virtual_free(virtual_slice);
+
+	return 0;
+}
+```
