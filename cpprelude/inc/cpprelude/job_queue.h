@@ -10,7 +10,9 @@ namespace cpprelude
 
 	struct job_queue
 	{
-		queue_array <std::function<void()> > jq;
+		isize cnt=0;
+		queue_array <std::pair<int,std::function<void()> > > jq;
+
 		void
 			main()
 		{
@@ -18,7 +20,7 @@ namespace cpprelude
 			{
 				if (!jq.empty())
 				{
-					(jq.front())();
+					jq.front().second();
 					jq.dequeue();
 				}
 
@@ -32,8 +34,8 @@ namespace cpprelude
 		isize
 			schedule(job_queue& check, R& fn, ArgsT&... args)
 		{
-			jq.enqueue(std::bind(fn, forward<ArgsT>(args)...));
-			return 0;
+			jq.enqueue(std::make_pair(cnt,std::bind(fn, tmp::forward<ArgsT>(args)...) ));
+			return cnt++;
 
 		};
 
@@ -41,10 +43,19 @@ namespace cpprelude
 		isize
 			schedule(job_queue& check, R&& fn, ArgsT&&... args)
 		{
-			jq.enqueue(std::bind(fn, forward<ArgsT>(args)...));
-			return 0;
+			jq.enqueue(std::make_pair(cnt,std::bind(fn, tmp::forward<ArgsT>(args)...)));
+			return cnt++;
 
 		};
+
+		bool
+		is_done(isize id)
+		{
+			if (jq.front().first > id)
+				return true;
+			return false;
+		}
+
 
 
 	};
