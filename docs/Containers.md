@@ -1,6 +1,6 @@
 # Containers
 
-**CPPrelude** provide a number of different containers. here's a list of them
+**CPPrelude** provide a number of different containers, here's a list of them:
 
 | Name              | Description                              |
 | ----------------- | ---------------------------------------- |
