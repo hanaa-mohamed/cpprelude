@@ -1,6 +1,6 @@
 # CPPrelude
 
-**CPPrelude** is a body of code that I tend to include in every project I make so I decided to write it as a library and include it in my projects.
+**CPPrelude** is a body of code that I tend to write over and over again in every project I make. So, I decided to write it as a library and include it in my projects.
 
 It contains algorithms, containers, memory management stuff ... etc.
 

@@ -74,7 +74,7 @@ bool operator==(const slice& other) const;
 bool operator!=(const slice& other) const;
 ```
 
-Compares the slices based on their ptr and size. If these two components are equal, then the slices are equal. Otherwise it returns a "false" indicating the inequality.
+Compares the slices based on their ptr and size. If these two components are equal, then the slices are equal. Otherwise it returns `false` indicating the inequality.
 
 #### Casting Operator
 
