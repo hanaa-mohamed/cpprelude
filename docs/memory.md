@@ -195,7 +195,7 @@ template<typename T>
 void virtual_free(slice<T>&& slice_);
 ```
 
-It resets the slice's ptr to `nullptr` with size 0.
+Also frees a memory allocated with `virtual_alloc` and it resets the slice's ptr to `nullptr` with size 0.
 
 ### alloc
 
@@ -226,7 +226,7 @@ template<typename T>
 void free(slice<T>&& slice_);
 ```
 
-It resets the slice's ptr to `nullptr` with size 0.
+Also frees a memory allocated with `alloc` and it resets the slice's ptr to `nullptr` with size 0.
 
 ### realloc
 
