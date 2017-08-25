@@ -142,9 +142,9 @@ namespace cpprelude
 		}
 
 		void
-		reserve(usize new_count)
+		reserve(usize count)
 		{
-			_mem_expand(new_count);
+			_mem_expand(_count + count);
 		}
 
 		void

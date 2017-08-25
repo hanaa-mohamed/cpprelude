@@ -1,4 +1,4 @@
-# Array
+# array
 
 `cpprelude::array` is a simple wrapper around the static array provided by C++ language itself.  `cpprelude::array` provides the iterator interface.
 
@@ -29,7 +29,7 @@ main(int argc, char** argv)
 }
 ```
 
-#### Using interface
+#### Alias interface
 
 ```c++
 using iterator = T*;
