@@ -1,6 +1,6 @@
 # Array
 
-`cpprelude::array` is a simple wrapper around the static array that's provided by C++ language itself. It provide the iterator interface
+`cpprelude::array` is a simple wrapper around the static array provided by C++ language itself.  `cpprelude::array` provides the iterator interface.
 
 ### Meta interface
 
@@ -11,7 +11,7 @@ template<typename T, usize fixed_count>
 struct array;
 ```
 
-1. **T**: specifies the type of array elements
+1. **T**: specifies the type of array elements.
 2. **fixed_count**: specifies the static count of the array
 
 **Code Example**
@@ -37,11 +37,11 @@ using const_iterator = const T*;
 using data_type = T;
 ```
 
-**iterator**: provide a type definition of the iterator type of this container
+**iterator**: provides a type definition of the iterator type of this container.
 
-**const_iterator**: provide a type definition of the const iterator type of this container
+**const_iterator**: provides a type definition of the const iterator type of this container.
 
-**data_type**: provide a type definition of the element type of this container
+**data_type**: provides a type definition of the element type of this container.
 
 
 
@@ -57,7 +57,7 @@ const T&
 operator[](usize index) const;
 ```
 
-Simple subscript operator to access array elements
+A simple subscript operator to access array elements.
 
 *<u>Code Example</u>*
 
@@ -76,8 +76,8 @@ main(int argc, char** argv)
 }
 ```
 
-1. An access with an in-bounds index is guaranteed to return the corresponding element
-2. An access with an out of bounds index is incorrect. however, it's not checked
+1. An access with an in-bounds index is guaranteed to return the corresponding element.
+2. An access with an out-of-bounds index is incorrect, however, it's not checked.
 
 #### count
 
@@ -86,7 +86,7 @@ usize
 count() const;
 ```
 
-Returns the count of elements in this array
+Returns the count of elements in this array.
 
 *<u>Code Example</u>*
 
@@ -114,7 +114,7 @@ const T*
 data() const;
 ```
 
-Returns a pointer to the first element in the array
+Returns a pointer to the first element in the array.
 
 *<u>Code Example</u>*
 
@@ -134,7 +134,7 @@ main(int argc, char** argv)
 }
 ```
 
-Gets a pointer to the first element in the array and prints the array
+Gets a pointer to the first element in the array and prints the array.
 
 #### iterators
 
@@ -158,19 +158,19 @@ const_iterator
 cend() const;
 ```
 
-array provides a simple regular iterator interface. An iterator represents the range [begin, end)
+The array provides a simple regular iterator interface. An iterator represents the range [begin, end]:
 
-**begin**:  returns an iterator to the first element of the array
+**begin**:  returns an iterator to the first element of the array.
 
-**begin const**: returns a const iterator to the first element of the array. in case the array itself was a const
+**begin const**: returns a const iterator to the first element of the array in case the array itself was a const.
 
-**cbegin**: returns a const iterator to the first element of the array
+**cbegin**: returns a const iterator to the first element of the array.
 
-**end:** returns an iterator to the end of the array
+**end:** returns an iterator to the end of the array.
 
-**end const**: returns a const iterator to the end of array. in case the array itself was a const
+**end const**: returns a const iterator to the end of array in case the array itself was a const.
 
-**cend**: returns a const iterator to the end of the array
+**cend**: returns a const iterator to the end of the array.
 
 *<u>Code Example</u>*
 
@@ -203,4 +203,4 @@ main(int argc, char** argv)
 }
 ```
 
-Looping through the array using the iterator interface using regular for loops and range-for loops and printing elements
+Looping through the array using the iterator interface, using regular for loops and range-for loops to print elements.

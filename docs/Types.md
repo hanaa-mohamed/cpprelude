@@ -21,19 +21,21 @@
 | isize | a signed size type that depending on your architecture 32-bit integer in the case of 86-arch and 64-bit in case of 64-arch |
 | usize | an unsigned size type that depending on your architecture 32-bit integer in the case of 86-arch and 64-bit in case of 64-arch |
 
+
+
 ## Strings
 
 
 
 ## Misc
 
-**BYTES**: macro defines an amount of bytes
+**BYTES**: macro defines an amount of bytes.
 
-**KILOBYTES**: macro defines an amount of kilobytes
+**KILOBYTES**: macro defines an amount of kilobytes.
 
-**MEGABYTES**: macro defines an amount of megabytes
+**MEGABYTES**: macro defines an amount of megabytes.
 
-**GIGABYTES**: macro defines an amount of gigabytes
+**GIGABYTES**: macro defines an amount of gigabytes.
 
 ```c++
 #define BYTES(amount) amount
