@@ -42,13 +42,13 @@ slinked_list(slinked_list<T>&& other);
 slinked_list(slinked_list<T>&& other, const AllocatorT& allocator);
 ```
 
-1. A constructor that builds the singly linked list with the provided allocator
-2. A constructor that initializes `slinked_list` with the provided `initializer_list` using the provided `allocator` to allocate nodes
-3. A constructor that initializes `slinked_list` with the provided `count` and fills it with the provided `fill_value`
-4. A copy constructor
-5. A copy constructor that accepts another allocator
-6. A move constructor
-7. A move constructor that accepts another allocator
+1. A constructor that builds the singly linked list with the provided allocator.
+2. A constructor that initializes `slinked_list` with the provided `initializer_list` using the provided `allocator` to allocate nodes.
+3. A constructor that initializes `slinked_list` with the provided `count` and fills it with the provided `fill_value`.
+4. A copy constructor.
+5. A copy constructor that accepts another allocator.
+6. A move constructor.
+7. A move constructor that accepts another allocator.
 
 #### count
 
@@ -64,7 +64,7 @@ Returns the count of elements inside the container.
 void expand_front(usize additional_count, const T& fill_value);
 ```
 
-1. expands the container at the front by the count provided and fill the expanded elements with the `fill_value`.
+Expands the container at the front by the count provided and fill the expanded elements with the `fill_value`.
 
 #### shrink_front
 
@@ -72,7 +72,7 @@ void expand_front(usize additional_count, const T& fill_value);
 void shrink_front(usize shrinkage_count);
 ```
 
-Shrinks the container from the front by the provided `shrinkage_count`
+Shrinks the container from the front by the provided `shrinkage_count`.
 
 #### operator[]
 
