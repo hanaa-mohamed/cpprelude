@@ -1,95 +1,20 @@
 #include <iostream>
-#include <memory>
-#include <cpprelude/dynamic_array.h>
-using namespace std;
+#include <cpprelude/slinked_list.h>
+using namespace cpprelude;
 
-class Shape
+int
+main(int argc, char** argv)
 {
-public:
-	virtual float area() = 0;
-};
+	slinked_list<usize> numbers;
 
-class Rectangle: public Shape
-{
-public:
-	float w, h;
+	//so we expect this half to be reversed since we append at the front
+	for(usize i = 0; i < 10; ++i)
+		numbers.insert_front(i+1);
 
-	Rectangle(){}
-	Rectangle(float w_, float h_)
-		:w(w_), h(h_)
-	{}
+	//when inserting a list of values slinked_list keeps the order of the elements so this half of the list will be ordered
+	numbers.insert_front({11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
 
-	float area() override
-	{
-		return w*h;
-	}
-};
-
-class Circle: public Shape
-{
-public:
-	float r;
-	Circle(){}
-	Circle(float r_) :r(r_){}
-
-	float area() override
-	{
-		return r*r*3.14;
-	}
-};
-
-int oop()
-{
-	std::cout << "Hello, World!" << std::endl;
-
-	cpprelude::dynamic_array<unique_ptr<Shape>> shapes;
-	shapes.reserve(10000000);
-	for(size_t i = 0; i < 10000000; ++i)
-	{
-		if(rand()%2)
-		{
-			shapes.insert_back(make_unique<Rectangle>(rand()%100, rand()%100));
-		}
-		else
-		{
-			shapes.insert_back(make_unique<Circle>(rand()%100));
-		}
-	}
-
-	cpprelude::dynamic_array<float> areas;
-	areas.reserve(10000000);
-	for(auto& shape: shapes)
-	{
-		areas.insert_back(shape->area());
-	}
-
-	std::cout << "length: " << areas.count() << std::endl;
+	for(const auto& number: numbers)
+		std::cout << number << std::endl;
 	return 0;
 }
-
-int main()
-{
-	return oop();
-}
-
-
-// #include <iostream>
-// #include <cpprelude/dynamic_array.h>
-// using namespace cpprelude;
-//
-// int
-// main(int argc, char** argv)
-// {
-// 	dynamic_array<usize> numbers;
-//
-// 	numbers.reserve(10);
-//
-// 	for(usize i = 0; i < 10; ++i)
-// 		numbers.insert_back(i+1);
-//
-// 	numbers.insert_back({11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
-//
-// 	for(const auto& number: numbers)
-// 		std::cout << number << std::endl;
-// 	return 0;
-// }
