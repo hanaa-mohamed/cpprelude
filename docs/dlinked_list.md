@@ -23,10 +23,10 @@ using data_type = T;
 using node_type = details::double_node<T>;
 ```
 
-1. **iterator**: provide a type definition of the iterator type of this container.
-2. **const_iterator**: provide a type definition of the const iterator type of this container.
-3. **data_type**: provide a type definition of the element type of this container.
-4. **node_type**: provide a type definition of the node type that this container uses
+1. **iterator**: provides a type definition of the iterator type of this container.
+2. **const_iterator**: provides a type definition of the const iterator type of this container.
+3. **data_type**: provides a type definition of the element type of this container.
+4. **node_type**: provides a type definition of the node type that this container uses.
 
 ### Interface
 
@@ -42,13 +42,13 @@ dlinked_list(dlinked_list<T>&& other);
 dlinked_list(dlinked_list<T>&& other, const AllocatorT& allocator);
 ```
 
-1. A constructor that builds the container with the provided allocator
-2. A constructor that initializes the container with the provided `initializer_list` using the provided allocator
+1. A constructor that builds the container with the provided allocator.
+2. A constructor that initializes the container with the provided `initializer_list` using the provided allocator.
 3. A constructor that initializes the container with the provided `count` and fills it with the provided `fill_value`.
-4. A copy constructor
-5. A copy constructor that accepts another allocator
-6. A move constructor
-7. A move constructor that accepts another allocator
+4. A copy constructor.
+5. A copy constructor that accepts another allocator.
+6. A move constructor.
+7. A move constructor that accepts another allocator.
 
 #### count
 
@@ -87,7 +87,7 @@ Shrinks the container from the front by the provided `shrinkage_count`.
 void shrink_back(usize shrinkage_count);
 ```
 
-Shrinks the container from the back by the provided `shrinkage_count`
+Shrinks the container from the back by the provided `shrinkage_count`.
 
 #### operator[]
 

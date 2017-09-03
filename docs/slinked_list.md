@@ -23,10 +23,10 @@ using data_type = T;
 using node_type = details::single_node<T>;
 ```
 
-1. **iterator**: provide a type definition of the iterator type of this container.
-2. **const_iterator**: provide a type definition of the const iterator type of this container.
-3. **data_type**: provide a type definition of the element type of this container.
-4. **node_type**: provide a type definition of the node type that this container uses
+1. **iterator**: provides a type definition of the iterator type of this container.
+2. **const_iterator**: provides a type definition of the const iterator type of this container.
+3. **data_type**: provides a type definition of the element type of this container.
+4. **node_type**: provides a type definition of the node type that this container uses
 
 ### Interface
 
