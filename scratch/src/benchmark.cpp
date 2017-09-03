@@ -1055,39 +1055,6 @@ benchmark_thread_multi_reader(cpprelude::usize limit)
 }
 
 void
-benchmark_string_writer(cpprelude::usize limit)
-{
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
-	stopwatch w;
-	for (cpprelude::usize j = 0; j < 100; ++j)
-	{
-		cpprelude::string_writer<cpprelude::global_allocator> writer;
-		auto str = "koko wawa"_l;
-
-		w.start();
-		for (cpprelude::usize i = 0; i < limit; ++i)
-			writer.write_back(str);
-		w.stop();
-
-		avg_sec += w.seconds();
-		avg_milli += w.milliseconds();
-		avg_micro += w.microseconds();
-		avg_nano += w.nanoseconds();
-	}
-
-	avg_sec /= 100;
-	avg_milli /= 100;
-	avg_micro /= 100;
-	avg_nano /= 100;
-
-	std::cout << "benchmark string_writer" << std::endl;
-	std::cout << "seconds: " << avg_sec << std::endl;
-	std::cout << "milliseconds: " << avg_milli << std::endl;
-	std::cout << "microseconds: " << avg_micro << std::endl;
-	std::cout << "nanoseconds: " << avg_nano << std::endl;
-}
-void
 benchmark_hash_array(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
@@ -1531,74 +1498,6 @@ benchmark_std_heap_sort(cpprelude::usize limit)
 }
 
 void
-benchmark_std_string(cpprelude::usize limit)
-{
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
-	stopwatch w;
-	for (cpprelude::usize j = 0; j < 100; ++j)
-	{
-		std::string str;
-
-		w.start();
-		for (cpprelude::usize i = 0; i < limit; ++i)
-			str += "koko wawa";
-		w.stop();
-
-		avg_sec += w.seconds();
-		avg_milli += w.milliseconds();
-		avg_micro += w.microseconds();
-		avg_nano += w.nanoseconds();
-	}
-
-	avg_sec /= 100;
-	avg_milli /= 100;
-	avg_micro /= 100;
-	avg_nano /= 100;
-
-
-	std::cout << "benchmark std::string" << std::endl;
-	std::cout << "seconds: " << avg_sec << std::endl;
-	std::cout << "milliseconds: " << avg_milli << std::endl;
-	std::cout << "microseconds: " << avg_micro << std::endl;
-	std::cout << "nanoseconds: " << avg_nano << std::endl;
-}
-
-void
-benchmark_std_stringstream(cpprelude::usize limit)
-{
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
-	stopwatch w;
-	for (cpprelude::usize j = 0; j < 100; ++j)
-	{
-		std::stringstream str;
-
-		w.start();
-		for (cpprelude::usize i = 0; i < limit; ++i)
-			str << "koko wawa";
-		w.stop();
-
-		avg_sec += w.seconds();
-		avg_milli += w.milliseconds();
-		avg_micro += w.microseconds();
-		avg_nano += w.nanoseconds();
-	}
-
-	avg_sec /= 100;
-	avg_milli /= 100;
-	avg_micro /= 100;
-	avg_nano /= 100;
-
-
-	std::cout << "benchmark std::stringstream" << std::endl;
-	std::cout << "seconds: " << avg_sec << std::endl;
-	std::cout << "milliseconds: " << avg_milli << std::endl;
-	std::cout << "microseconds: " << avg_micro << std::endl;
-	std::cout << "nanoseconds: " << avg_nano << std::endl;
-}
-
-void
 benchmark_std_unordered_map(cpprelude::usize limit)
 {
 	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
@@ -1713,7 +1612,6 @@ benchmark()
 	std::cout << std::endl;
 	benchmark_custom_slinked_list(limit);
 
-
 	std::cout <<"============================================================"<< std::endl;
 
 	benchmark_list(limit);
@@ -1741,14 +1639,6 @@ benchmark()
 	benchmark_priority_queue(limit);
 	std::cout << std::endl;
 	benchmark_std_priority_queue(limit);
-
-	std::cout <<"============================================================"<< std::endl;
-
-	benchmark_string_writer(limit);
-	std::cout << std::endl;
-	benchmark_std_string(limit);
-	std::cout << std::endl;
-	benchmark_std_stringstream(limit);
 
 	std::cout <<"============================================================"<< std::endl;
 
