@@ -11,7 +11,7 @@ namespace cpprelude
 		using data_type = T;
 
 		slinked_list<T, AllocatorT> _list;
-		
+
 		stack_list(const AllocatorT& allocator = AllocatorT())
 			:_list(allocator)
 		{}
@@ -63,15 +63,15 @@ namespace cpprelude
 
 			return false;
 		}
-		
+
 		bool
-		empty()
+		empty() const
 		{
 			return _list.empty();
 		}
-		
+
 		usize
-		count()
+		count() const
 		{
 			return _list.count();
 		}

@@ -54,7 +54,7 @@ namespace cpprelude
 
 			++_count;
 		}
-		
+
 		const T&
 		top() const
 		{

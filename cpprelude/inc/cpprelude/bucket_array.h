@@ -114,30 +114,13 @@ namespace cpprelude
 
 		~bucket_array()
 		{
-			if(_map)
-			{
-				for (usize i = 0; i < _bucket_count; ++i)
-				{
-					auto other_handle = _map[i];
-					_allocator.free(make_slice(other_handle, bucket_size));
-				}
-
-				_allocator.free(make_slice(_map, _bucket_count));
-			}
-
-			_map = nullptr;
-			_cap_end = iterator();
-			_cap_begin = iterator();
-			_begin = iterator();
-			_end = iterator();
-			_count = 0;
-			_bucket_count = 0;
+			reset();
 		}
 
 		bucket_array&
 		operator=(const bucket_array& other)
 		{
-			reset();
+			clear();
 
 			for(const auto& value: other)
 				insert_back(value);
@@ -149,17 +132,6 @@ namespace cpprelude
 		operator=(bucket_array&& other)
 		{
 			reset();
-
-			if (_map)
-			{
-				for (usize i = 0; i < _bucket_count; ++i)
-				{
-					auto other_handle = _map[i];
-					_allocator.free(make_slice(other_handle, bucket_size));
-				}
-
-				_allocator.free(make_slice(_map, _bucket_count));
-			}
 
 			_allocator = tmp::move(other._allocator);
 			_count = other._count;
@@ -337,18 +309,39 @@ namespace cpprelude
 		void
 		reset()
 		{
+			clear();
+
+			if(_map)
+			{
+				for(usize i = 0; i < _bucket_count; ++i)
+				{
+					auto other_handle = _map[i];
+					_allocator.free(make_slice(other_handle, bucket_size));
+				}
+
+				_allocator.free(make_slice(_map, _bucket_count));
+			}
+
+			_map = nullptr;
+			_cap_end = iterator();
+			_cap_begin = iterator();
+			_begin = iterator();
+			_end = iterator();
+			_count = 0;
+			_bucket_count = 0;
+
+			_init();
+		}
+
+		void
+		clear()
+		{
 			while(_count-- && _begin != _end)
 			{
 				(*_begin).~T();
 				++_begin;
 			}
 			_count = 0;
-		}
-
-		void
-		clear()
-		{
-			reset();
 		}
 
 		bool
