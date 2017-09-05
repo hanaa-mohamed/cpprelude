@@ -210,6 +210,24 @@ namespace cpprelude
 			}
 		}
 
+		template<typename ... TArgs>
+		void
+		emplace_front(TArgs&& ... args)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+
+			//copy the data value
+			new (&new_node->data) T(tmp::forward<TArgs>(args)...);
+
+			//move the current head as the next to the new node
+			new_node->next = _head;
+
+			//set the new node as the new head
+			_head = new_node;
+
+			++_count;
+		}
+
 		void
 		insert_front(const T& value)
 		{

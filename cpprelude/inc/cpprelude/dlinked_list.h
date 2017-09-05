@@ -222,6 +222,27 @@ namespace cpprelude
 			}
 		}
 
+		template<typename ... TArgs>
+		void
+		emplace_front(TArgs&& ... args)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+
+			auto first_node = _head->next;
+
+			first_node->prev = new_node;
+
+			new_node->next = first_node;
+
+			_head->next = new_node;
+
+			new_node->prev = _head;
+
+			new (&new_node->data) T(tmp::forward<TArgs>(args)...);
+
+			++_count;
+		}
+
 		void
 		insert_front(const T& value)
 		{
@@ -265,6 +286,25 @@ namespace cpprelude
 		{
 			for(const auto& value: list)
 				insert_back(value);
+		}
+
+		template<typename ... TArgs>
+		void
+		emplace_back(TArgs&& ... args)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+
+			auto last_node = _tail->prev;
+
+			last_node->next = new_node;
+			new_node->prev = last_node;
+
+			_tail->prev = new_node;
+			new_node->next = _tail;
+
+			new (&new_node->data) T(tmp::forward<TArgs>(args)...);
+
+			++_count;
 		}
 
 		void

@@ -233,6 +233,18 @@ namespace cpprelude
 			}
 		}
 
+		template<typename ... TArgs>
+		void
+		emplace_front(TArgs&& ... args)
+		{
+			if(_begin == _cap_begin)
+				_insert_bucket_front((_bucket_count/2));
+
+			--_begin;
+			new (_begin._element_it) T(tmp::forward<TArgs>(args)...);
+			++_count;
+		}
+
 		void
 		insert_front(const T& value)
 		{
@@ -260,6 +272,18 @@ namespace cpprelude
 		{
 			for(auto& value: list)
 				insert_back(tmp::move(value));
+		}
+
+		template<typename ... TArgs>
+		void
+		emplace_back(TArgs&& ... args)
+		{
+			if (_end == _cap_end)
+				_insert_bucket_back((_bucket_count/2));
+
+			new (_end._element_it) T(tmp::forward<TArgs>(args)...);
+			++_end;
+			++_count;
 		}
 
 		void

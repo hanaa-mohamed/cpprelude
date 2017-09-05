@@ -19,6 +19,13 @@ namespace cpprelude
 			:_list(allocator)
 		{}
 
+		template<typename ... TArgs>
+		void
+		emplace(TArgs&& ... args)
+		{
+			_list.emplace_back(tmp::forward<TArgs>(args)...);
+		}
+
 		void
 		enqueue(const T& item)
 		{
