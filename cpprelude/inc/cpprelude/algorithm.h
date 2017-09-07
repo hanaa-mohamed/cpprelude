@@ -95,7 +95,7 @@ namespace cpprelude
 
 	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
 	bool
-	is_sorted(iterator_type begin_it, usize count, Comparator less_than = Comparator())
+	is_sorted(iterator_type begin_it, usize count, Comparator compare = Comparator())
 	{
 		iterator_type a = begin_it;
 		iterator_type b = next(a);
@@ -103,7 +103,7 @@ namespace cpprelude
 		while (--count)
 		{
 
-			if (less_than(*b ,*a))
+			if (compare(*b ,*a))
 				return false;
 
 			a = b;
@@ -519,21 +519,6 @@ namespace cpprelude
 		tmp::swap(*begin_it, *presult.iterator);
 
 		_quick_sort_3way(begin_it, count, less_than);
-	}
-
-	template<typename T, typename Comparator = tmp::default_less_than<T>>
-	bool
-	is_heap(dynamic_array<T> arr, usize count, Comparator compare = Comparator())
-	{
-		usize l, r;
-		for (usize i = 0; i < count; i++)
-		{
-			l = 2 * i + 1;
-			r = 2 * i + 2;
-			if (l < count && compare(arr[l], arr[i])) return false;
-			if (r < count && compare(arr[r], arr[i])) return false;
-		}
-		return true;
 	}
 
 	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
