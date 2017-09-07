@@ -1,20 +1,29 @@
 #include <iostream>
-#include <cpprelude/slinked_list.h>
+#include <cpprelude/dynamic_array.h>
+#include <cpprelude/algorithm.h>
 using namespace cpprelude;
 
 int
 main(int argc, char** argv)
 {
-	slinked_list<usize> numbers;
+	//inserting random numbers in a dynamic_array
+	usize length = 15;
+	dynamic_array<usize> arr(length);
 
-	//so we expect this half to be reversed since we append at the front
-	for(usize i = 0; i < 10; ++i)
-		numbers.insert_front(i+1);
+	for (usize i = 0; i < length; i++)
+	{
+		arr[i] = details::_get_random_index(length);
+	}
 
-	//when inserting a list of values slinked_list keeps the order of the elements so this half of the list will be ordered
-	numbers.insert_front({11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
+	//Using another comparator function
+	auto fun = [](const usize& x, const usize& y) {
+		return x > y;
+	};
 
-	for(const auto& number: numbers)
-		std::cout << number << std::endl;
+	//If third paramater is not passed then it will select the smallest kth element.
+	auto kth_element_it = quick_select(arr.begin(), arr.count(), 3, fun);
+
+	std::cout << *kth_element_it;
+	
 	return 0;
 }

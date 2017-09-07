@@ -1,17 +1,17 @@
-# is_sorted
+# insertion_sort
 
-`cpprelude::is_sorted` a function that checks whether this sequence of elements is sorted ascending or descending or according to the `Comparator` parameter.
+`cpprelude::insertion_sort` a function that applies insertion sort algorithm to  sort sequence of elements  ascending or descending or according to the `Comparator` parameter.
 
 ### Function signature
 
 ```c++
 template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
-bool 
-is_sorted(iterator_type begin_it, usize count, 
+void
+insertion_sort(iterator_type begin_it, usize count, 
                Comparator less_than = Comparator())
 ```
 
-This function checks whether the given range is sorted or not. It compares elements using operator < by default. Otherwise it can be specified using the 3rd parameter.
+This function compares elements using operator < by default. Otherwise it can be specified using the 3rd parameter.
 
 #### Parameters
 
@@ -21,11 +21,11 @@ This function checks whether the given range is sorted or not. It compares eleme
 
 #### Return value
 
-Returns `true` if the range is sorted else returns `false`.
+None.
 
 #### Complexity
 
-Linear with number of elements.
+Quadratic with number of elements.
 
 ## Code Example
 
@@ -38,21 +38,25 @@ using namespace cpprelude;
 int
 main(int argc, char** argv)
 {
-	dynamic_array<int> array;
-	// input is sorted descendingly
-	for (int i = 10; i > 0; i--)
-		array.insert_back(i);
-	//output is false as it uses < operator to compare between elements
-	std::cout << is_sorted(array.begin(), array.count());
+	//inserting random numbers in a dynamic_array
+	usize length = 128;
+	dynamic_array<usize> arr(length);
 
-	//Using another comparator function grater than
+	for (usize i = 0; i < length; i++)
+	{
+		arr[i] = details::_get_random_index(length);
+	}
+
+	//Using another comparator function
 	auto fun = [](const usize& x, const usize& y) {
 		return x > y;
 	};
 
-	//output is true 
-	std::cout << is_sorted(array.begin(), array.count(), fun);
+	//If third paramater is not passed then it will sort ascendingly.
+	insertion_sort(arr.begin(), arr.count(), fun);
 
+	//output is true
+	std::cout << is_sorted(arr.begin(), arr.count(), fun);
 	return 0;
 }
 ```

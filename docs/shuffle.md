@@ -24,7 +24,7 @@ None.
 
 #### Complexity
 
-Linear.
+Linear with number of elements.
 
 ## Code Example
 

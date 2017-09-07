@@ -95,7 +95,7 @@ namespace cpprelude
 
 	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
 	bool
-	is_sorted(iterator_type begin_it, usize count, Comparator compare = Comparator())
+	is_sorted(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{
 		iterator_type a = begin_it;
 		iterator_type b = next(a);
@@ -103,7 +103,7 @@ namespace cpprelude
 		while (--count)
 		{
 
-			if (compare(*b ,*a))
+			if (less_than(*b ,*a))
 				return false;
 
 			a = b;
@@ -405,9 +405,9 @@ namespace cpprelude
 		return element_marker<iterator_type>(next(begin_it, k), k);
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
 	iterator_type
-	quick_select(iterator_type begin_it, usize count, usize k, function_type less_than = function_type())
+	quick_select(iterator_type begin_it, usize count, usize k, Comparator less_than = Comparator())
 	{
 		return _select(begin_it, count, k, less_than).iterator;
 	}
@@ -510,9 +510,9 @@ namespace cpprelude
 		}
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
 	void
-	quick_sort(iterator_type begin_it, usize count, function_type less_than = function_type())
+	quick_sort(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{
 		auto presult = _median_of3(begin_it, count, less_than);
 
@@ -521,11 +521,11 @@ namespace cpprelude
 		_quick_sort_3way(begin_it, count, less_than);
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
 	void
-	heap_sort(iterator_type begin_it, usize count, function_type less_than = function_type())
+	heap_sort(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{
-		priority_queue<typename iterator_type::data_type, function_type> queue(begin_it, count, less_than);
+		priority_queue<typename iterator_type::data_type, Comparator> queue(begin_it, count, less_than);
 
 		auto it = begin_it;
 		for (usize i = 0; i < count; i++)
