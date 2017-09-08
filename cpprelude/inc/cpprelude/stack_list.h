@@ -28,6 +28,13 @@ namespace cpprelude
 			:_list(tmp::move(other), allocator)
 		{}
 
+		template<typename ... TArgs>
+		void
+		emplace(TArgs&& ... args)
+		{
+			_list.emplace_front(tmp::forward<TArgs>(args)...);
+		}
+
 		void
 		push(const T& item)
 		{

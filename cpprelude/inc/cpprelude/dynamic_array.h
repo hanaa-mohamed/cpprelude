@@ -90,8 +90,9 @@ namespace cpprelude
 
 		~dynamic_array()
 		{
+			auto it = _data_block.ptr;
 			for(usize i = 0; i < _count; ++i)
-				_data_block[i].~T();
+				(*it++).~T();
 			_count = 0;
 
 			_allocator.free(_data_block);
@@ -229,10 +230,11 @@ namespace cpprelude
 			_count += lsize;
 		}
 
+		template<typename ... TArgs>
 		void
-		insert_back(const T& value)
+		emplace_back(TArgs&& ... args)
 		{
-			auto capacity_ = capacity();
+			auto capacity_ = _data_block.size / sizeof(T);
 			if(_count >= capacity_)
 			{
 				if(capacity_ == 0)
@@ -241,13 +243,30 @@ namespace cpprelude
 					_mem_expand(capacity_*grow_factor);
 			}
 
-			new (&_data_block[_count++]) T(value);
+			new (_data_block.ptr + _count) T(tmp::forward<TArgs>(args)...);
+			++_count;
+		}
+
+		void
+		insert_back(const T& value)
+		{
+			auto capacity_ = _data_block.size / sizeof(T);
+			if(_count >= capacity_)
+			{
+				if(capacity_ == 0)
+					_mem_expand(starting_count);
+				else
+					_mem_expand(capacity_*grow_factor);
+			}
+
+			new (_data_block.ptr + _count) T(value);
+			++_count;
 		}
 
 		void
 		insert_back(T&& value)
 		{
-			auto capacity_ = capacity();
+			auto capacity_ = _data_block.size / sizeof(T);
 			if(_count >= capacity_)
 			{
 				if(capacity_ == 0)
@@ -256,7 +275,8 @@ namespace cpprelude
 					_mem_expand(capacity_*grow_factor);
 			}
 
-			new (&_data_block[_count++]) T(tmp::move(value));
+			new (_data_block.ptr + _count) T(tmp::move(value));
+			++_count;
 		}
 
 		void
@@ -366,7 +386,7 @@ namespace cpprelude
 			return result;
 		}
 
-		void
+		inline void
 		_mem_expand(usize new_count)
 		{
 			if(_data_block.count() >= new_count)
@@ -378,7 +398,7 @@ namespace cpprelude
 				_data_block = _allocator.template alloc<T>(new_count);
 		}
 
-		void
+		inline void
 		_mem_shrink(usize new_count)
 		{
 			if(_data_block.count() <= new_count)

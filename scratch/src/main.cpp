@@ -356,7 +356,7 @@ test_string_conversion()
 	cpprelude::write(str, r64_v);
 	std::cout << str << std::endl;
 
-	cpprelude::show(str, str.data());
+	cpprelude::write(str, str.data());
 	std::cout << str << std::endl;
 
 	std::cout << cpprelude::write(str, 1, " ", 2.0f, " ", 3.0, " ", 4u) << std::endl;
