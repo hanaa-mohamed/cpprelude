@@ -1,6 +1,6 @@
 # insertion_sort
 
-`cpprelude::insertion_sort` a function that applies insertion sort algorithm to  sort sequence of elements  ascending or descending or according to the `Comparator` parameter.
+`cpprelude::insertion_sort` a function that applies insertion sort algorithm to sort sequence of elements ascending or descending or according to the `Comparator` parameter.
 
 ### Function signature
 
@@ -25,7 +25,7 @@ None.
 
 #### Complexity
 
-Quadratic with number of elements.
+O(N^2) Quadratic with number of elements.
 
 ## Code Example
 

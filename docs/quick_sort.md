@@ -1,6 +1,6 @@
 # quick_sort
 
-`cpprelude::quick_sort` a function that applies 3-way quick sort algorithm to  sort sequence of elements  ascending or descending or according to the `Comparator` parameter.
+`cpprelude::quick_sort` a function that applies 3-way quick sort algorithm to  sort sequence of elements ascending or descending or according to the `Comparator` parameter.
 
 ### Function signature
 
@@ -25,7 +25,7 @@ None.
 
 #### Complexity
 
-Linearithmic (nlogn) with number of elements.
+O(N Log N) Linearithmic with number of elements.
 
 ## Code Example
 

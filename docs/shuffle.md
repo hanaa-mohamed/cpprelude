@@ -24,7 +24,7 @@ None.
 
 #### Complexity
 
-Linear with number of elements.
+Depends on the iterator_type passed. random access the complexity will be the O(N), forward iterator and bidirectional iterator is O(N^2).
 
 ## Code Example
 

@@ -1,6 +1,6 @@
 # merge_sort
 
-`cpprelude::merge_sort` a function that applies merge sort algorithm to  sort sequence of elements  ascending or descending or according to the `Comparator` parameter.
+`cpprelude::merge_sort` a function that applies merge sort algorithm to  sort sequence of elements ascending or descending or according to the `Comparator` parameter.
 
 ### Function signature
 
@@ -25,7 +25,7 @@ None.
 
 #### Complexity
 
-Linearithmic (nlogn) with number of elements.
+O(N Log N) Linearithmic with number of elements.
 
 ## Code Example
 

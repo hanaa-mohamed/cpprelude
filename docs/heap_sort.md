@@ -25,7 +25,7 @@ None.
 
 #### Complexity
 
-Linearithmic (nlogn) with number of elements.
+O(N Log N) Linearithmic with number of elements.
 
 ## Code Example
 

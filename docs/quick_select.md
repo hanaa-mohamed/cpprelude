@@ -1,6 +1,6 @@
 # quick_select
 
-`cpprelude::quick_select` a function that applies quick selection algorithm to find the *k*th smallest element in an unordered list. This function can find also the *k*th largest element according to the `Comparator` parameter.
+`cpprelude::quick_select` a function that applies quick selection algorithm to find the *k*-th smallest element in an unordered list. This function can find also the *k*-th largest element according to the `Comparator` parameter.
 
 ### Function signature
 
@@ -17,12 +17,12 @@ This function compares elements using operator < by default. Otherwise it can be
 
 1. `begin_it`: is an iterator of a template type `iterator_type`. It points to the first element in the range of data.
 2. `count`: is a number of `usize` type that specifies number of elements starting from iterator `start`.
-3. `k`: is index of the *k*th element.
+3. `k`: is index of the *k*-th element.
 4. `less_than`: is a function that accepts two elements. It compares them and return true or false. This parameter is by default uses `tmp::default_less_than`.
 
 #### Return value
 
-Returns an iterator points to the *k*th element.
+Returns an iterator points to the *k*-th element.
 
 #### Complexity
 
