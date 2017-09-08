@@ -28,6 +28,13 @@ namespace cpprelude
 			:_list(tmp::move(other._list), allocator)
 		{}
 
+		template<typename ... TArgs>
+		void
+		emplace(TArgs&& ... args)
+		{
+			_list.emplace_back(tmp::forward<TArgs>(args)...);
+		}
+
 		void
 		enqueue(const T& item)
 		{
@@ -59,19 +66,19 @@ namespace cpprelude
 		}
 
 		T&
-		front() 
+		front()
 		{
 			return *_list.front();
 		}
 
 		bool
-		empty()
+		empty() const
 		{
 			return _list.empty();
 		}
 
 		usize
-		count()
+		count() const
 		{
 			return _list.count();
 		}

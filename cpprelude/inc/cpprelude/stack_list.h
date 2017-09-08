@@ -11,7 +11,7 @@ namespace cpprelude
 		using data_type = T;
 
 		slinked_list<T, AllocatorT> _list;
-		
+
 		stack_list(const AllocatorT& allocator = AllocatorT())
 			:_list(allocator)
 		{}
@@ -27,6 +27,13 @@ namespace cpprelude
 		stack_list(stack_list&& other, const AllocatorT& allocator)
 			:_list(tmp::move(other), allocator)
 		{}
+
+		template<typename ... TArgs>
+		void
+		emplace(TArgs&& ... args)
+		{
+			_list.emplace_front(tmp::forward<TArgs>(args)...);
+		}
 
 		void
 		push(const T& item)
@@ -63,15 +70,15 @@ namespace cpprelude
 
 			return false;
 		}
-		
+
 		bool
-		empty()
+		empty() const
 		{
 			return _list.empty();
 		}
-		
+
 		usize
-		count()
+		count() const
 		{
 			return _list.count();
 		}

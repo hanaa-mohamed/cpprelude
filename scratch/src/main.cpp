@@ -356,7 +356,7 @@ test_string_conversion()
 	cpprelude::write(str, r64_v);
 	std::cout << str << std::endl;
 
-	cpprelude::show(str, str.data());
+	cpprelude::write(str, str.data());
 	std::cout << str << std::endl;
 
 	std::cout << cpprelude::write(str, 1, " ", 2.0f, " ", 3.0, " ", 4u) << std::endl;
@@ -399,16 +399,16 @@ printt(int x, T&& t, ArgsT&&... args)
 	return x;
 }
 
-//int
-//main(int argc, char** argv)
-//{
-//	std::cout << "Hello, World!" << std::endl;
-//	benchmark();
-//	shuffle_test();
-//	quick_select_test();
-//	scratch();
-//	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
-//	test_string_conversion();
-//
-//	return 0;
-//}
+int
+main(int argc, char** argv)
+{
+	std::cout << "Hello, World!" << std::endl;
+	benchmark();
+	shuffle_test();
+	quick_select_test();
+	scratch();
+	std::cout << printt(-1, 1, 2.0f, 3.0, "koko") << std::endl;
+	test_string_conversion();
+
+	return 0;
+}
