@@ -174,32 +174,9 @@ TEST_CASE("string test", "[string]")
 
 	SECTION("Case 09")
 	{
-		string_writer<global_allocator> writer;
-
-		CHECK(writer.empty());
-		writer.clear();
-		CHECK(writer.empty());
-
-		CHECK(writer.output() == string());
-
-		writer.write_back("aaaa"_l);
-		auto str = writer.output();
-		for(auto& ch: str)
-			CHECK(ch == 'a');
-
-		CHECK(writer.empty());
-		writer.write_front("aaaa"_l);
-		CHECK(writer.empty() == false);
-		writer.clear();
-		CHECK(writer.empty());
-		string::dispose(str);
-	}
-
-	SECTION("Case 10")
-	{
 		local_string<256> str, str2;
-		CHECK(str.empty() == false);
-		CHECK(str.count() == 255);
+		CHECK(str.empty() == true);
+		CHECK(str.capacity() == 256);
 
 		write(str, 1111);
 		for(auto& ch: str.view(0,4))
@@ -212,7 +189,7 @@ TEST_CASE("string test", "[string]")
 		CHECK(str.view(0, 4) == str2.view(0, 4));
 	}
 
-	SECTION("Case 11")
+	SECTION("Case 10")
 	{
 		local_string<64> str;
 		write(str, 1.123f);

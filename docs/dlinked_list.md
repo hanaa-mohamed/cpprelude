@@ -1,6 +1,6 @@
-# slinked_list
+# dlinked_list
 
-`cpprelude::slinked_list` provides a singly linked list implementation.
+`cpprelude::dlinked_list` provides a doubly linked list implementation.
 
 ### Meta Interface
 
@@ -8,43 +8,43 @@
 
 ```c++
 template<typename T, typename AllocatorT = global_allocator>
-struct slinked_list;
+struct dlinked_list;
 ```
 
 1. **T**: specifics element type.
-2. **AllocatorT**: specifics the type of the allocator the `slinked_list` will use.
+2. **AllocatorT**: specifics the type of the allocator the `dlinked_list` will use.
 
 #### Alias Interface
 
 ```c++
-using iterator = forward_iterator<T>;
-using const_iterator = const_forward_iterator<T>;
+using iterator = bidirectional_iterator<T>;
+using const_iterator = const_bidirectional_iterator<T>;
 using data_type = T;
-using node_type = details::single_node<T>;
+using node_type = details::double_node<T>;
 ```
 
 1. **iterator**: provides a type definition of the iterator type of this container.
 2. **const_iterator**: provides a type definition of the const iterator type of this container.
 3. **data_type**: provides a type definition of the element type of this container.
-4. **node_type**: provides a type definition of the node type that this container uses
+4. **node_type**: provides a type definition of the node type that this container uses.
 
 ### Interface
 
 #### Constructor
 
 ```c++
-slinked_list(const AllocatorT& allocator = AllocatorT());
-slinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT());
-slinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT());
-slinked_list(const slinked_list<T>& other);
-slinked_list(const slinked_list<T>& other, const AllocatorT& allocator);
-slinked_list(slinked_list<T>&& other);
-slinked_list(slinked_list<T>&& other, const AllocatorT& allocator);
+dlinked_list(const AllocatorT& allocator = AllocatorT());
+dlinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT());
+dlinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT());
+dlinked_list(const dlinked_list<T>& other);
+dlinked_list(const dlinked_list<T>& other, const AllocatorT& allocator);
+dlinked_list(dlinked_list<T>&& other);
+dlinked_list(dlinked_list<T>&& other, const AllocatorT& allocator);
 ```
 
-1. A constructor that builds the singly linked list with the provided allocator.
-2. A constructor that initializes `slinked_list` with the provided `initializer_list` using the provided `allocator` to allocate nodes.
-3. A constructor that initializes `slinked_list` with the provided `count` and fills it with the provided `fill_value`.
+1. A constructor that builds the container with the provided allocator.
+2. A constructor that initializes the container with the provided `initializer_list` using the provided allocator.
+3. A constructor that initializes the container with the provided `count` and fills it with the provided `fill_value`.
 4. A copy constructor.
 5. A copy constructor that accepts another allocator.
 6. A move constructor.
@@ -66,6 +66,13 @@ void expand_front(usize additional_count, const T& fill_value);
 
 Expands the container at the front by the count provided and fill the expanded elements with the `fill_value`.
 
+#### expand_back
+```c++
+void expand_back(usize additional_count, const T& fill_value);
+```
+
+Expands the container at the back by the count provided and fill the expanded elements with the `fill_value`.
+
 #### shrink_front
 
 ```c++
@@ -73,6 +80,14 @@ void shrink_front(usize shrinkage_count);
 ```
 
 Shrinks the container from the front by the provided `shrinkage_count`.
+
+#### shrink_back
+
+```c++
+void shrink_back(usize shrinkage_count);
+```
+
+Shrinks the container from the back by the provided `shrinkage_count`.
 
 #### operator[]
 
@@ -95,6 +110,18 @@ void insert_front(T&& value);
 2. Inserts the element value at the front of the container.
 3. Inserts the element value at the front of the container.
 
+#### insert_back
+
+```c++
+void insert_back(std::initializer_list<T> list);
+void insert_back(const T& value);
+void insert_back(T&& value);
+```
+
+1. Inserts the list at the back of the container.
+2. Inserts the element value at the back of the container.
+3. Inserts the element value at the back of the container.
+
 #### remove_front
 
 ```c++
@@ -102,6 +129,14 @@ void remove_front(usize removal_count = 1);
 ```
 
 Removes the count provided from the front of the container.
+
+#### remove_back
+
+```c++
+void remove_back(usize removal_count = 1);
+```
+
+Removes the count provided from the back of the container.
 
 #### reset
 
@@ -124,6 +159,15 @@ Returns whether the container is empty or not.
 ```c++
 const_iterator front() const;
 iterator front();
+```
+
+Returns an iterator pointing at the front of the container.
+
+#### back
+
+```c++
+const_iterator back() const;
+iterator back();
 ```
 
 Returns an iterator pointing at the front of the container.
@@ -155,24 +199,24 @@ slice<node_type> decay();
 slice<T> decay_continuous();
 ```
 
-1. Decays the container to just a slice of memory containing the first node of this `slinked_list` and resets this container.
+1. Decays the container to just a slice of memory containing the first node of this `dlinked_list` and resets this container.
 2. Just like decay but there's a guarantee that the returned slice will have a contagious memory containing all the elements and resets the container.
 
 ### Example
 
 ```c++
 #include <iostream>
-#include <cpprelude/slinked_list.h>
+#include <cpprelude/dlinked_list.h>
 using namespace cpprelude;
 
 int
 main(int argc, char** argv)
 {
-	slinked_list<usize> numbers;
+	dlinked_list<usize> numbers;
 
 	//so we expect this half to be reversed since we append at the front
 	for(usize i = 0; i < 10; ++i)
-		numbers.insert_front(i+1);
+		numbers.insert_back(i+1);
 
 	//when inserting a list of values slinked_list keeps the order of the elements so this half of the list will be ordered
 	numbers.insert_front({11, 12, 13, 14, 15, 16, 17, 18, 19, 20});

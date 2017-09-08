@@ -33,6 +33,18 @@ namespace cpprelude
 			:_array(tmp::move(other._array), allocator), _count(other._count)
 		{}
 
+		template<typename ... TArgs>
+		void
+		emplace(TArgs&& ... args)
+		{
+			if (_count == _array.count())
+				_array.emplace_back(tmp::forward<TArgs>(args)...);
+			else
+				_array[_count] = T(tmp::forward<TArgs>(args)...);
+
+			++_count;
+		}
+
 		void
 		push(const T& item)
 		{
@@ -54,7 +66,7 @@ namespace cpprelude
 
 			++_count;
 		}
-		
+
 		const T&
 		top() const
 		{

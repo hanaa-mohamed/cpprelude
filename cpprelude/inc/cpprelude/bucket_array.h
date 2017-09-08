@@ -114,30 +114,13 @@ namespace cpprelude
 
 		~bucket_array()
 		{
-			if(_map)
-			{
-				for (usize i = 0; i < _bucket_count; ++i)
-				{
-					auto other_handle = _map[i];
-					_allocator.free(make_slice(other_handle, bucket_size));
-				}
-
-				_allocator.free(make_slice(_map, _bucket_count));
-			}
-
-			_map = nullptr;
-			_cap_end = iterator();
-			_cap_begin = iterator();
-			_begin = iterator();
-			_end = iterator();
-			_count = 0;
-			_bucket_count = 0;
+			reset();
 		}
 
 		bucket_array&
 		operator=(const bucket_array& other)
 		{
-			reset();
+			clear();
 
 			for(const auto& value: other)
 				insert_back(value);
@@ -149,17 +132,6 @@ namespace cpprelude
 		operator=(bucket_array&& other)
 		{
 			reset();
-
-			if (_map)
-			{
-				for (usize i = 0; i < _bucket_count; ++i)
-				{
-					auto other_handle = _map[i];
-					_allocator.free(make_slice(other_handle, bucket_size));
-				}
-
-				_allocator.free(make_slice(_map, _bucket_count));
-			}
 
 			_allocator = tmp::move(other._allocator);
 			_count = other._count;
@@ -261,6 +233,18 @@ namespace cpprelude
 			}
 		}
 
+		template<typename ... TArgs>
+		void
+		emplace_front(TArgs&& ... args)
+		{
+			if(_begin == _cap_begin)
+				_insert_bucket_front((_bucket_count/2));
+
+			--_begin;
+			new (_begin._element_it) T(tmp::forward<TArgs>(args)...);
+			++_count;
+		}
+
 		void
 		insert_front(const T& value)
 		{
@@ -288,6 +272,18 @@ namespace cpprelude
 		{
 			for(auto& value: list)
 				insert_back(tmp::move(value));
+		}
+
+		template<typename ... TArgs>
+		void
+		emplace_back(TArgs&& ... args)
+		{
+			if (_end == _cap_end)
+				_insert_bucket_back((_bucket_count/2));
+
+			new (_end._element_it) T(tmp::forward<TArgs>(args)...);
+			++_end;
+			++_count;
 		}
 
 		void
@@ -337,18 +333,39 @@ namespace cpprelude
 		void
 		reset()
 		{
+			clear();
+
+			if(_map)
+			{
+				for(usize i = 0; i < _bucket_count; ++i)
+				{
+					auto other_handle = _map[i];
+					_allocator.free(make_slice(other_handle, bucket_size));
+				}
+
+				_allocator.free(make_slice(_map, _bucket_count));
+			}
+
+			_map = nullptr;
+			_cap_end = iterator();
+			_cap_begin = iterator();
+			_begin = iterator();
+			_end = iterator();
+			_count = 0;
+			_bucket_count = 0;
+
+			_init();
+		}
+
+		void
+		clear()
+		{
 			while(_count-- && _begin != _end)
 			{
 				(*_begin).~T();
 				++_begin;
 			}
 			_count = 0;
-		}
-
-		void
-		clear()
-		{
-			reset();
 		}
 
 		bool
