@@ -71,7 +71,7 @@ namespace cpprelude
 	struct _worker
 	{
 		std::thread thread_obj;
-		u64 id, job_id;
+		u64  job_id;
 		bool finished;
 
 		_worker()
@@ -80,17 +80,18 @@ namespace cpprelude
 
 		}
 		template <typename... ArgsT>
-		_worker(u64 id, u64 job_id, ArgsT&&... args) :thread_obj([&]()->
+		_worker(u64 job_id, ArgsT&&... args) :thread_obj([&]()->
 		void
 		{
+
 		auto tmp_bind =	std::bind(args...);
 		tmp_bind();
 		finished = true;
+
 		}
 		)
 		{
 			finished = false;
-			this->id = id;
 			this->job_id = job_id;
 		}
 
@@ -112,7 +113,7 @@ namespace cpprelude
 		u64 _job_cnt;
 		u64 _workers_cnt;
 		i16 _cores_number;
-		std::mutex stls_mutex;
+		std::mutex stls_mutex,_finished_waiter;
 		std::condition_variable	busy_waiting_solver;
 		queue_array <_job *> _undone_jobs;
 		std::unordered_map <u64 , _job *> _done_jobs;
@@ -141,7 +142,7 @@ namespace cpprelude
 				std::unique_lock <std::mutex> locker(stls_mutex);
 				busy_waiting_solver.notify_one();
 				busy_waiting_solver.wait(locker, [&]() {return !_undone_jobs.empty(); });
-				workers.insert_back(_worker(_workers_cnt++, _undone_jobs.front()->id,&_job::execute,_undone_jobs.front() ));
+				workers.insert_back(_worker(_undone_jobs.front()->id,&_job::execute,_undone_jobs.front() ));
 				workers.back()->join_worker();
 				_done_jobs[_undone_jobs.front()->id] = std::move(_undone_jobs.front());
 				_undone_jobs.dequeue();
@@ -156,7 +157,7 @@ namespace cpprelude
 			std::lock_guard<std::mutex> locker(stls_mutex);
 			_undone_jobs.enqueue(new _job_logic<R(ArgsT...)>(func, std::forward<ArgsT>(args)..., _job_cnt) );
 		
-			return cnt++;
+			return _job_cnt++;
 
 		};
 
@@ -179,18 +180,26 @@ namespace cpprelude
 		R
 		wait_result(u64 id)
 		{
-			std::future<R> return_getter = static_cast<_job_logic<R> *>(_done_jobs[id])->promise_obj.get_future();
-			//if (is_done(id)) 
-			//{
-				
-
-			//}
-			/*else
-			{
-				queue_array<_job *>::const_iterator it;
-				return_getter=
-			}*/
+			std::future<R> return_getter;
+			while (!is_done(id));
+			return_getter = static_cast<_job_logic<R()> *>(_done_jobs[id])->promise_obj.get_future();
 			return return_getter.get();
+		}
+
+		i64
+		_find_job_with_worker(u64 id) 
+		{
+			i64 pos=-1;
+			for (i64 i = 0; i < workers.count(); i++)
+			{
+				if (workers[i].job_id == id) 
+				{
+					pos = i;
+					break;
+				}
+			} 
+
+			return pos;
 		}
 
 		~job_queue()
