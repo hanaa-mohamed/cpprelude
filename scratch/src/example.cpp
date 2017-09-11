@@ -1,29 +1,31 @@
-#include <iostream>
-#include <cpprelude/dynamic_array.h>
-#include <cpprelude/algorithm.h>
-using namespace cpprelude;
-
-int
-main(int argc, char** argv)
-{
-	//inserting random numbers in a dynamic_array
-	usize length = 15;
-	dynamic_array<usize> arr(length);
-
-	for (usize i = 0; i < length; i++)
-	{
-		arr[i] = details::_get_random_index(length);
-	}
-
-	//Using another comparator function
-	auto fun = [](const usize& x, const usize& y) {
-		return x > y;
-	};
-
-	//If third paramater is not passed then it will select the smallest kth element.
-	auto kth_element_it = quick_select(arr.begin(), arr.count(), 3, fun);
-
-	std::cout << *kth_element_it;
-	
-	return 0;
-}
+// #include <iostream>
+// #include <cpprelude/dynamic_array.h>
+// #include <cpprelude/allocator.h>
+// #include <cpprelude/tree_map.h>
+// #include <cpprelude/tmp.h>
+// #include <cpprelude/string.h>
+// using namespace cpprelude;
+//
+// int
+// main(int argc, char** argv)
+// {
+// 	auto memory = virtual_alloc<ubyte>(MEGABYTES(1));
+// 	auto allocator = linear_allocator(memory);
+//
+// 	{
+// 		tree_map<string, usize, tmp::default_less_than<details::pair_node<string, usize>>, linear_allocator> dic(allocator);
+//
+// 		dic.insert("mostafa"_s, 234);
+// 		dic.insert("mosta"_s, 234);
+// 		dic.insert(""_s, 234);
+//
+// 		for(auto it = dic.cbegin(); it != dic.cend(); ++it)
+// 		{
+// 			std::cout << it.key() << std::endl;
+// 			std::cout << it.value() << std::endl;
+// 		}
+// 	}
+//
+// 	virtual_free(memory);
+// 	return 0;
+// }

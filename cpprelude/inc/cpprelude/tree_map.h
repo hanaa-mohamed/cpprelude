@@ -29,9 +29,13 @@ namespace cpprelude
 		AllocatorT _allocator;
 		ComparatorType _less_than;
 
-		red_black_tree(const ComparatorType& compare_function = ComparatorType(), const AllocatorT& allocator = AllocatorT())
+		red_black_tree(const ComparatorType& compare_function, const AllocatorT& allocator = AllocatorT())
 			:_root(nullptr), _count(0), _allocator(allocator),
 			 _less_than(compare_function)
+		{}
+
+		red_black_tree(const AllocatorT& allocator = AllocatorT())
+			:_root(nullptr), _count(0), _allocator(allocator)
 		{}
 
 		red_black_tree(std::initializer_list<T> list,
@@ -877,7 +881,11 @@ namespace cpprelude
 		using color_type = typename node_type::color_type;
 		using _implementation = red_black_tree<data_type, ComparatorType, AllocatorT>;
 
-		red_black_map(const ComparatorType& compare_function = ComparatorType(), const AllocatorT& allocator = AllocatorT())
+		red_black_map(const AllocatorT& allocator = AllocatorT())
+			:_implementation(allocator)
+		{}
+
+		red_black_map(const ComparatorType& compare_function, const AllocatorT& allocator = AllocatorT())
 			:_implementation(compare_function, allocator)
 		{}
 
