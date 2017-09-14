@@ -12,6 +12,6 @@
 | [quick_find](quick_find.md)         | an API that applies quick find algorithm to resolves dynamic connectivity problem. |
 | [quick_union](quick_union.md)       | an API that applies quick union algorithm to resolves dynamic connectivity problem. |
 | [priority_queue](priority_queue.md) | is a queue container that its first output is always the most important value in the container. It acts as a heap. By default it is a min-heap, but it can be set to max-heap by using comparator argument. |
-|                                     |                                          |
-|                                     |                                          |
+| [tree_set](tree_set.md)             | is an ordered set container that contains unique elements. These elements are `const` can't be modified but they can be removed. |
+| [tree_map](tree_map.md)             | is an associative container that stores elements formed of unique key and a mapped value. |
 |                                     |                                          |
