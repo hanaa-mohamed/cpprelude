@@ -12,6 +12,14 @@
 | [quick_find](quick_find.md)         | an API that applies quick find algorithm to resolves dynamic connectivity problem. |
 | [quick_union](quick_union.md)       | an API that applies quick union algorithm to resolves dynamic connectivity problem. |
 | [priority_queue](priority_queue.md) | is a queue container that its first output is always the most important value in the container. It acts as a heap. By default it is a min-heap, but it can be set to max-heap by using comparator argument. |
+| [queue_array](queue_array.md)       | is a container that its first inserted element from one end of the container is its first output in the other end of the container a.k.a. FIFO principle. This queue is implemented using array. |
+| [queue_list](queue_list.md)         | is a container that its first inserted element from one end of the container is its first output in the other end of the container a.k.a. FIFO principle. This queue is implemented using double-linked list. |
+| [stack_array](stack_array.md)       | is a container that its last inserted element is its first output in the container a.k.a. LIFO principle. This stack is implemented using array. |
+| [stack_list](stack_list.md)         | is a container that its last inserted element is its first output in the container a.k.a. LIFO principle. This stack is implemented using single-linked list. |
+|                                     |                                          |
+|                                     |                                          |
+|                                     |                                          |
+|                                     |                                          |
 |                                     |                                          |
 |                                     |                                          |
 |                                     |                                          |
