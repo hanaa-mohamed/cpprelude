@@ -1,6 +1,6 @@
 # Allocators
 
-Allocators are object that's wrapping a memory + memory allocation algorithms they have a standard interface consisting of 3 functions. you can create your own allocator and pass it to the containers.
+Allocators are objects that's wrapping a memory and memory allocation algorithms. They have a standard interface consisting of 3 functions. You can create your own allocator and pass it to the containers.
 
 ### global_allocator
 #### alloc
@@ -10,7 +10,7 @@ slice<T>
 alloc(usize count = 1, ubyte alignment = 4);
 ```
 
-Allocates a slice of type T that can hold up to the provided `count` with the provided alignment.
+Allocates a slice of type `T` that can hold up to the provided `count` with the provided alignment.
 
 #### free
 ```C++
@@ -20,10 +20,10 @@ free(slice<T>& slice_);
 
 template<typename T>
 void
-free(slice<T>&& slice_)
+free(slice<T>&& slice_);
 ```
 
-Frees an allocated slice of type T given that it's allocated using this allocator. also resets the slice to an invalid state which points to nullptr.
+Frees an allocated slice of type `T` given that it's allocated using this allocator. It also resets the slice to an invalid state which points to `nullptr`.
 
 #### realloc
 ```C++
@@ -39,10 +39,10 @@ realloc(slice<T>&& slice_, usize count);
 Reallocates the provided slice to fit the count.
 * if count is less than the count of the provided slice then it will be shrunk.
 * if count is more than the count of the provided slice then it will be enlarged.
-* if the provided slice is an empty slice then realloc should behave exactly like alloc
+* if the provided slice is an empty slice then realloc should behave exactly like `alloc`.
 
 ### linear_allocator
-Provides a linear -stack like- allocation algorithm. the provided memory to allocate from should be freed explicitly.
+Provides a linear -stack like- allocation algorithm. The provided memory to allocate from should be freed explicitly.
 
 #### Constructor
 ```C++
@@ -51,8 +51,8 @@ template<typename T>
 linear_allocator(slice<T> memory);
 ```
 
-1. Creates an empty linear allocator
-2. Creates a linear allocator with the provided memory to allocate from
+1. Creates an empty linear allocator.
+2. Creates a linear allocator with the provided memory to allocate from.
 
 #### alloc
 ```C++
@@ -61,7 +61,7 @@ slice<T>
 alloc(usize count = 1, ubyte alignment = 4);
 ```
 
-If there's a space available then it moves the allocation head and returns a slice pointing to the allocated memory. if there's no space then it will return an empty slice.
+If there's a space available then it moves the allocation head and returns a slice pointing to the allocated memory. If there's no space then it will return an empty slice.
 
 #### free
 
@@ -75,7 +75,7 @@ void
 free(slice<T>&& slice_);
 ```
 
-If this is the latest allocation then it will decrement the allocation header. if not then it will only decrease the allocation count and if the allocation count is 0 it will reset the allocation head back to the beginning.
+If this is the latest allocation then it will decrement the allocation header. If not then it will only decrease the allocation count and if the allocation count is 0 it will reset the allocation head back to the beginning.
 
 #### realloc
 
@@ -85,7 +85,7 @@ void
 realloc(slice<T>&& slice_, usize count);
 ```
 
-Reallocates the provided slice. if the slice is the latest slice allocated then it will only move the allocation head accordingly. if it's not then it will try to allocate a new slice and copy the data to the new slice.
+Reallocates the provided slice. If the slice is the latest slice allocated then it will only move the allocation head accordingly. If it's not then it will try to allocate a new slice and copy the data to the new slice.
 
 ### Example
 

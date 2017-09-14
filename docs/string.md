@@ -1,6 +1,6 @@
-# string
+# String
 
-`cpprelude::string` is simply a `string_slice<Char_Type>` which in turn is just a slice of memory `slice<Char_Type>` that stores the string data. Once the string is initialized it no longer can be resized but the data inside it can be altered in any way or form. but resizing isn't enabled.
+`cpprelude::string` is simply a `string_slice<Char_Type>` which in turn is just a slice of memory `slice<Char_Type>` that stores the string data. Once the string is initialized, it no longer can be resized. But the data inside it can be altered in any way or form and resizing isn't enabled.
 `cpprelude::string` needs manual memory management if it's dynamically allocated then you need to explicitly dispose it.
 
 ### Meta Interface
@@ -36,9 +36,9 @@ string_slice(T* data, usize str_count);
 ```
 
 1. Creates an empty string.
-2. Creates a string with the provided data however it doesn't copy the slice it takes it as is a.k.a. it will own the slice.
+2. Creates a string with the provided data however it doesn't copy the slice it takes it as is, a.k.a. it will own the slice.
 3. Creates a string with the provided data.
-4. Creates a string with the provided pointer and count. memory management depends on the nature of the pointer. if it's dynamically allocated then it needs to be disposed.
+4. Creates a string with the provided pointer and count. Memory management depends on the nature of the pointer. If it's dynamically allocated then it needs to be disposed.
 
 #### view
 
@@ -46,7 +46,7 @@ string_slice(T* data, usize str_count);
 string_slice view(usize offset, usize char_count = 0);
 ```
 
-Creates a view a.k.a. sub-string of this string starting at `offset` and with the length of `char_count` if `char_count = 0` then the sub-string will extend to the end of the original string.
+Creates a view a.k.a. sub-string of this string starting at `offset` and with the length of `char_count`. If `char_count = 0` then the sub-string will extend to the end of the original string.
 
 #### count
 
@@ -69,7 +69,7 @@ Returns the number of the chars this string can hold.
 ```C++
 void reset();
 ```
-rests the data this string holds. if this is the last instance of the string then there will be a memory leak. you have to dispose the string exactly once.
+Rests the data this string holds. If this is the last instance of the string then there will be a memory leak. You have to dispose the string exactly once.
 
 #### empty
 
@@ -159,7 +159,9 @@ static string_slice
 from_cstring(const T* str, usize count, AllocatorT&& allocator = AllocatorT());
 ```
 
-Creates a string from the provided c-string. note: a string created using these functions needs to be disposed
+Creates a string from the provided c-string. 
+
+Note: a string created using these functions needs to be disposed.
 
 #### literal
 
@@ -168,7 +170,7 @@ static string_slice<const T>
 literal(const T* str, usize str_count);
 ```
 
-Creates a literal string from the provided literal value. a literal string cannot be altered and needs no disposing since it doesn't dynamically allocate memory.
+Creates a literal string from the provided literal value. A literal string cannot be altered and needs no disposing since it doesn't dynamically allocate memory.
 
 #### copy
 
@@ -178,7 +180,7 @@ static string_slice
 copy(const string_slice& str, AllocatorT&& allocator = AllocatorT());
 ```
 
-Creates a copy of the provided string. since the default behaviour of copying a string `string_slice<char> x = y;` will only copy the head that's pointing to the same data.
+Creates a copy of the provided string since the default behavior of copying a string `string_slice<char> x = y;` will only copy the head that's pointing to the same data.
 
 #### dispose
 
@@ -192,7 +194,7 @@ static void
 dispose(string_slice&& str, AllocatorT&& allocator = AllocatorT());
 ```
 
-Disposes the provided string, and frees its memory.
+Disposes the provided string and frees its memory.
 
 ### type definitions
 
@@ -208,7 +210,7 @@ using uliteral = literal_slice<wchar_t>;
 
 ### local_string
 
-Provides a convenient way to create a string with a static size that's allocated on the stack. this string doesn't need to be disposed by the end of its usage. it's not advised to move this string around too much since it's not that efficient.
+Provides a convenient way to create a string with a static size that's allocated on the stack. This string doesn't need to be disposed by the end of its usage. It's not advised to move this string around too much since it's not that efficient.
 
 ```C++
 template<typename T, usize slice_size>
