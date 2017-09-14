@@ -102,6 +102,16 @@ struct stack_array;
 
    Checks if the stack is empty or not.
 
+   #### decay
+
+   ```c++
+   slice<T> decay();
+   slice<T> decay_continuous();
+   ```
+
+   1. Decays the current container to just a slice of memory containing the elements and resets this container.
+   2. Just like decay but there's a guarantee that the returned slice will have a contagious memory containing all the elements.
+
 
 
 ## Code Example
