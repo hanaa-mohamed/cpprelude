@@ -74,7 +74,7 @@ iterator lookup(const key_type& key);
 const_iterator lookup(const key_type& key) const;
 ```
 
-Searches for a key and returns an iterator to it if the key doesn't exist then it will return an iterator to the end of the container
+Searches for a key and returns an iterator to it if the key doesn't exist then it will return an iterator to the end of the container.
 
 #### operator[]
 
@@ -83,7 +83,7 @@ value_type& operator[](const key_type& key);
 value_type& operator[](key_type&& key);
 ```
 
-Searches for the key and returns the value of this key if the key doesn't exist then it will create one and return it
+Searches for the key and returns the value of this key if the key doesn't exist then it will create one and return it.
 
 #### remove
 
@@ -92,8 +92,8 @@ bool remove(const key_type& key);
 bool remove(const iterator& it);
 ```
 
-1. removes the element of the specified key and returns true if the element doesn't exist then it will return false
-2. removes the element of the specified iterator and returns true if the element doesn't exist then it will return false
+1. removes the element of the specified key and returns true if the element doesn't exist then it will return false.
+2. removes the element of the specified iterator and returns true if the element doesn't exist then it will return false.
 
 #### empty
 
@@ -101,7 +101,7 @@ bool remove(const iterator& it);
 bool empty() const;
 ```
 
-Returns whether the container is empty or not
+Returns whether the container is empty or not.
 
 #### count
 
@@ -109,7 +109,7 @@ Returns whether the container is empty or not
 usize count() const;
 ```
 
-Returns the count of the elements inside the container
+Returns the count of the elements inside the container.
 
 #### capacity
 
@@ -117,7 +117,7 @@ Returns the count of the elements inside the container
 usize capacity() const;
 ```
 
-Returns the capacity the hash_array can hold
+Returns the capacity the hash_array can hold.
 
 #### reserve
 
@@ -125,7 +125,7 @@ Returns the capacity the hash_array can hold
 void reserve(usize new_count);
 ```
 
-Reserves a memory that can hold the specified count of elements
+Reserves a memory that can hold the specified count of elements.
 
 #### clear
 
@@ -133,7 +133,7 @@ Reserves a memory that can hold the specified count of elements
 void clear();
 ```
 
-Clears the elements inside the hash array
+Clears the elements inside the hash array.
 
 #### begin
 
@@ -161,7 +161,7 @@ Returns an iterator pointing at one-element past the last element of the hash ar
 key_view keys() const;
 ```
 
-Returns a key view of the keys inside the hash array. which can be used as a container and loop through all the keys.
+Returns a key view of the keys inside the hash array which can be used as a container and loop through all the keys.
 
 #### values
 
@@ -171,7 +171,7 @@ const_value_view values() const;
 const_value_view cvalues() const;
 ```
 
-Returns a value view of the values inside the hash array. which can be used as a container and loop through all the values.
+Returns a value view of the values inside the hash array which can be used as a container and loop through all the values.
 
 ### Hash Set
 
