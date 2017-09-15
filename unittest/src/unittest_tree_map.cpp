@@ -3,6 +3,7 @@
 #include <cpprelude/tree_map.h>
 #include <cpprelude/algorithm.h>
 #include <cpprelude/dynamic_array.h>
+#include <iostream>
 
 using namespace cpprelude;
 
@@ -616,5 +617,52 @@ TEST_CASE("tree_map test", "[tree_map]")
 		CHECK(array.count() == --count);
 	}
 
+	SECTION("Case 22")
+	{
+		// Creating an empty set		
+		tree_set<usize> set_1;
+		// Inserting keys/elements
+		set_1.insert(3);
+		set_1.insert(5);
+		//Copying the content of set_1 to set_2
+		tree_set<usize> set_2(set_1);
+		//Lambda function that inserts elements in an array + taking a data and adding it to the elements.
+		dynamic_array<usize> arr;
+		auto insert = [&arr](tree_set<usize>::iterator it, usize* data) {
+			arr.insert_back(*it + *(data));
+		};
+		//Traversing the set in an inorder way and adding the exisisting elements to 1
+		usize* x = global_allocator().template alloc<usize>();
+		new (x) usize(1);
+		
+		set_2.inorder_traverse(insert, x);
+		CHECK(*set_2.min() == 3);
+		CHECK(*set_2.max() == 5);
+	}
 
+	SECTION("Case 23")
+	{
+		// Creating an empty set.
+		tree_map<usize, std::string> tree;
+
+		//Lambda function that appends the given data to the value then it prints the the key and the value.
+		auto insert = [](tree_map<usize, std::string>::iterator it, std::string* data) {
+			it->append(*data);
+			std::cout << it.key() << " " << it.value() << std::endl;
+		};
+		//inserting some pairs
+		tree.insert(3, "33");
+		tree.insert(2, "22");
+		//this one has no value
+		tree.insert(1);
+		
+		//using [] to change value at key 1
+		tree[1] = "44";
+		//searching for that key and printing its value
+		auto h = tree.lookup(1);
+		std::cout << h.value() << std::endl;    
+		//Applying insert-lambda function by calling inorder_traverse
+		std::string aa = "AA";
+		tree.inorder_traverse(insert, &aa);
+	}
 }
