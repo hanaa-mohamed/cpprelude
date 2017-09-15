@@ -137,6 +137,54 @@ namespace cpprelude
 			return !operator==(other);
 		}
 
+		bool
+		operator<(const string_slice<T>& other) const
+		{
+			if(_count < other._count)
+				return true;
+
+			auto it = _data.ptr;
+			auto other_it = other._data.ptr;
+			auto count = _count;
+			while(count--)
+			{
+				if(*it++ < *other_it++)
+					return true;
+			}
+
+			return false;
+		}
+
+		bool
+		operator>(const string_slice<T>& other) const
+		{
+			if(_count > other._count)
+				return true;
+
+			auto it = _data.ptr;
+			auto other_it = other._data.ptr;
+			auto count = _count;
+			while(count--)
+			{
+				if(*it++ > *other_it++)
+					return true;
+			}
+
+			return false;
+		}
+
+		bool
+		operator<=(const string_slice<T>& other) const
+		{
+			return operator<(other) || operator==(other);
+		}
+
+		bool
+		operator>=(const string_slice<T>& other) const
+		{
+			return operator>(other) || operator==(other);
+		}
+
 		iterator
 		front()
 		{
@@ -206,6 +254,7 @@ namespace cpprelude
 		slice<T>
 		decay_continuous()
 		{
+			_count = 0;
 			return tmp::move(_data);
 		}
 

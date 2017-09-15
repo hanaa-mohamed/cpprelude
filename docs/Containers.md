@@ -8,6 +8,7 @@
 | [dynamic_array](dynamic_array.md)   | provide a contagious dynamic size array implementation. |
 | [slinked_list](slinked_list.md)     | an implementation of a singly linked list. |
 | [dlinked_list](dlinked_list.md)     | an implementation of doubly linked list. |
+| [string](string.md)     | a string type. |
 | [bucket_array](bucket_array.md)     | an implementation of a bucket array that allocates memory in buckets -not in nodes- and has the same interface as dlinked_list. |
 | [quick_find](quick_find.md)         | an API that applies quick find algorithm to resolves dynamic connectivity problem. |
 | [quick_union](quick_union.md)       | an API that applies quick union algorithm to resolves dynamic connectivity problem. |
