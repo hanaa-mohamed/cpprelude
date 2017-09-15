@@ -1,31 +1,30 @@
 // #include <iostream>
-// #include <cpprelude/dynamic_array.h>
-// #include <cpprelude/allocator.h>
-// #include <cpprelude/tree_map.h>
-// #include <cpprelude/tmp.h>
+// #include <cpprelude/hash_array.h>
 // #include <cpprelude/string.h>
 // using namespace cpprelude;
 //
 // int
 // main(int argc, char** argv)
 // {
-// 	auto memory = virtual_alloc<ubyte>(MEGABYTES(1));
-// 	auto allocator = linear_allocator(memory);
+// 	hash_array<literal, usize> array;
 //
-// 	{
-// 		tree_map<string, usize, tmp::default_less_than<details::pair_node<string, usize>>, linear_allocator> dic(allocator);
+// 	array["a"_l] = 0;
+// 	array["b"_l] = 1;
+// 	array["c"_l] = 2;
 //
-// 		dic.insert("mostafa"_s, 234);
-// 		dic.insert("mosta"_s, 234);
-// 		dic.insert(""_s, 234);
+// 	for(const auto& key: array.keys())
+// 		std::cout << key << std::endl;
 //
-// 		for(auto it = dic.cbegin(); it != dic.cend(); ++it)
-// 		{
-// 			std::cout << it.key() << std::endl;
-// 			std::cout << it.value() << std::endl;
-// 		}
-// 	}
+// 	for(const auto& value: array.values())
+// 		std::cout << value << std::endl;
 //
-// 	virtual_free(memory);
+// 	if(array.lookup("d"_l) == array.end())
+// 		std::cout << "d doesn't exist" << std::endl;
+//
+// 	if(array.lookup("b"_l) != array.end())
+// 		std::cout << "b does exist" << std::endl;
+//
+// 	for(auto it = array.cbegin(); it != array.cend(); ++it)
+// 		std::cout << "key: " << it.key() << ", value: " << it.value() << std::endl;
 // 	return 0;
 // }

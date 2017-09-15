@@ -18,4 +18,5 @@
 | [stack_list](stack_list.md)         | is a container that its last inserted element is its first output in the container a.k.a. LIFO principle. This stack is implemented using single-linked list. |
 | [tree_set](tree_set.md)             | is an ordered set container that contains unique elements. These elements are `const` can't be modified but they can be removed. |
 | [tree_map](tree_map.md)             | is an associative container that stores elements formed of unique key and a mapped value. |
+| [hash_array](hash_array.md)   | provide an associative hash array implementation that stores a pair of a key and value. |
 |                                     |                                          |
