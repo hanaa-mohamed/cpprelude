@@ -1,63 +1,61 @@
 // #include <iostream>
-// #include <cpprelude/hash_array.h>
-// #include <cpprelude/string.h>
+// #include <thread>
+// #include <cpprelude/queue_array.h>
+// #include <cpprelude/threading.h>
 // using namespace cpprelude;
 //
-// struct v2
+// void producer(thread_unique<queue_array<i32>>* production_queue, i32 limit)
 // {
-//     i32 x, y;
+// 	thread_context context = production_queue->new_context();
+// 	while(limit--)
+// 	{
+// 		if(production_queue->write(context))
+// 		{
+// 			production_queue->value.enqueue(limit);
+// 			production_queue->write_release(context);
+// 		}
+// 	}
+// }
 //
-//     bool
-//     operator==(const v2& other) const
-//     {
-//         return x == other.x && y == other.y;
-//     }
-// };
-//
-// struct v2_hasher
+// void consumer(thread_unique<queue_array<i32>>* production_queue, i32 limit)
 // {
-//     inline usize
-//     operator()(const v2& point) const
-//     {
-//         hash<i32> hasher;
-//         return hasher(point.x) ^ (hasher(point.y) << 1);
-//     }
-// };
+// 	thread_context context = production_queue->new_context();
+// 	while(limit)
+// 	{
+// 		if(production_queue->write(context))
+// 		{
+// 			if(!production_queue->value.empty())
+// 			{
+// 				std::cout << "consumed: " << production_queue->value.front() << std::endl;
+// 				production_queue->value.dequeue();
+// 				limit--;
+// 			}
+// 			else
+// 			{
+// 				std::cout << "nothing!" << std::endl;
+// 			}
+//
+// 			production_queue->write_release(context);
+// 		}
+// 	}
+// }
 //
 // int
 // main(int argc, char** argv)
 // {
-//     hash_array<v2, usize, v2_hasher> another_array;
+// 	thread_unique<queue_array<i32>> production_queue;
 //
-//     v2 point;
-//     point.x = 4;
-//     point.y = 2;
-//     another_array[point] = 50;
-// 	hash_array<literal, usize> array;
+// 	std::thread p1(producer, &production_queue, 1000);
+// 	std::thread p2(producer, &production_queue, 1000);
 //
-// 	array["a"_l] = 0;
-// 	array["b"_l] = 1;
-// 	array["c"_l] = 2;
+// 	std::thread c1(consumer, &production_queue, 500);
+// 	std::thread c2(consumer, &production_queue, 1500);
 //
-// 	for(const auto& key: array.keys())
-// 		std::cout << key << std::endl;
+// 	p1.join();
+// 	p2.join();
+// 	c1.join();
+// 	c2.join();
 //
-// 	for(const auto& value: array.values())
-// 		std::cout << value << std::endl;
-//
-// 	if(array.lookup("d"_l) == array.end())
-// 		std::cout << "d doesn't exist" << std::endl;
-//
-// 	if(array.lookup("b"_l) != array.end())
-// 		std::cout << "b does exist" << std::endl;
-//
-// 	for(auto it = array.cbegin(); it != array.cend(); ++it)
-// 		std::cout << "key: " << it.key() << ", value: " << it.value() << std::endl;
-//
-// 	for(const auto& key: array)
-// 		std::cout << key << std::endl;
-//
-// 	for(auto it = array.cbegin(); it != array.cend(); ++it)
-// 		std::cout << "key: " << *it << std::endl;
+// 	std::cout << (production_queue.value.empty() ? "queue is empty" : "oops! not empty queue") << std::endl;
 // 	return 0;
 // }
