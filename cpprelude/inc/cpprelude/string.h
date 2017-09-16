@@ -140,37 +140,56 @@ namespace cpprelude
 		bool
 		operator<(const string_slice<T>& other) const
 		{
-			if(_count < other._count)
-				return true;
+
+			auto count = _count;
+			auto other_count = other._count;
 
 			auto it = _data.ptr;
 			auto other_it = other._data.ptr;
-			auto count = _count;
-			while(count--)
-			{
-				if(*it++ < *other_it++)
-					return true;
-			}
 
-			return false;
+			while(true)
+			{
+				if(*it < *other_it)
+					return true;
+
+				if(*it == 0 || *other_it == 0)
+					return *it < *other_it;
+
+				if(count == 0 || other_count == 0)
+					return count < other_count;
+
+				++it;
+				++other_it;
+				--count;
+				--other_count;
+			}
 		}
 
 		bool
 		operator>(const string_slice<T>& other) const
 		{
-			if(_count > other._count)
-				return true;
+			auto count = _count;
+			auto other_count = other._count;
 
 			auto it = _data.ptr;
 			auto other_it = other._data.ptr;
-			auto count = _count;
-			while(count--)
-			{
-				if(*it++ > *other_it++)
-					return true;
-			}
 
-			return false;
+			while(true)
+			{
+				if(*it > *other_it)
+					return true;
+
+				if(*it == 0 || *other_it == 0)
+					return *it > *other_it;
+
+				if(count == 0 || other_count == 0)
+					return count > other_count;
+
+				++it;
+				++other_it;
+				--count;
+				--other_count;
+			}
 		}
 
 		bool
