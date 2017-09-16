@@ -74,7 +74,11 @@ iterator lookup(const key_type& key);
 const_iterator lookup(const key_type& key) const;
 ```
 
+<<<<<<< HEAD
 Searches for a `key` and returns an iterator to it if the `key` doesn't exist then it will return an iterator to the end of the container.
+=======
+Searches for a key and returns an iterator to it if the key doesn't exist then it will return an iterator to the end of the container.
+>>>>>>> master
 
 #### operator[]
 
@@ -83,7 +87,11 @@ value_type& operator[](const key_type& key);
 value_type& operator[](key_type&& key);
 ```
 
+<<<<<<< HEAD
 Searches for the `key` and returns the value of this key if the `key` doesn't exist then it will create one and return it.
+=======
+Searches for the key and returns the value of this key if the key doesn't exist then it will create one and return it.
+>>>>>>> master
 
 #### remove
 
@@ -92,7 +100,11 @@ bool remove(const key_type& key);
 bool remove(const iterator& it);
 ```
 
+<<<<<<< HEAD
 1. removes the element of the specified `key` and returns true if the element doesn't exist then it will return false.
+=======
+1. removes the element of the specified key and returns true if the element doesn't exist then it will return false.
+>>>>>>> master
 2. removes the element of the specified iterator and returns true if the element doesn't exist then it will return false.
 
 #### empty
@@ -161,7 +173,7 @@ Returns an iterator pointing at one-element past the last element of the hash ar
 key_view keys() const;
 ```
 
-Returns a key view of the keys inside the hash array. which can be used as a container and loop through all the keys.
+Returns a key view of the keys inside the hash array which can be used as a container and loop through all the keys.
 
 #### values
 
@@ -171,7 +183,7 @@ const_value_view values() const;
 const_value_view cvalues() const;
 ```
 
-Returns a value view of the values inside the hash array. which can be used as a container and loop through all the values.
+Returns a value view of the values inside the hash array which can be used as a container and loop through all the values.
 
 ### Hash Set
 
@@ -249,3 +261,4 @@ main(int argc, char** argv)
 	return 0;
 }
 ```
+

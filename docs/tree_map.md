@@ -51,8 +51,9 @@ This container is build on `red_black_map` data structure which inherits from `r
    #### Constructor
 
    ```c++
-   red_black_map(const ComparatorType& compare_function = ComparatorType(), 
+   red_black_map(const ComparatorType& compare_function, 
                   const AllocatorT& allocator = AllocatorT());
+   red_black_map(const AllocatorT& allocator = AllocatorT());
    red_black_map(std::initializer_list<T> list,
                   const ComparatorType& compare_function = ComparatorType(),
                   const AllocatorT& allocator = AllocatorT());
@@ -74,15 +75,16 @@ This container is build on `red_black_map` data structure which inherits from `r
    ```
 
    1. A constructor that builds the `red_black_map` a.k.a `tree_map` with the provided function comparison and allocator.
-   2. A constructor that initializes `red_black_map` with the provided `initializer_list` using the provided `compare_function`  to compare between elements and `allocator` to allocate nodes.
-   3. A copy constructor.
-   4. A copy constructor that accepts another comparator function.
-   5. A copy constructor that accepts another allocator.
-   6. A copy constructor that accepts another comparator function and another allocator.
-   7. A move constructor.
-   8. A move constructor that accepts another comparator function.
-   9. A move constructor that accepts another allocator.
-   10. A move constructor that accepts another comparator function and another allocator.
+   2. A constructor that builds the `red_black_map` a.k.a `tree_map` with the provided allocator.
+   3. A constructor that initializes `red_black_map` with the provided `initializer_list` using the provided `compare_function`  to compare between elements and `allocator` to allocate nodes.
+   4. A copy constructor.
+   5. A copy constructor that accepts another comparator function.
+   6. A copy constructor that accepts another allocator.
+   7. A copy constructor that accepts another comparator function and another allocator.
+   8. A move constructor.
+   9. A move constructor that accepts another comparator function.
+   10. A move constructor that accepts another allocator.
+   11. A move constructor that accepts another comparator function and another allocator.
 
    #### operator[]
 
@@ -91,7 +93,7 @@ This container is build on `red_black_map` data structure which inherits from `r
    const value_type& operator[](const key_type& key) const;
    ```
 
-   Returns the value mapped with the given `key`.
+   Searches for the `key` and returns the value of this key if the `key` doesn't exist then it will create one and return it.
 
    #### insert
 
@@ -104,12 +106,12 @@ This container is build on `red_black_map` data structure which inherits from `r
    iterator insert(key_type&& key, value_type&& value);
    ```
 
-   1. adds another `pair_node` to the map with a given key and no value mapped to it. It guaranties no modification will happen to the passed `key`.
-   2. adds another `pair_node `to the map with moving the `key` and no value mapped to it.
-   3. adds another `pair_node` to the map with a given key and a given value mapped to it. It guaranties no modification will happen to the passed `key` or `value`.
-   4. adds another `pair_node` to the map with a moving key and a given value mapped to it. It guaranties no modification will happen to the passed  `value`.
-   5. adds another `pair_node` to the map with a given key and a moving value mapped to it. It guaranties no modification will happen to the passed  `key`.
-   6. adds another `pair_node` to the map with a moving key and a moving value mapped to it. 
+   1. adds another `pair_node` to the tree with a given key and default value mapped to it. It guaranties no modification will happen to the passed `key`.
+   2. adds another `pair_node `to the tree with moving the `key` and default value mapped to it.
+   3. adds another `pair_node` to the tree with a given key and a given value mapped to it. It guaranties no modification will happen to the passed `key` or `value`.
+   4. adds another `pair_node` to the tree with a moving key and a given value mapped to it. It guaranties no modification will happen to the passed  `value`.
+   5. adds another `pair_node` to the tree with a given key and a moving value mapped to it. It guaranties no modification will happen to the passed  `key`.
+   6. adds another `pair_node` to the tree with a moving key and a moving value mapped to it. 
 
    #### remove
 
@@ -118,7 +120,7 @@ This container is build on `red_black_map` data structure which inherits from `r
    void remove(key_type&& key);
    ```
 
-    Removes node that has the `key`from the map. 
+    Removes node of the specified `key`from the tree. 
 
    ​
 
@@ -131,7 +133,7 @@ This container is build on `red_black_map` data structure which inherits from `r
    const_iterator lookup(key_type&& key) const;
    ```
 
-   Looks up for the node that has `key`and returns `iterator` or `const_iterator` that points to it. 
+   Searches for the node that has `key`and returns `iterator` or `const_iterator` that points to it. 
 
    #### begin
 

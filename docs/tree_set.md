@@ -44,8 +44,9 @@ This container is build on red black tree data structure.
    #### Constructor
 
    ```c++
-   red_black_tree(const ComparatorType& compare_function = ComparatorType(), 
+   red_black_tree(const ComparatorType& compare_function, 
                   const AllocatorT& allocator = AllocatorT());
+   red_black_tree(const AllocatorT& allocator = AllocatorT());
    red_black_tree(std::initializer_list<T> list,
                   const ComparatorType& compare_function = ComparatorType(),
                   const AllocatorT& allocator = AllocatorT());
@@ -67,15 +68,16 @@ This container is build on red black tree data structure.
    ```
 
    1. A constructor that builds the `red_black_tree` a.k.a `tree_set` with the provided function comparison and allocator.
-   2. A constructor that initializes `red_black_tree` with the provided `initializer_list` using the provided `compare_function`  to compare between elements and `allocator` to allocate nodes.
-   3. A copy constructor.
-   4. A copy constructor that accepts another comparator function.
-   5. A copy constructor that accepts another allocator.
-   6. A copy constructor that accepts another comparator function and another allocator.
-   7. A move constructor.
-   8. A move constructor that accepts another comparator function.
-   9. A move constructor that accepts another allocator.
-   10. A move constructor that accepts another comparator function and another allocator.
+   2. A constructor that builds the `red_black_tree` a.k.a `tree_set` with the provided allocator.
+   3. A constructor that initializes `red_black_tree` with the provided `initializer_list` using the provided `compare_function`  to compare between elements and `allocator` to allocate nodes.
+   4. A copy constructor.
+   5. A copy constructor that accepts another comparator function.
+   6. A copy constructor that accepts another allocator.
+   7. A copy constructor that accepts another comparator function and another allocator.
+   8. A move constructor.
+   9. A move constructor that accepts another comparator function.
+   10. A move constructor that accepts another allocator.
+   11. A move constructor that accepts another comparator function and another allocator.
 
    #### insert
 
