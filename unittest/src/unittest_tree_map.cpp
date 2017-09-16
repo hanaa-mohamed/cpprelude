@@ -632,10 +632,8 @@ TEST_CASE("tree_map test", "[tree_map]")
 			arr.insert_back(*it + *(data));
 		};
 		//Traversing the set in an inorder way and adding the exisisting elements to 1
-		usize* x = global_allocator().template alloc<usize>();
-		new (x) usize(1);
-		
-		set_2.inorder_traverse(insert, x);
+		usize x = 1;
+		set_2.inorder_traverse(insert, &x);
 		CHECK(*set_2.min() == 3);
 		CHECK(*set_2.max() == 5);
 	}
@@ -644,18 +642,15 @@ TEST_CASE("tree_map test", "[tree_map]")
 	{
 		// Creating an empty set.
 		tree_map<usize, std::string> tree;
-
-		//Lambda function that appends the given data to the value then it prints the the key and the value.
-		auto insert = [](tree_map<usize, std::string>::iterator it, std::string* data) {
-			it->append(*data);
-			std::cout << it.key() << " " << it.value() << std::endl;
+		auto append = [](tree_map<usize, std::string>::iterator it, std::string* data) {
+			it.value() += *data;
+			std::cout << it.key() << " " << it.value() <<std::endl;
 		};
 		//inserting some pairs
 		tree.insert(3, "33");
 		tree.insert(2, "22");
 		//this one has no value
 		tree.insert(1);
-		
 		//using [] to change value at key 1
 		tree[1] = "44";
 		//searching for that key and printing its value
@@ -663,6 +658,6 @@ TEST_CASE("tree_map test", "[tree_map]")
 		std::cout << h.value() << std::endl;    
 		//Applying insert-lambda function by calling inorder_traverse
 		std::string aa = "AA";
-		tree.inorder_traverse(insert, &aa);
+		tree.inorder_traverse(append, &aa);
 	}
 }
