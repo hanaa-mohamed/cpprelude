@@ -166,6 +166,25 @@ Makes a raw pointer and a count of elements of type `T` into a slice:
 1. **ptr**: pointer pointing to the start of the memory.
 2. **count**: number of elements of type `T` in this memory. Default value is 1.
 
+### copy_slice
+
+```c++
+template<typename T>
+void copy_slice(slice<T>& dst, const slice<T>& src, usize count = 0);
+```
+
+Copies the specified count of elements from the `src` slice into the `dst` slice. If `count == 0` then it will copy all the elements inside source slice.
+
+
+### move_slice
+
+```c++
+template<typename T>
+void move_slice(slice<T>& dst, slice<T>& src, usize count = 0);
+```
+
+Moves the specified count of elements from the `src` slice into the `dst` slice. If `count == 0` then it will copy all the elements inside source slice.
+
 ## Memory API
 
 ### virtual_alloc
@@ -211,6 +230,47 @@ Allocates a memory slice that can fit a count of elements of type `T`:
    If `count == 0` no memory will be allocated.
 
 2. **alignment**: for now the alignment is not working so this value is ignored.
+
+### make
+
+```c++
+template<typename T, typename ... TArgs>
+void make(slice<T>& slice_, TArgs&& ... args);
+template<typename T, typename ... TArgs>
+void make(slice<T>&& slice_, TArgs&& ... args);
+```
+Call the constructor of type `T` with the specified args thus making a value of type `T` into the provided slice. Note that you have to allocate slices memory first.
+
+### make_all
+
+```c++
+template<typename T, typename ... TArgs>
+void make_all(slice<T>& slice_, TArgs&& ... args);
+template<typename T, typename ... TArgs>
+void make_all(slice<T>&& slice_, TArgs&& ... args);
+```
+
+Call the constructor of type `T` with the specified args for every element inside the slice thus making values of type `T` across the provided slice. Note that you have to allocate slices memory first.
+
+### dispose
+```c++
+template<typename T>
+void dispose(slice<T>& slice_);
+template<typename T>
+void dispose(slice<T>&& slice_);
+```
+
+Calls the destructor of the type `T` on the first element in the provided slice. Note that you are still have to free the slice afterward.
+
+### dispose_all
+```c++
+template<typename T>
+void dispose_all(slice<T>& slice_);
+template<typename T>
+void dispose_all(slice<T>&& slice_);
+```
+
+Calls the destructor of the type `T` on all elements inside the provided slice. Note that you are still have to free the slice afterward.
 
 ### free
 

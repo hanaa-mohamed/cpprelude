@@ -5,6 +5,8 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <new>
+#include <cstring>
 
 #ifdef OS_WINDOWS
 #include <Windows.h>
@@ -133,6 +135,26 @@ namespace cpprelude
 	}
 
 	template<typename T>
+	void
+	copy_slice(slice<T>& dst, const slice<T>& src, usize count = 0)
+	{
+		if(count == 0)
+			count = src.count();
+		
+		std::memcpy(dst.ptr, src.ptr, count * sizeof(T));
+	}
+
+	template<typename T>
+	void
+	move_slice(slice<T>& dst, slice<T>& src, usize count = 0)
+	{
+		if(count == 0)
+			count = src.count();
+		
+		std::memmove(dst.ptr, src.ptr, count * sizeof(T));
+	}
+
+	template<typename T>
 	slice<T>
 	virtual_alloc(usize count = 1)
 	{
@@ -182,6 +204,66 @@ namespace cpprelude
 			return slice<T>();
 		T* ptr = reinterpret_cast<T*>(std::malloc(count * sizeof(T)));
 		return slice<T>(ptr, ptr ? count * sizeof(T) : 0);
+	}
+
+	template<typename T, typename ... TArgs>
+	void
+	make(slice<T>& slice_, TArgs&& ... args)
+	{
+		new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+	}
+
+	template<typename T, typename ... TArgs>
+	void
+	make(slice<T>&& slice_, TArgs&& ... args)
+	{
+		new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+	}
+
+	template<typename T, typename ... TArgs>
+	void
+	make_all(slice<T>& slice_, TArgs&& ... args)
+	{
+		for(usize i = 0; i < slice_.count(); ++i)
+			new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+	}
+
+	template<typename T, typename ... TArgs>
+	void
+	make_all(slice<T>&& slice_, TArgs&& ... args)
+	{
+		for(usize i = 0; i < slice_.count(); ++i)
+			new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+	}
+
+	template<typename T>
+	void
+	dispose(slice<T>& slice_)
+	{
+		slice_.ptr->~T();
+	}
+
+	template<typename T>
+	void
+	dispose(slice<T>&& slice_)
+	{
+		slice_.ptr->~T();
+	}
+
+	template<typename T>
+	void
+	dispose_all(slice<T>& slice_)
+	{
+		for(usize i = 0; i < slice_.count(); ++i)
+			slice_[i].~T();
+	}
+
+	template<typename T>
+	void
+	dispose_all(slice<T>&& slice_)
+	{
+		for(usize i = 0; i < slice_.count(); ++i)
+			slice_[i].~T();
 	}
 
 	template<typename T>

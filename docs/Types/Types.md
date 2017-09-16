@@ -25,7 +25,7 @@
 
 ## Strings
 
-
+You can find [string](String.md) documentation [here](String.md)
 
 ## Misc
 
