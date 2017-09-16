@@ -199,4 +199,20 @@ TEST_CASE("string test", "[string]")
 		CHECK(read(str, f) == true);
 		CHECK(f == 1.123f);
 	}
+
+	SECTION("Case 11")
+	{
+		local_string<64> a = "abc";
+		local_string<64> b = "";
+
+		CHECK((a > b) == true);
+
+		local_string<128> c = "xb";
+		CHECK((c > a) == true);
+
+		CHECK((c < a) == false);
+
+		local_string<256> d = "ab";
+		CHECK((d < a) == true);
+	}
 }

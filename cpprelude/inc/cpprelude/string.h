@@ -10,6 +10,7 @@
 #include <ostream>
 #include <cstdlib>
 #include <limits>
+#include <cstring>
 
 //because of the idiots at microsoft
 #undef min
@@ -140,37 +141,27 @@ namespace cpprelude
 		bool
 		operator<(const string_slice<T>& other) const
 		{
-			if(_count < other._count)
+			if(_count == 0 && other._count == 0)
+				return false;
+			else if(_count == 0)
 				return true;
+			else if(other._count == 0)
+				return false;
 
-			auto it = _data.ptr;
-			auto other_it = other._data.ptr;
-			auto count = _count;
-			while(count--)
-			{
-				if(*it++ < *other_it++)
-					return true;
-			}
-
-			return false;
+			return std::strcmp(_data.ptr, other._data.ptr) < 0;
 		}
 
 		bool
 		operator>(const string_slice<T>& other) const
 		{
-			if(_count > other._count)
+			if(_count == 0 && other._count == 0)
+				return false;
+			else if(_count == 0)
+				return false;
+			else if(other._count == 0)
 				return true;
 
-			auto it = _data.ptr;
-			auto other_it = other._data.ptr;
-			auto count = _count;
-			while(count--)
-			{
-				if(*it++ > *other_it++)
-					return true;
-			}
-
-			return false;
+			return std::strcmp(_data.ptr, other._data.ptr) > 0;
 		}
 
 		bool

@@ -25,7 +25,7 @@ For Philosophy and coding standard please refer to this [link](https://moustapha
 | [Containers](Containers.md) | Contains variety of containers (dynamic_array, slinked_list, queue, tree_map, hash_array, ...) |
 | [Algorithms](Algorithms.md) | Contains variety of algorithms (shuffle, mergesort, quicksort, quickselect ...) |
 | [Allocators](Allocators.md) | Contains a wrapper to allocation algorithms |
-|          Threading          | Contains useful wrappers that help in thread safe operations |
+| [Threading](threading.md)   | Contains useful wrappers that help in thread safe operations |
 
 ## How to contribute
 
