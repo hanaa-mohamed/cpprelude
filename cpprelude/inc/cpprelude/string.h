@@ -10,6 +10,7 @@
 #include <ostream>
 #include <cstdlib>
 #include <limits>
+#include <cstring>
 
 //because of the idiots at microsoft
 #undef min
@@ -140,56 +141,27 @@ namespace cpprelude
 		bool
 		operator<(const string_slice<T>& other) const
 		{
+			if(_count == 0 && other._count == 0)
+				return false;
+			else if(_count == 0)
+				return true;
+			else if(other._count == 0)
+				return false;
 
-			auto count = _count;
-			auto other_count = other._count;
-
-			auto it = _data.ptr;
-			auto other_it = other._data.ptr;
-
-			while(true)
-			{
-				if(*it < *other_it)
-					return true;
-
-				if(*it == 0 || *other_it == 0)
-					return *it < *other_it;
-
-				if(count == 0 || other_count == 0)
-					return count < other_count;
-
-				++it;
-				++other_it;
-				--count;
-				--other_count;
-			}
+			return std::strcmp(_data.ptr, other._data.ptr) < 0;
 		}
 
 		bool
 		operator>(const string_slice<T>& other) const
 		{
-			auto count = _count;
-			auto other_count = other._count;
+			if(_count == 0 && other._count == 0)
+				return false;
+			else if(_count == 0)
+				return false;
+			else if(other._count == 0)
+				return true;
 
-			auto it = _data.ptr;
-			auto other_it = other._data.ptr;
-
-			while(true)
-			{
-				if(*it > *other_it)
-					return true;
-
-				if(*it == 0 || *other_it == 0)
-					return *it > *other_it;
-
-				if(count == 0 || other_count == 0)
-					return count > other_count;
-
-				++it;
-				++other_it;
-				--count;
-				--other_count;
-			}
+			return std::strcmp(_data.ptr, other._data.ptr) > 0;
 		}
 
 		bool

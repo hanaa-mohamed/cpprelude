@@ -210,6 +210,8 @@ TEST_CASE("string test", "[string]")
 		local_string<128> c = "xb";
 		CHECK((c > a) == true);
 
+		CHECK((c < a) == false);
+
 		local_string<256> d = "ab";
 		CHECK((d < a) == true);
 	}
