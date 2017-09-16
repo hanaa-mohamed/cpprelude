@@ -184,7 +184,7 @@ main(int argc, char** argv)
 		//Lambda function that appends the given data to the value 
   		//then it prints the the key and the value.
 		auto insert = [](tree_map<usize, std::string>::iterator it, std::string* data) {
-			it->append(*data);
+			it.value() += *data;
 			std::cout << it.key() << " " << it.value() << std::endl;
 		};
   
