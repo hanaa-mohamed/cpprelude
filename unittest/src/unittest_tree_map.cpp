@@ -632,10 +632,8 @@ TEST_CASE("tree_map test", "[tree_map]")
 			arr.insert_back(*it + *(data));
 		};
 		//Traversing the set in an inorder way and adding the exisisting elements to 1
-		usize* x = global_allocator().template alloc<usize>();
-		new (x) usize(1);
-		
-		set_2.inorder_traverse(insert, x);
+		usize x = 1;
+		set_2.inorder_traverse(insert, &x);
 		CHECK(*set_2.min() == 3);
 		CHECK(*set_2.max() == 5);
 	}
