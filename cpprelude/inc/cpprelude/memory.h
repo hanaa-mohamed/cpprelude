@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cpprelude/defines.h"
-#include "cpprelude/tmp.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -99,16 +98,16 @@ namespace cpprelude
 		}
 
 		slice<T>
-		cut(usize start = 0, usize count = 0) const
+		view(usize start = 0, usize count = 0)
 		{
 			if(count == 0)
-				count = (size - start) / sizeof(T);
+				count = (size - (start * sizeof(T))) / sizeof(T);
 
 			return slice<T>(ptr+start, count * sizeof(T));
 		}
 
 		slice<T>
-		cut_bytes(usize offset = 0, usize new_size = 0) const
+		view_bytes(usize offset = 0, usize new_size = 0)
 		{
 			if(new_size == 0)
 				new_size = size - offset;
@@ -118,7 +117,7 @@ namespace cpprelude
 
 		template<typename R>
 		slice<R>
-		cut_bytes(usize offset = 0, usize new_size = 0) const
+		view_bytes(usize offset = 0, usize new_size = 0)
 		{
 			if(new_size == 0)
 				new_size = size - offset;
@@ -174,7 +173,7 @@ namespace cpprelude
 	void
 	virtual_free(slice<T>& slice_)
 	{
-		virtual_free(tmp::move(slice_));
+		virtual_free(std::move(slice_));
 	}
 
 	template<typename T>
@@ -198,7 +197,7 @@ namespace cpprelude
 
 	template<typename T>
 	slice<T>
-	alloc(usize count = 1, ubyte alignment = 4)
+	alloc(usize count = 1)
 	{
 		if(count == 0)
 			return slice<T>();
@@ -207,51 +206,85 @@ namespace cpprelude
 	}
 
 	template<typename T, typename ... TArgs>
-	void
+	inline void
+	make(T* ptr, TArgs&& ... args)
+	{
+		new (ptr) T(std::forward<TArgs>(args)...);
+	}
+
+	template<typename T, typename ... TArgs>
+	inline void
 	make(slice<T>& slice_, TArgs&& ... args)
 	{
-		new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+		new (slice_.ptr) T(std::forward<TArgs>(args)...);
 	}
 
 	template<typename T, typename ... TArgs>
-	void
+	inline void
 	make(slice<T>&& slice_, TArgs&& ... args)
 	{
-		new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+		new (slice_.ptr) T(std::forward<TArgs>(args)...);
 	}
 
 	template<typename T, typename ... TArgs>
-	void
+	inline void
 	make_all(slice<T>& slice_, TArgs&& ... args)
 	{
 		for(usize i = 0; i < slice_.count(); ++i)
-			new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+			new (slice_.ptr + i) T(std::forward<TArgs>(args)...);
 	}
 
 	template<typename T, typename ... TArgs>
-	void
+	inline void
 	make_all(slice<T>&& slice_, TArgs&& ... args)
 	{
 		for(usize i = 0; i < slice_.count(); ++i)
-			new (slice_.ptr + i) T(tmp::forward<TArgs>(args)...);
+			new (slice_.ptr + i) T(std::forward<TArgs>(args)...);
+	}
+
+	template<typename T, typename ... TArgs>
+	inline slice<T>
+	alloc_make(TArgs&& ... args)
+	{
+		auto result = alloc<T>();
+		make(result, std::forward<TArgs>(args)...);
+		return result;
+	}
+
+	template<typename T, typename ... TArgs>
+	inline slice<T>
+	alloc_make(usize count, TArgs&& ... args)
+	{
+		auto result = alloc<T>(count);
+		make_all(result, std::forward<TArgs>(args)...);
+		return result;
 	}
 
 	template<typename T>
-	void
+	inline slice<T>
+	alloc_zero(usize count = 1)
+	{
+		auto result = alloc<T>(count);
+		std::memset(result.ptr, 0, result.size);
+		return result;
+	}
+
+	template<typename T>
+	inline void
 	dispose(slice<T>& slice_)
 	{
 		slice_.ptr->~T();
 	}
 
 	template<typename T>
-	void
+	inline void
 	dispose(slice<T>&& slice_)
 	{
 		slice_.ptr->~T();
 	}
 
 	template<typename T>
-	void
+	inline void
 	dispose_all(slice<T>& slice_)
 	{
 		for(usize i = 0; i < slice_.count(); ++i)
@@ -259,7 +292,7 @@ namespace cpprelude
 	}
 
 	template<typename T>
-	void
+	inline void
 	dispose_all(slice<T>&& slice_)
 	{
 		for(usize i = 0; i < slice_.count(); ++i)
@@ -270,7 +303,7 @@ namespace cpprelude
 	void
 	free(slice<T>& slice_)
 	{
-		free(tmp::move(slice_));
+		free(std::move(slice_));
 	}
 
 	template<typename T>
@@ -288,7 +321,7 @@ namespace cpprelude
 	void
 	realloc(slice<T>& slice_, usize count)
 	{
-		realloc(tmp::move(slice_), count);
+		realloc(std::move(slice_), count);
 	}
 
 	template<typename T>
@@ -297,7 +330,7 @@ namespace cpprelude
 	{
 		if(count == 0)
 		{
-			free(tmp::move(slice_));
+			free(std::move(slice_));
 			return;
 		}
 

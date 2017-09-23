@@ -3,7 +3,6 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/memory.h"
 #include "cpprelude/iterator.h"
-#include "cpprelude/tmp.h"
 #include "cpprelude/dlinked_list.h"
 #include "cpprelude/dynamic_array.h"
 
@@ -37,7 +36,7 @@ namespace cpprelude
 		}
 
 		string_slice(slice<T>&& data)
-			:_data(tmp::move(data))
+			:_data(std::move(data))
 		{
 			_calc_count();
 		}
@@ -52,7 +51,7 @@ namespace cpprelude
 			if(char_count == 0)
 				char_count = _count - offset;
 
-			return string_slice(_data.cut(offset, char_count));
+			return string_slice(_data.view(offset, char_count));
 		}
 
 		usize
@@ -246,7 +245,7 @@ namespace cpprelude
 		decay_continuous()
 		{
 			_count = 0;
-			return tmp::move(_data);
+			return std::move(_data);
 		}
 
 		//associated functions
@@ -324,7 +323,7 @@ namespace cpprelude
 		static void
 		dispose(string_slice&& str, AllocatorT&& allocator = AllocatorT())
 		{
-			allocator.free(tmp::move(str._data));
+			allocator.free(std::move(str._data));
 			str._count = 0;
 		}
 
@@ -570,14 +569,14 @@ namespace cpprelude
 	inline static i32
 	write(string_slice<T>& str, FirstT&& first_arg)
 	{
-		return _string_show(str, tmp::forward<FirstT>(first_arg));
+		return _string_show(str, std::forward<FirstT>(first_arg));
 	}
 
 	template<typename T, typename FirstT>
 	inline static i32
 	write(string_slice<T>&& str, FirstT&& first_arg)
 	{
-		return write(str, tmp::forward<FirstT>(first_arg));
+		return write(str, std::forward<FirstT>(first_arg));
 	}
 
 	//convert a serious of args into str
@@ -585,7 +584,7 @@ namespace cpprelude
 	inline static i32
 	write(string_slice<T>& str, FirstT&& first_arg, ArgsT&&... args)
 	{
-		auto next_start = _string_show(str, tmp::forward<FirstT>(first_arg));
+		auto next_start = _string_show(str, std::forward<FirstT>(first_arg));
 		return next_start + write(str.view(next_start), args...);
 	}
 
@@ -593,7 +592,7 @@ namespace cpprelude
 	inline static i32
 	write(string_slice<T>&& str, FirstT&& first_arg, ArgsT&&... args)
 	{
-		auto next_start = _string_show(str, tmp::forward<FirstT>(first_arg));
+		auto next_start = _string_show(str, std::forward<FirstT>(first_arg));
 		return next_start + write(str.view(next_start), args...);
 	}
 

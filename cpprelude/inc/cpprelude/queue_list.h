@@ -25,14 +25,14 @@ namespace cpprelude
 		{}
 
 		queue_list(queue_list&& other, const AllocatorT& allocator)
-			:_list(tmp::move(other._list), allocator)
+			:_list(std::move(other._list), allocator)
 		{}
 
 		template<typename ... TArgs>
 		void
 		emplace(TArgs&& ... args)
 		{
-			_list.emplace_back(tmp::forward<TArgs>(args)...);
+			_list.emplace_back(std::forward<TArgs>(args)...);
 		}
 
 		void
@@ -44,7 +44,7 @@ namespace cpprelude
 		void
 		enqueue(T&& item)
 		{
-			_list.insert_back(tmp::move(item));
+			_list.insert_back(std::move(item));
 		}
 
 		bool

@@ -44,7 +44,7 @@ namespace cpprelude
 			_init();
 
 			for(auto& value: list)
-				insert_back(tmp::move(value));
+				insert_back(std::move(value));
 		}
 
 		bucket_array(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
@@ -75,13 +75,13 @@ namespace cpprelude
 		}
 
 		bucket_array(bucket_array&& other)
-			:_allocator(tmp::move(other._allocator)),
+			:_allocator(std::move(other._allocator)),
 			_count(other._count),
 			_bucket_count(other._bucket_count),
-			_cap_begin(tmp::move(other._cap_begin)),
-			_cap_end(tmp::move(other._cap_begin)),
-			_begin(tmp::move(other._begin)),
-			_end(tmp::move(other._end)),
+			_cap_begin(std::move(other._cap_begin)),
+			_cap_end(std::move(other._cap_begin)),
+			_begin(std::move(other._begin)),
+			_end(std::move(other._end)),
 			_map(other._map)
 		{
 			other._count = 0;
@@ -97,10 +97,10 @@ namespace cpprelude
 			:_allocator(allocator),
 			 _count(other._count),
 			 _bucket_count(other._bucket_count),
-			 _cap_begin(tmp::move(other._cap_begin)),
-			 _cap_end(tmp::move(other._cap_begin)),
-			 _begin(tmp::move(other._begin)),
-			 _end(tmp::move(other._end)),
+			 _cap_begin(std::move(other._cap_begin)),
+			 _cap_end(std::move(other._cap_begin)),
+			 _begin(std::move(other._begin)),
+			 _end(std::move(other._end)),
 			 _map(other._map)
 		{
 			other._count = 0;
@@ -114,7 +114,7 @@ namespace cpprelude
 
 		~bucket_array()
 		{
-			reset();
+			_free();
 		}
 
 		bucket_array&
@@ -131,15 +131,15 @@ namespace cpprelude
 		bucket_array&
 		operator=(bucket_array&& other)
 		{
-			reset();
+			_free();
 
-			_allocator = tmp::move(other._allocator);
+			_allocator = std::move(other._allocator);
 			_count = other._count;
 			_bucket_count = other._bucket_count;
-			_cap_begin = tmp::move(other._cap_begin);
-			_cap_end = tmp::move(other._cap_begin);
-			_begin = tmp::move(other._begin);
-			_end = tmp::move(other._end);
+			_cap_begin = std::move(other._cap_begin);
+			_cap_end = std::move(other._cap_begin);
+			_begin = std::move(other._begin);
+			_end = std::move(other._end);
 			_map = other._map;
 
 			other._count = 0;
@@ -228,7 +228,7 @@ namespace cpprelude
 			it = std::prev(it);
 			for(usize i = 0; i < list.size(); ++i)
 			{
-				insert_front(tmp::move(*it));
+				insert_front(std::move(*it));
 				it = std::prev(it);
 			}
 		}
@@ -241,7 +241,7 @@ namespace cpprelude
 				_insert_bucket_front((_bucket_count/2));
 
 			--_begin;
-			new (_begin._element_it) T(tmp::forward<TArgs>(args)...);
+			new (_begin._element_it) T(std::forward<TArgs>(args)...);
 			++_count;
 		}
 
@@ -263,7 +263,7 @@ namespace cpprelude
 				_insert_bucket_front((_bucket_count/2));
 
 			--_begin;
-			*_begin = tmp::move(value);
+			*_begin = std::move(value);
 			++_count;
 		}
 
@@ -271,7 +271,7 @@ namespace cpprelude
 		insert_back(std::initializer_list<T> list)
 		{
 			for(auto& value: list)
-				insert_back(tmp::move(value));
+				insert_back(std::move(value));
 		}
 
 		template<typename ... TArgs>
@@ -281,7 +281,7 @@ namespace cpprelude
 			if (_end == _cap_end)
 				_insert_bucket_back((_bucket_count/2));
 
-			new (_end._element_it) T(tmp::forward<TArgs>(args)...);
+			new (_end._element_it) T(std::forward<TArgs>(args)...);
 			++_end;
 			++_count;
 		}
@@ -303,7 +303,7 @@ namespace cpprelude
 			if (_end == _cap_end)
 				_insert_bucket_back((_bucket_count/2));
 
-			*_end = tmp::move(value);
+			*_end = std::move(value);
 			++_end;
 			++_count;
 		}
@@ -447,9 +447,9 @@ namespace cpprelude
 			usize i = 0;
 
 			for (auto& value : *this)
-				new (&result[i++]) T(tmp::move(value));
+				new (&result[i++]) T(std::move(value));
 
-			reset();
+			_free();
 
 			return result;
 		}
@@ -557,6 +557,31 @@ namespace cpprelude
 		{
 			for(usize i = 0; i < bucket_size; ++i)
 				new (&bucket[i]) T();
+		}
+
+		void
+		_free()
+		{
+			clear();
+
+			if (_map)
+			{
+				for (usize i = 0; i < _bucket_count; ++i)
+				{
+					auto other_handle = _map[i];
+					_allocator.free(make_slice(other_handle, bucket_size));
+				}
+
+				_allocator.free(make_slice(_map, _bucket_count));
+			}
+
+			_map = nullptr;
+			_cap_end = iterator();
+			_cap_begin = iterator();
+			_begin = iterator();
+			_end = iterator();
+			_count = 0;
+			_bucket_count = 0;
 		}
 	};
 }

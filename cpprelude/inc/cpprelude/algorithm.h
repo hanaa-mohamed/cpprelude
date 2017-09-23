@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cpprelude/defines.h"
-#include "cpprelude/tmp.h"
+#include "cpprelude/defaults.h"
 
 #include <random>
 #include <cpprelude/dynamic_array.h>
@@ -85,15 +85,15 @@ namespace cpprelude
 			usize random_index = details::_get_random_index(i);
 			iterator_type random_iterator = next(start, random_index);
 
-			auto temp = tmp::move(*it);
-			*it = tmp::move(*random_iterator);
-			*random_iterator = tmp::move(temp);
+			auto temp = std::move(*it);
+			*it = std::move(*random_iterator);
+			*random_iterator = std::move(temp);
 
 			it = next(it);
 		}
 	}
 
-	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = default_less_than<typename iterator_type::data_type>>
 	bool
 	is_sorted(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{
@@ -113,7 +113,7 @@ namespace cpprelude
 	}
 
 	//INSERTION SORT
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	void
 	insertion_sort(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
@@ -128,7 +128,7 @@ namespace cpprelude
 			
 			while(less_than(*t_it, *t_p_it))
 			{
-				tmp::swap(*t_p_it, *t_it);
+				std::swap(*t_p_it, *t_it);
 
 				t_p_it = prev(t_p_it);
 				t_it = prev(t_it);
@@ -143,7 +143,7 @@ namespace cpprelude
 
 	//MERGE SORT
 	
-	template<typename iterator_type, typename aux_iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename aux_iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	void
 	_merge(iterator_type begin_it, aux_iterator_type aux_it, usize lo, usize mid, usize hi, function_type less_than = function_type())
 	{
@@ -193,7 +193,7 @@ namespace cpprelude
 			}
 	}
 
-	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = default_less_than<typename iterator_type::data_type>>
 	void
 	merge_sort(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{
@@ -240,7 +240,7 @@ namespace cpprelude
 
 	//QUICK SORT
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	element_marker<iterator_type>
 	_median_of3(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
@@ -268,7 +268,7 @@ namespace cpprelude
 		return element_marker<iterator_type>(begin_it, 0);
 	}	
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	region_marker<iterator_type>
 	_partition_3way(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
@@ -290,7 +290,7 @@ namespace cpprelude
 
 			if(it_l_k)
 			{
-				tmp::swap(*lt_it, *it);
+				std::swap(*lt_it, *it);
 
 				lt_it = next(lt_it);
 				++lt_ix;
@@ -300,7 +300,7 @@ namespace cpprelude
 			}
 			else if(k_l_it)
 			{
-				tmp::swap(*gt_it, *it);
+				std::swap(*gt_it, *it);
 
 				gt_it = prev(gt_it);
 				--gt_ix;
@@ -315,7 +315,7 @@ namespace cpprelude
 		return region_marker<iterator_type>(lt_it, lt_ix, gt_it, gt_ix);
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	element_marker<iterator_type>
 	_partition(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
@@ -354,16 +354,16 @@ namespace cpprelude
 				break;
 
 			//exchange lo_it and hi_it values
-			tmp::swap(*lo_it, *hi_it);
+			std::swap(*lo_it, *hi_it);
 		}
 
 		//exchange k with the hi_it
-		tmp::swap(*hi_it, *k_it);
+		std::swap(*hi_it, *k_it);
 
 		return element_marker<iterator_type>(hi_it, hi_ix);
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	element_marker<iterator_type>
 	_select(iterator_type begin_it, usize count, usize k, function_type less_than = function_type())
 	{
@@ -405,21 +405,21 @@ namespace cpprelude
 		return element_marker<iterator_type>(next(begin_it, k), k);
 	}
 
-	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = default_less_than<typename iterator_type::data_type>>
 	iterator_type
 	quick_select(iterator_type begin_it, usize count, usize k, Comparator less_than = Comparator())
 	{
 		return _select(begin_it, count, k, less_than).iterator;
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	usize
 	partition_index(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
 		return _partition(begin_it, count, less_than).index;
 	}
 
-	template<typename iterator_type, typename function_type = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename function_type = default_less_than<typename iterator_type::data_type>>
 	iterator_type
 	partition_iterator(iterator_type begin_it, usize count, function_type less_than = function_type())
 	{
@@ -427,7 +427,7 @@ namespace cpprelude
 	}
 
 	template<typename iterator_type,
-			 typename function_type = tmp::default_less_than<typename iterator_type::data_type>,
+			 typename function_type = default_less_than<typename iterator_type::data_type>,
 			 usize cutoff_limit = details::_default_cutoff_quick_sort<typename iterator_type::data_type>()>
 	void
 	_quick_sort(iterator_type begin_it, usize count, function_type less_than = function_type())
@@ -452,7 +452,7 @@ namespace cpprelude
 	}
 
 	template<typename iterator_type,
-			 typename function_type = tmp::default_less_than<typename iterator_type::data_type>,
+			 typename function_type = default_less_than<typename iterator_type::data_type>,
 			 usize cutoff_limit = details::_default_cutoff_quick_sort<typename iterator_type::data_type>()>
 	void
 	_quick_sort_3way(iterator_type begin_it, usize count, function_type less_than = function_type())
@@ -477,7 +477,7 @@ namespace cpprelude
 	}
 
 	template<typename iterator_type,
-			 typename function_type = tmp::default_less_than<typename iterator_type::data_type>,
+			 typename function_type = default_less_than<typename iterator_type::data_type>,
 			 usize cutoff_limit = details::_default_cutoff_quick_sort<typename iterator_type::data_type>()>
 	void
 	_quick_sort_3way_non_recursive(iterator_type begin_it, usize count, function_type less_than = function_type())
@@ -510,18 +510,18 @@ namespace cpprelude
 		}
 	}
 
-	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = default_less_than<typename iterator_type::data_type>>
 	void
 	quick_sort(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{
 		auto presult = _median_of3(begin_it, count, less_than);
 
-		tmp::swap(*begin_it, *presult.iterator);
+		std::swap(*begin_it, *presult.iterator);
 
 		_quick_sort_3way(begin_it, count, less_than);
 	}
 
-	template<typename iterator_type, typename Comparator = tmp::default_less_than<typename iterator_type::data_type>>
+	template<typename iterator_type, typename Comparator = default_less_than<typename iterator_type::data_type>>
 	void
 	heap_sort(iterator_type begin_it, usize count, Comparator less_than = Comparator())
 	{

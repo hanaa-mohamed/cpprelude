@@ -287,7 +287,7 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = tmp::move(key);
+			_keys[index] = std::move(key);
 
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
@@ -340,7 +340,7 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = tmp::move(key);
+			_keys[index] = std::move(key);
 			_values[index] = value;
 
 			//if this cell is empty mark it full and increment _count
@@ -368,7 +368,7 @@ namespace cpprelude
 				return end();
 
 			_keys[index] = key;
-			_values[index] = tmp::move(value);
+			_values[index] = std::move(value);
 
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
@@ -394,8 +394,8 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = tmp::move(key);
-			_values[index] = tmp::move(value);
+			_keys[index] = std::move(key);
+			_values[index] = std::move(value);
 
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
@@ -463,7 +463,7 @@ namespace cpprelude
 			//if not found then create and init one
 			if(_flags[index] == 0)
 			{
-				_keys[index] = tmp::move(key);
+				_keys[index] = std::move(key);
 
 				_flags[index] = 1;
 				++_count;
@@ -703,9 +703,9 @@ namespace cpprelude
 					if(new_index != i)
 					{
 						//move the elements to the new index
-						new (_keys.data() + new_index)  key_type(tmp::move(_keys[i]));
-						new (_values.data() + new_index)  value_type(tmp::move(_values[i]));
-						tmp::swap(_flags[i], _flags[new_index]);
+						new (_keys.data() + new_index)  key_type(std::move(_keys[i]));
+						new (_values.data() + new_index)  value_type(std::move(_values[i]));
+						std::swap(_flags[i], _flags[new_index]);
 
 					}
 				}
@@ -734,9 +734,9 @@ namespace cpprelude
 				//move the flag of i into j
 				if(_hasher(_keys[i]) % cap == hash % cap)
 				{
-					new (_keys.data() + j) key_type(tmp::move(_keys[i]));
-					new (_values.data() + j) value_type(tmp::move(_values[i]));
-					tmp::swap(_flags[j], _flags[i]);
+					new (_keys.data() + j) key_type(std::move(_keys[i]));
+					new (_values.data() + j) value_type(std::move(_values[i]));
+					std::swap(_flags[j], _flags[i]);
 				}
 				//we finished the linearly probed elements in table
 				else

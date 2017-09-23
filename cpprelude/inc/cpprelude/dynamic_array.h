@@ -2,7 +2,6 @@
 
 #include "cpprelude/defines.h"
 #include "cpprelude/memory.h"
-#include "cpprelude/tmp.h"
 #include "cpprelude/iterator.h"
 #include "cpprelude/allocator.h"
 #include <initializer_list>
@@ -74,15 +73,15 @@ namespace cpprelude
 
 		dynamic_array(dynamic_array<T, AllocatorT>&& other)
 			:_count(other._count),
-			 _data_block(tmp::move(other._data_block)),
-			 _allocator(tmp::move(other._allocator))
+			 _data_block(std::move(other._data_block)),
+			 _allocator(std::move(other._allocator))
 		{
 			other._count = 0;
 		}
 
 		dynamic_array(dynamic_array<T, AllocatorT>&& other, const AllocatorT& allocator)
 			:_count(other._count),
-			 _data_block(tmp::move(other._data_block)),
+			 _data_block(std::move(other._data_block)),
 			 _allocator(allocator)
 		{
 			other._count = 0;
@@ -107,7 +106,7 @@ namespace cpprelude
 
 			_allocator.free(_data_block);
 
-			_data_block = tmp::move(tmp_data_block);
+			_data_block = std::move(tmp_data_block);
 			_count = other._count;
 			_allocator = other._allocator;
 
@@ -122,9 +121,9 @@ namespace cpprelude
 
 			_allocator.free(_data_block);
 
-			_data_block = tmp::move(other._data_block);
+			_data_block = std::move(other._data_block);
 			_count = other._count;
-			_allocator = tmp::move(other._allocator);
+			_allocator = std::move(other._allocator);
 			other._count = 0;
 
 			return *this;
@@ -243,7 +242,7 @@ namespace cpprelude
 					_mem_expand(capacity_*grow_factor);
 			}
 
-			new (_data_block.ptr + _count) T(tmp::forward<TArgs>(args)...);
+			new (_data_block.ptr + _count) T(std::forward<TArgs>(args)...);
 			++_count;
 		}
 
@@ -275,7 +274,7 @@ namespace cpprelude
 					_mem_expand(capacity_*grow_factor);
 			}
 
-			new (_data_block.ptr + _count) T(tmp::move(value));
+			new (_data_block.ptr + _count) T(std::move(value));
 			++_count;
 		}
 
@@ -373,7 +372,7 @@ namespace cpprelude
 		slice<T>
 		decay()
 		{
-			slice<T> result = tmp::move(_data_block);
+			slice<T> result = std::move(_data_block);
 			_count = 0;
 			return result;
 		}
@@ -381,7 +380,7 @@ namespace cpprelude
 		slice<T>
 		decay_continuous()
 		{
-			slice<T> result = tmp::move(_data_block);
+			slice<T> result = std::move(_data_block);
 			_count = 0;
 			return result;
 		}

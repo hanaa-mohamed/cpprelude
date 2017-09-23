@@ -101,12 +101,12 @@ namespace cpprelude
 
 			//move the first element
 			usize i = 0;
-			new (result.template at<T>(i++)) T(tmp::move(front()));
+			new (result.template at<T>(i++)) T(std::move(front()));
 
 			//while has something to pop then add it
 			while(pop())
 			{
-				new (result.template at<T>(i++)) T(tmp::move(front()));
+				new (result.template at<T>(i++)) T(std::move(front()));
 			}
 
 			return result;

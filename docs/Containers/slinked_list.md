@@ -89,11 +89,24 @@ Returns the element at the `index` position.
 void insert_front(std::initializer_list<T> list);
 void insert_front(const T& value);
 void insert_front(T&& value);
+template<typename ... TArgs>
+void emplace_front(TArgs&& ... args);
 ```
 
 1. Inserts the list at the front of the container.
 2. Inserts the element value at the front of the container.
 3. Inserts the element value at the front of the container.
+4. Emplaces the element (in-place) at the front of the container.
+
+#### insert_after
+```c++
+template<typename ... TArgs>
+void emplace_after(const iterator& it, TArgs&& ... args);
+void insert_after(const iterator& it, const T& value);
+void insert_after(const iterator& it, T&& value);
+```
+
+Given a valid iterator (pointing to an element) the container will place the provided element after it.
 
 #### remove_front
 

@@ -2,11 +2,11 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/dynamic_array.h"
 #include "cpprelude/allocator.h"
-#include "cpprelude/tmp.h"
+#include "cpprelude/defaults.h"
 
 namespace cpprelude {
 	// Minheap is the default
-	template<typename T, typename Comparator = tmp::default_less_than<T>, typename AllocatorT = global_allocator>
+	template<typename T, typename Comparator = default_less_than<T>, typename AllocatorT = global_allocator>
 	struct priority_queue
 	{
 		using data_type = T;
@@ -27,7 +27,7 @@ namespace cpprelude {
 		{}
 
 		priority_queue(priority_queue&& other, Comparator compare_function, const AllocatorT& allocator)
-			:_array(tmp::move(other._array), allocator), _count(other._count), _compare(compare_function)
+			:_array(std::move(other._array), allocator), _count(other._count), _compare(compare_function)
 		{}
 
 		priority_queue(std::initializer_list<T> list, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT() )
@@ -72,9 +72,9 @@ namespace cpprelude {
 		enqueue(T&& item)
 		{
 			if (_count == _array.count())
-				_array.insert_back(tmp::move(item));
+				_array.insert_back(std::move(item));
 			else
-				_array[_count] = tmp::move(item);
+				_array[_count] = std::move(item);
 
 			_bubble_up(_count);
 			++_count;
@@ -84,7 +84,7 @@ namespace cpprelude {
 		dequeue()
 		{
 			if (_count == 0) return false;
-			tmp::swap(_array[0], _array[_count - 1]);
+			std::swap(_array[0], _array[_count - 1]);
 			--_count;
 			if (_count <= _array.count() * 0.25)
 			{
@@ -135,7 +135,7 @@ namespace cpprelude {
 				//which index has the highest priority item
 				if (!_compare(_array[parent], _array[index]))
 				{
-					tmp::swap(_array[parent], _array[index]);
+					std::swap(_array[parent], _array[index]);
 					index = parent;
 				}
 				else break;
@@ -159,7 +159,7 @@ namespace cpprelude {
 				//If it is the same index then there is no violation for heap's rules
 				if (root == k) break;
 				//swap
-				tmp::swap(_array[root], _array[k]);
+				std::swap(_array[root], _array[k]);
 				k = root;
 			}
 		}

@@ -7,7 +7,7 @@
 #### Template interface
 
 ```c++
-template<typename T, typename Comparator = tmp::default_less_than<T>, typename AllocatorT = global_allocator>
+template<typename T, typename Comparator = default_less_than<T>, typename AllocatorT = global_allocator>
 struct priority_queue;
 ```
 

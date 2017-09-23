@@ -2,7 +2,6 @@
 #include "cpprelude/defines.h"
 #include <chrono>
 
-
 struct stopwatch
 {
 	std::chrono::time_point<std::chrono::high_resolution_clock> _start, _end;

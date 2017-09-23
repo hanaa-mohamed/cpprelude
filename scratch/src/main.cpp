@@ -7,7 +7,6 @@
 #include <cpprelude/dlinked_list.h>
 #include <cpprelude/algorithm.h>
 #include <cpprelude/bucket_array.h>
-#include <cpprelude/tmp.h>
 #include <cpprelude/string.h>
 #include <cpprelude/hash_array.h>
 //#include <cpprelude/rb_tree.h>
@@ -393,7 +392,7 @@ template<typename T, typename ... ArgsT>
 int
 printt(int x, T&& t, ArgsT&&... args)
 {
-	printt(cpprelude::tmp::forward<T>(t));
+	printt(std::forward<T>(t));
 	std::cout << "--" << std::endl;
 	printt(x, args...);
 	return x;

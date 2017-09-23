@@ -25,14 +25,14 @@ namespace cpprelude
 		{}
 
 		stack_list(stack_list&& other, const AllocatorT& allocator)
-			:_list(tmp::move(other), allocator)
+			:_list(std::move(other), allocator)
 		{}
 
 		template<typename ... TArgs>
 		void
 		emplace(TArgs&& ... args)
 		{
-			_list.emplace_front(tmp::forward<TArgs>(args)...);
+			_list.emplace_front(std::forward<TArgs>(args)...);
 		}
 
 		void
@@ -44,7 +44,7 @@ namespace cpprelude
 		void
 		push(T&& item)
 		{
-			_list.insert_front(tmp::move(item));
+			_list.insert_front(std::move(item));
 		}
 
 		const T&
