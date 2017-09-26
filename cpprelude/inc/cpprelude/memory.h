@@ -1,15 +1,12 @@
 #pragma once
 
 #include "cpprelude/defines.h"
+#include "cpprelude/platform.h"
 
 #include <cstdlib>
 #include <iostream>
 #include <new>
 #include <cstring>
-
-#ifdef OS_WINDOWS
-#include <Windows.h>
-#endif // OS_WINDOWS
 
 namespace cpprelude
 {
@@ -160,39 +157,28 @@ namespace cpprelude
 		if(count == 0)
 			return slice<T>();
 
-	#if defined(OS_WINDOWS)
-		T* ptr = reinterpret_cast<T*>(VirtualAlloc(NULL, count*sizeof(T), MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE));
-	#elif defined(OS_LINUX)
-		T* ptr = reinterpret_cast<T*>(std::malloc(count * sizeof(T)));
-	#endif
-
+		T* ptr = reinterpret_cast<T*>(platform::virtual_alloc(NULL, count*sizeof(T)));
 		return slice<T>(ptr, ptr ? count * sizeof(T) : 0);
 	}
 
 	template<typename T>
-	void
+	bool
 	virtual_free(slice<T>& slice_)
 	{
-		virtual_free(std::move(slice_));
+		return virtual_free(std::move(slice_));
 	}
 
 	template<typename T>
-	void
+	bool
 	virtual_free(slice<T>&& slice_)
 	{
+		bool result = true;
 		if(slice_.ptr != nullptr)
-		{
-			
-	#if defined(OS_WINDOWS)
-		VirtualFree(slice_.ptr, slice_.size, MEM_RELEASE);
-	#elif defined(OS_LINUX)
-		std::free(slice_.ptr);
-	#endif
-
-		}
+			result = platform::virtual_free(slice_.ptr, slice_.size);
 
 		slice_.ptr = nullptr;
 		slice_.size = 0;
+		return result;
 	}
 
 	template<typename T>

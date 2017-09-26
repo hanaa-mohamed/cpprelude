@@ -14,6 +14,7 @@
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
+
 using namespace cpprelude;
 
 struct screamer
@@ -398,9 +399,17 @@ printt(int x, T&& t, ArgsT&&... args)
 	return x;
 }
 
+void
+do_stuff()
+{
+	auto virtual_mem = virtual_alloc<byte>(GIGABYTES(1));
+	auto result = virtual_free(virtual_mem);
+}
+
 int
 main(int argc, char** argv)
 {
+	do_stuff();
 	std::cout << "Hello, World!" << std::endl;
 	benchmark();
 	shuffle_test();
