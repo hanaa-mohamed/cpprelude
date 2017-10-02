@@ -19,7 +19,7 @@ namespace cpprelude
             void* result = nullptr;
 
             #if defined(OS_WINDOWS)
-                result = reinterpret_cast<T*>(VirtualAlloc(address_hint, size, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE));
+                result = VirtualAlloc(address_hint, size, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
             #elif defined(OS_LINUX)
                 result = mmap(address_hint, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
             #endif

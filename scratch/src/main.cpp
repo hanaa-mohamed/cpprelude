@@ -9,11 +9,12 @@
 #include <cpprelude/bucket_array.h>
 #include <cpprelude/string.h>
 #include <cpprelude/hash_array.h>
-//#include <cpprelude/rb_tree.h>
 #include <cpprelude/tree_map.h>
 #include <vector>
+#include <thread>
 #include <cstdlib>
 #include <typeinfo>
+#include <chrono>
 
 using namespace cpprelude;
 
@@ -399,17 +400,9 @@ printt(int x, T&& t, ArgsT&&... args)
 	return x;
 }
 
-void
-do_stuff()
-{
-	auto virtual_mem = virtual_alloc<byte>(GIGABYTES(1));
-	auto result = virtual_free(virtual_mem);
-}
-
 int
 main(int argc, char** argv)
 {
-	do_stuff();
 	std::cout << "Hello, World!" << std::endl;
 	benchmark();
 	shuffle_test();
