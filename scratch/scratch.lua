@@ -4,11 +4,11 @@ project "scratch"
 	targetdir (bin_path .. "/%{cfg.platform}/%{cfg.buildcfg}/")
 	location  (build_path .. "/scratch/")
 
-	files {"inc/**.h", "src/**.cpp"}
+	files {"include/**.h", "src/**.cpp"}
 
 	includedirs {
-		"inc/",
-		cpprelude_path .. "/inc/"
+		"include/",
+		cpprelude_path .. "/include/"
 	}
 
 	links {"cpprelude"}
@@ -28,5 +28,5 @@ project "scratch"
 	filter "platforms:x86"
 		architecture "x32"
 
-	filter "platforms:x86_64"
+	filter "platforms:x64"
 		architecture "x64"

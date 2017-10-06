@@ -4,7 +4,7 @@ cpprelude_path 	= path.getabsolute("cpprelude")
 
 workspace "cpprelude"
 	configurations {"debug", "release"}
-	platforms {"x86", "x86_64"}
+	platforms {"x86", "x64"}
 	location "build"
 	startproject "scratch"
 

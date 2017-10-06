@@ -4,9 +4,9 @@ project "cpprelude"
 	targetdir (bin_path .. "/%{cfg.platform}/%{cfg.buildcfg}/")
 	location  (build_path .. "/cpprelude/")
 
-	files {"inc/**.h", "src/**.cpp"}
+	files {"include/**.h", "src/**.cpp"}
 
-	includedirs {"inc/"}
+	includedirs {"include/"}
 
 	filter "action:gmake"
 		buildoptions {"-std=c++14"}
@@ -24,5 +24,5 @@ project "cpprelude"
 	filter "platforms:x86"
 		architecture "x32"
 
-	filter "platforms:x86_64"
+	filter "platforms:x64"
 		architecture "x64"
