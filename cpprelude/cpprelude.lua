@@ -8,13 +8,12 @@ project "cpprelude"
 
 	includedirs {"inc/"}
 
-	targetsuffix "d"
-
 	filter "action:gmake"
 		buildoptions {"-std=c++14"}
 		linkoptions {"-pthread"}
 
 	filter "configurations:debug"
+		targetsuffix "d"
 		defines {"DEBUG", "COMPILE_DYNAMIC_LIB"}
 		symbols "On"
 
