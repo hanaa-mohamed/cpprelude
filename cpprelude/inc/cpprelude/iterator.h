@@ -46,7 +46,7 @@ namespace cpprelude
 			{}
 
 			pair_node(key_type&& k)
-				:key(tmp::move(k))
+				:key(std::move(k))
 			{}
 
 			pair_node(const key_type& k, const value_type& v)
@@ -54,15 +54,15 @@ namespace cpprelude
 			{}
 
 			pair_node(key_type&& k, const value_type& v)
-				:key(tmp::move(k)), value(v)
+				:key(std::move(k)), value(v)
 			{}
 
 			pair_node(const key_type& k, value_type&& v)
-				:key(k), value(tmp::move(v))
+				:key(k), value(std::move(v))
 			{}
 
 			pair_node(key_type&& k, value_type&& v)
-				:key(tmp::move(k)), value(tmp::move(v))
+				:key(std::move(k)), value(std::move(v))
 			{}
 
 			bool
@@ -117,7 +117,7 @@ namespace cpprelude
 				:left(nullptr),
 				 right(nullptr),
 				 parent(nullptr),
-				 data(tmp::move(data_)),
+				 data(std::move(data_)),
 				 color(color_)
 			{}
 		};

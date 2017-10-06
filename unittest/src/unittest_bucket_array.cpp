@@ -102,7 +102,7 @@ TEST_CASE("bucket_array test", "[bucket_array]")
 
 		CHECK(array.count() == 64);
 
-		bucket_array<i32> array2(tmp::move(array));
+		bucket_array<i32> array2(std::move(array));
 
 		usize i_ = 64 - 1;
 		for (i32 i = 0; i < 64; ++i)
@@ -130,7 +130,7 @@ TEST_CASE("bucket_array test", "[bucket_array]")
 
 		CHECK(array.count() == 64);
 
-		array2 = tmp::move(array);
+		array2 = std::move(array);
 
 		usize i_ = 64 - 1;
 		for (i32 i = 0; i < 64; ++i)
@@ -346,7 +346,7 @@ TEST_CASE("bucket_array test", "[bucket_array]")
 
 		CHECK(array.count() == 64);
 
-		bucket_array<i32> array2(tmp::move(array));
+		bucket_array<i32> array2(std::move(array));
 
 		for (i32 i = 0; i < 64; ++i)
 			CHECK(array2[i] == i);
@@ -376,7 +376,7 @@ TEST_CASE("bucket_array test", "[bucket_array]")
 
 		CHECK(array.count() == 64);
 
-		array2 = tmp::move(array);
+		array2 = std::move(array);
 
 		for (i32 i = 0; i < 64; ++i)
 			CHECK(array2[i] == i);

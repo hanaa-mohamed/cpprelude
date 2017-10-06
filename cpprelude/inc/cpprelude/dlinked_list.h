@@ -2,7 +2,6 @@
 
 #include "cpprelude/defines.h"
 #include "cpprelude/memory.h"
-#include "cpprelude/tmp.h"
 #include "cpprelude/iterator.h"
 #include "cpprelude/allocator.h"
 #include <initializer_list>
@@ -74,7 +73,7 @@ namespace cpprelude
 			:_count(other._count),
 			 _head(other._head),
 			 _tail(other._tail),
-			_allocator(tmp::move(other._allocator))
+			_allocator(std::move(other._allocator))
 		{
 			other._count = 0;
 			other._head = nullptr;
@@ -120,7 +119,7 @@ namespace cpprelude
 			//free the sentinals as we are going to steal them
 			_allocator.free(make_slice(_head));
 			_allocator.free(make_slice(_tail));
-			_allocator = tmp::move(other._allocator);
+			_allocator = std::move(other._allocator);
 
 			_count = other._count;
 			_head = other._head;
@@ -227,18 +226,9 @@ namespace cpprelude
 		emplace_front(TArgs&& ... args)
 		{
 			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::forward<TArgs>(args)...);
 
-			auto first_node = _head->next;
-
-			first_node->prev = new_node;
-
-			new_node->next = first_node;
-
-			_head->next = new_node;
-
-			new_node->prev = _head;
-
-			new (&new_node->data) T(tmp::forward<TArgs>(args)...);
+			_insert_front_helper(_head->next, new_node);
 
 			++_count;
 		}
@@ -247,18 +237,9 @@ namespace cpprelude
 		insert_front(const T& value)
 		{
 			node_type* new_node = _allocator.template alloc<node_type>();
-
-			auto first_node = _head->next;
-
-			first_node->prev = new_node;
-
-			new_node->next = first_node;
-
-			_head->next = new_node;
-
-			new_node->prev = _head;
-
 			new (&new_node->data) T(value);
+
+			_insert_front_helper(_head->next, new_node);
 
 			++_count;
 		}
@@ -267,16 +248,9 @@ namespace cpprelude
 		insert_front(T&& value)
 		{
 			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::move(value));
 
-			auto first_node = _head->next;
-
-			first_node->prev = new_node;
-			new_node->next = first_node;
-
-			_head->next = new_node;
-			new_node->prev = _head;
-
-			new (&new_node->data) T(tmp::move(value));
+			_insert_front_helper(_head->next, new_node);
 
 			++_count;
 		}
@@ -293,16 +267,9 @@ namespace cpprelude
 		emplace_back(TArgs&& ... args)
 		{
 			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::forward<TArgs>(args)...);
 
-			auto last_node = _tail->prev;
-
-			last_node->next = new_node;
-			new_node->prev = last_node;
-
-			_tail->prev = new_node;
-			new_node->next = _tail;
-
-			new (&new_node->data) T(tmp::forward<TArgs>(args)...);
+			_insert_back_helper(_tail->prev, new_node);
 
 			++_count;
 		}
@@ -311,16 +278,9 @@ namespace cpprelude
 		insert_back(const T& value)
 		{
 			node_type* new_node = _allocator.template alloc<node_type>();
-
-			auto last_node = _tail->prev;
-
-			last_node->next = new_node;
-			new_node->prev = last_node;
-
-			_tail->prev = new_node;
-			new_node->next = _tail;
-
 			new (&new_node->data) T(value);
+
+			_insert_back_helper(_tail->prev, new_node);
 
 			++_count;
 		}
@@ -329,16 +289,77 @@ namespace cpprelude
 		insert_back(T&& value)
 		{
 			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::move(value));
 
-			auto last_node = _tail->prev;
+			_insert_back_helper(_tail->prev, new_node);
 
-			last_node->next = new_node;
-			new_node->prev = last_node;
+			++_count;
+		}
 
-			_tail->prev = new_node;
-			new_node->next = _tail;
+		template<typename ... TArgs>
+		void
+		emplace_after(const iterator& it, TArgs&& ... args)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::forward<TArgs>(args)...);
 
-			new (&new_node->data) T(tmp::move(value));
+			_insert_back_helper(it._node, new_node);
+
+			++_count;
+		}
+
+		void
+		insert_after(const iterator& it, const T& value)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(value);
+
+			_insert_back_helper(it._node, new_node);
+
+			++_count;
+		}
+
+		void
+		insert_after(const iterator& it, T&& value)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::move(value));
+
+			_insert_back_helper(it._node, new_node);
+
+			++_count;
+		}
+
+		template<typename ... TArgs>
+		void
+		emplace_before(const iterator& it, TArgs&& ... args)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::forward<TArgs>(args)...);
+
+			_insert_front_helper(it._node, new_node);
+
+			++_count;
+		}
+
+		void
+		insert_before(const iterator& it, const T& value)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(value);
+
+			_insert_front_helper(it._node, new_node);
+
+			++_count;
+		}
+
+		void
+		insert_before(const iterator& it, T&& value)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+			new (&new_node->data) T(std::move(value));
+
+			_insert_front_helper(it._node, new_node);
 
 			++_count;
 		}
@@ -499,7 +520,7 @@ namespace cpprelude
 			//move the elements over
 			usize i = 0;
 			for(auto&& value: *this)
-				new (&result[i++]) T(tmp::move(value));
+				new (&result[i++]) T(std::move(value));
 
 			//reset this linked list
 			reset();
@@ -518,6 +539,26 @@ namespace cpprelude
 			_head->next = _tail;
 			_head->prev = nullptr;
 			_tail->next = nullptr;
+		}
+
+		inline void
+		_insert_front_helper(node_type* old_node, node_type* new_node)
+		{
+			old_node->prev->next = new_node;
+			new_node->prev = old_node->prev;
+
+			old_node->prev = new_node;
+			new_node->next = old_node;
+		}
+
+		inline void
+		_insert_back_helper(node_type* old_node, node_type* new_node)
+		{
+			old_node->next->prev = new_node;
+			new_node->next = old_node->next;
+
+			old_node->next = new_node;
+			new_node->prev = old_node;
 		}
 	};
 }

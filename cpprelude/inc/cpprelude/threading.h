@@ -37,50 +37,28 @@ namespace cpprelude
 		}
 
 		isize
-		wait_take(r32 micros = 0)
+		wait_take()
 		{
 			while(true)
 			{
 				isize ticket = take();
-				if(ticket == -1)
-				{
-					if(micros - 0 > std::numeric_limits<r32>::epsilon())
-					{
-						std::this_thread::sleep_for(std::chrono::duration<r32, std::micro>(micros));
-					}
-					else
-					{
-						continue;
-					}
-				}
+				if (ticket == -1)
+					std::this_thread::yield();
 				else
-				{
 					return ticket;
-				}
 			}
 		}
 
 		isize
-		wait_give(r32 micros = 0)
+		wait_give()
 		{
 			while(true)
 			{
 				isize ticket = give();
 				if(ticket == -1)
-				{
-					if(micros - 0 > std::numeric_limits<r32>::epsilon())
-					{
-						std::this_thread::sleep_for(std::chrono::duration<r32, std::micro>(micros));
-					}
-					else
-					{
-						continue;
-					}
-				}
+					std::this_thread::yield();
 				else
-				{
 					return ticket;
-				}
 			}
 		}
 
@@ -140,50 +118,28 @@ namespace cpprelude
 		}
 
 		isize
-		wait_take(r32 micros = 0)
+		wait_take()
 		{
 			while(true)
 			{
 				isize ticket = take();
-				if(ticket == -1)
-				{
-					if(micros - 0 > std::numeric_limits<r32>::epsilon())
-					{
-						std::this_thread::sleep_for(std::chrono::duration<r32, std::micro>(micros));
-					}
-					else
-					{
-						continue;
-					}
-				}
+				if (ticket == -1)
+					std::this_thread::yield();
 				else
-				{
 					return ticket;
-				}
 			}
 		}
 
 		isize
-		wait_give(r32 micros = 0)
+		wait_give()
 		{
 			while(true)
 			{
 				isize ticket = give();
-				if(ticket == -1)
-				{
-					if(micros - 0 > std::numeric_limits<r32>::epsilon())
-					{
-						std::this_thread::sleep_for(std::chrono::duration<r32, std::micro>(micros));
-					}
-					else
-					{
-						continue;
-					}
-				}
+				if (ticket == -1)
+					std::this_thread::yield();
 				else
-				{
 					return ticket;
-				}
 			}
 		}
 
@@ -226,12 +182,12 @@ namespace cpprelude
 		operator=(thread_unique&&) = default;
 
 		bool
-		read(thread_context& context, r32 micros = 0)
+		read(thread_context& context)
 		{
 			if(context & _thread_context_read)
 				return true;
 
-			if(_lock.wait_take(micros) != -1)
+			if(_lock.wait_take() != -1)
 			{
 				context |= _thread_context_read;
 				return true;
@@ -241,12 +197,12 @@ namespace cpprelude
 		}
 
 		bool
-		read_release(thread_context& context, r32 micros = 0)
+		read_release(thread_context& context)
 		{
 			if(!(context & _thread_context_read))
 				return true;
 
-			if(_lock.wait_give(micros) != -1)
+			if(_lock.wait_give() != -1)
 			{
 				context &= ~_thread_context_read;
 				return true;
@@ -256,12 +212,12 @@ namespace cpprelude
 		}
 
 		bool
-		write(thread_context& context, r32 micros = 0)
+		write(thread_context& context)
 		{
 			if(context & _thread_context_write)
 				return true;
 
-			if(_lock.wait_take(micros) != -1)
+			if(_lock.wait_take() != -1)
 			{
 				context |= _thread_context_write;
 				return true;
@@ -271,12 +227,12 @@ namespace cpprelude
 		}
 
 		bool
-		write_release(thread_context& context, r32 micros = 0)
+		write_release(thread_context& context)
 		{
 			if(!(context & _thread_context_write))
 				return true;
 
-			if(_lock.wait_give(micros) != -1)
+			if(_lock.wait_give() != -1)
 			{
 				context &= ~_thread_context_write;
 				return true;
@@ -315,22 +271,22 @@ namespace cpprelude
 		operator=(thread_multi_reader&&) = default;
 
 		bool
-		read(thread_context& context, r32 micros = 0)
+		read(thread_context& context)
 		{
 			if(context & _thread_context_read)
 				return true;
 
-			if(_lock.wait_take(micros) != -1)
+			if(_lock.wait_take() != -1)
 			{
 				if(_writing == false)
 				{
 					context |= _thread_context_read;
 					++_reading;
-					_lock.wait_give(micros);
+					_lock.wait_give();
 					return true;
 				}
 
-				_lock.wait_give(micros);
+				_lock.wait_give();
 				return false;
 			}
 
@@ -338,22 +294,22 @@ namespace cpprelude
 		}
 
 		bool
-		read_release(thread_context& context, r32 micros = 0)
+		read_release(thread_context& context)
 		{
 			if(!(context & _thread_context_read))
 				return true;
 
-			if(_lock.wait_take(micros) != -1)
+			if(_lock.wait_take() != -1)
 			{
 				if(_reading > 0)
 				{
 					context &= ~_thread_context_read;
 					--_reading;
-					_lock.wait_give(micros);
+					_lock.wait_give();
 					return true;
 				}
 
-				_lock.wait_give(micros);
+				_lock.wait_give();
 				return false;
 			}
 
@@ -361,22 +317,22 @@ namespace cpprelude
 		}
 
 		bool
-		write(thread_context& context, r32 micros = 0)
+		write(thread_context& context)
 		{
 			if(context & _thread_context_write)
 				return true;
 
-			if(_lock.wait_take(micros) != -1)
+			if(_lock.wait_take() != -1)
 			{
 				if(_writing == false && _reading == 0)
 				{
 					context |= _thread_context_write;
 					_writing = true;
-					_lock.wait_give(micros);
+					_lock.wait_give();
 					return true;
 				}
 
-				_lock.wait_give(micros);
+				_lock.wait_give();
 				return false;
 			}
 
@@ -384,22 +340,22 @@ namespace cpprelude
 		}
 
 		bool
-		write_release(thread_context& context, r32 micros = 0)
+		write_release(thread_context& context)
 		{
 			if(!(context & _thread_context_write))
 				return true;
 
-			if(_lock.wait_take(micros) != -1)
+			if(_lock.wait_take() != -1)
 			{
 				if(_writing)
 				{
 					context &= ~_thread_context_write;
 					_writing = false;
-					_lock.wait_give(micros);
+					_lock.wait_give();
 					return true;
 				}
 
-				_lock.wait_give(micros);
+				_lock.wait_give();
 				return false;
 			}
 

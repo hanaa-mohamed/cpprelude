@@ -102,7 +102,7 @@ TEST_CASE("slinked_list test", "[slinked_list]")
 
 		CHECK(array.count() == 64);
 
-		slinked_list<i32> array2(tmp::move(array));
+		slinked_list<i32> array2(std::move(array));
 
 		usize i_ = 64 - 1;
 		for(i32 i = 0; i < 64; ++i)
@@ -134,7 +134,7 @@ TEST_CASE("slinked_list test", "[slinked_list]")
 
 		CHECK(array.count() == 64);
 
-		array2 = tmp::move(array);
+		array2 = std::move(array);
 
 		usize i_ = 64 - 1;
 		for(i32 i = 0; i < 64; ++i)
@@ -243,5 +243,23 @@ TEST_CASE("slinked_list test", "[slinked_list]")
 		usize i = 3;
 		for(auto number: array)
 			CHECK(number == i++);
+	}
+
+	SECTION("Case 14")
+	{
+		array.insert_front({1, 2, 3, 4, 5, 6});
+
+		for(auto it = array.begin(); it != array.end(); ++it)
+		{
+			array.insert_after(it, 0);
+			++it;
+		}
+
+		for(auto it = array.begin(); it != array.end(); ++it)
+		{
+			CHECK(*it != 0);
+			++it;
+			CHECK(*it == 0);
+		}
 	}
 }

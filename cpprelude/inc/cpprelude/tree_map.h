@@ -3,7 +3,7 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/allocator.h"
 #include "cpprelude/memory.h"
-#include "cpprelude/tmp.h"
+#include "cpprelude/defaults.h"
 
 //because of the idiots at microsoft
 #undef min
@@ -14,7 +14,7 @@ namespace cpprelude
 	//red black tree implmenetion follows Introduction to Algorithms, Second Edition,” by Thomas H. Cormen, Charles E, Chapter 14
 
 	template<typename T,
-			 typename ComparatorType = tmp::default_less_than<T>,
+			 typename ComparatorType = default_less_than<T>,
 			 typename AllocatorT = global_allocator>
 	struct red_black_tree
 	{
@@ -87,8 +87,8 @@ namespace cpprelude
 
 		red_black_tree(red_black_tree&& other)
 			:_root(other._root), _count(other._count),
-			 _allocator(tmp::move(other._allocator)),
-			 _less_than(tmp::move(other._less_than))
+			 _allocator(std::move(other._allocator)),
+			 _less_than(std::move(other._less_than))
 		{
 			other._root = nullptr;
 			other._count = 0;
@@ -96,7 +96,7 @@ namespace cpprelude
 
 		red_black_tree(red_black_tree&& other, const ComparatorType& compare_function)
 			:_root(other._root), _count(other._count),
-			 _allocator(tmp::move(other._allocator)),
+			 _allocator(std::move(other._allocator)),
 			 _less_than(compare_function)
 		{
 			other._root = nullptr;
@@ -106,7 +106,7 @@ namespace cpprelude
 		red_black_tree(red_black_tree&& other, const AllocatorT& allocator)
 			:_root(other._root), _count(other._count),
 			 _allocator(allocator),
-			 _less_than(tmp::move(other._less_than))
+			 _less_than(std::move(other._less_than))
 		{
 			other._root = nullptr;
 			other._count = 0;
@@ -141,8 +141,8 @@ namespace cpprelude
 		operator=(red_black_tree&& other)
 		{
 			_reset(_root);
-			_allocator = tmp::move(other._allocator);
-			_less_than = tmp::move(other._less_than);
+			_allocator = std::move(other._allocator);
+			_less_than = std::move(other._less_than);
 
 			_count = other._count;
 			_root = other._root;
@@ -168,7 +168,7 @@ namespace cpprelude
 		iterator
 		insert(T&& data)
 		{
-			return iterator(_insert(tmp::move(data)));
+			return iterator(_insert(std::move(data)));
 		}
 
 		void
@@ -276,51 +276,51 @@ namespace cpprelude
 		void
 		inorder_traverse(function_type&& FT, user_type* user_data = nullptr)
 		{
-			_inorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
+			_inorder_traverse(std::forward<function_type>(FT), _root, user_data);
 		}
 
 		template<typename function_type, typename user_type = void>
 		void
 		postorder_traverse(function_type&& FT, user_type* user_data = nullptr)
 		{
-			_postorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
+			_postorder_traverse(std::forward<function_type>(FT), _root, user_data);
 		}
 
 		template<typename function_type, typename user_type = void>
 		void
 		preorder_traverse(function_type&& FT, user_type* user_data = nullptr)
 		{
-			_preorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
+			_preorder_traverse(std::forward<function_type>(FT), _root, user_data);
 		}
 
 		template<typename function_type, typename user_type = void>
 		void
 		inorder_traverse(function_type&& FT, user_type* user_data = nullptr) const
 		{
-			_inorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
+			_inorder_traverse(std::forward<function_type>(FT), _root, user_data);
 		}
 
 		template<typename function_type, typename user_type = void>
 		void
 		postorder_traverse(function_type&& FT, user_type* user_data = nullptr) const
 		{
-			_postorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
+			_postorder_traverse(std::forward<function_type>(FT), _root, user_data);
 		}
 
 		template<typename function_type, typename user_type = void>
 		void
 		preorder_traverse(function_type&& FT, user_type* user_data = nullptr) const
 		{
-			_preorder_traverse(tmp::forward<function_type>(FT), _root, user_data);
+			_preorder_traverse(std::forward<function_type>(FT), _root, user_data);
 		}
 
 		void
 		swap(red_black_tree& other)
 		{
-			tmp::swap(_root, other._root);
-			tmp::swap(_count, other._count);
-			tmp::swap(_allocator, other._allocator);
-			tmp::swap(_less_than, other._less_than);
+			std::swap(_root, other._root);
+			std::swap(_count, other._count);
+			std::swap(_allocator, other._allocator);
+			std::swap(_less_than, other._less_than);
 		}
 
 		iterator
@@ -482,7 +482,7 @@ namespace cpprelude
 				}
 			}
 			++_count;
-			node_type* z = _create_node(tmp::move(data));
+			node_type* z = _create_node(std::move(data));
 			z->parent = y;
 			if (y == nullptr)
 				_root = z;
@@ -706,7 +706,7 @@ namespace cpprelude
 		_create_node(T&& data)
 		{
 			auto result = _allocator.template alloc<node_type>();
-			new (result) node_type(tmp::move(data));
+			new (result) node_type(std::move(data));
 			return result;
 		}
 
@@ -765,12 +765,12 @@ namespace cpprelude
 		_inorder_traverse(function_type&& fT, iterator it, user_type* user_data)
 		{
 			if (it.node->left != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
+				_inorder_traverse(std::forward<function_type>(fT), it.node->left, user_data);
 
 			fT(it, user_data);
 
 			if (it.node->right != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
+				_inorder_traverse(std::forward<function_type>(fT), it.node->right, user_data);
 		}
 
 		template<typename function_type, typename user_type>
@@ -778,10 +778,10 @@ namespace cpprelude
 		_postorder_traverse(function_type&& fT, iterator it, user_type* user_data)
 		{
 			if (it.node->left != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
+				_postorder_traverse(std::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
+				_postorder_traverse(std::forward<function_type>(fT), it.node->right, user_data);
 
 			fT(it, user_data);
 		}
@@ -793,10 +793,10 @@ namespace cpprelude
 			fT(it, user_data);
 
 			if (it.node->left != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
+				_preorder_traverse(std::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
+				_preorder_traverse(std::forward<function_type>(fT), it.node->right, user_data);
 		}
 
 		template<typename function_type, typename user_type>
@@ -804,12 +804,12 @@ namespace cpprelude
 		_inorder_traverse(function_type&& fT, const_iterator it, user_type* user_data) const
 		{
 			if (it.node->left != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
+				_inorder_traverse(std::forward<function_type>(fT), it.node->left, user_data);
 
 			fT(it, user_data);
 
 			if (it.node->right != nullptr)
-				_inorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
+				_inorder_traverse(std::forward<function_type>(fT), it.node->right, user_data);
 		}
 
 		template<typename function_type, typename user_type>
@@ -817,10 +817,10 @@ namespace cpprelude
 		_postorder_traverse(function_type&& fT, const_iterator it, user_type* user_data) const
 		{
 			if (it.node->left != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
+				_postorder_traverse(std::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_postorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
+				_postorder_traverse(std::forward<function_type>(fT), it.node->right, user_data);
 
 			fT(it, user_data);
 		}
@@ -832,10 +832,10 @@ namespace cpprelude
 			fT(it, user_data);
 
 			if (it.node->left != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->left, user_data);
+				_preorder_traverse(std::forward<function_type>(fT), it.node->left, user_data);
 
 			if (it.node->right != nullptr)
-				_preorder_traverse(tmp::forward<function_type>(fT), it.node->right, user_data);
+				_preorder_traverse(std::forward<function_type>(fT), it.node->right, user_data);
 		}
 
 		node_type*
@@ -868,7 +868,7 @@ namespace cpprelude
 	};
 
 	template<typename KeyType, typename ValueType,
-		typename ComparatorType = tmp::default_less_than<details::pair_node<KeyType, ValueType>>,
+		typename ComparatorType = default_less_than<details::pair_node<KeyType, ValueType>>,
 		typename AllocatorT = global_allocator>
 	struct red_black_map: public red_black_tree<details::pair_node<KeyType, ValueType>, ComparatorType, AllocatorT>
 	{
@@ -953,7 +953,7 @@ namespace cpprelude
 		iterator
 		insert(key_type&& key)
 		{
-			return _implementation::insert(data_type(tmp::move(key)));
+			return _implementation::insert(data_type(std::move(key)));
 		}
 
 		iterator
@@ -965,19 +965,19 @@ namespace cpprelude
 		iterator
 		insert(key_type&& key, const value_type& value)
 		{
-			return _implementation::insert(data_type(tmp::move(key), value));
+			return _implementation::insert(data_type(std::move(key), value));
 		}
 
 		iterator
 		insert(const key_type& key, value_type&& value)
 		{
-			return _implementation::insert(data_type(key, tmp::move(value)));
+			return _implementation::insert(data_type(key, std::move(value)));
 		}
 
 		iterator
 		insert(key_type&& key, value_type&& value)
 		{
-			return _implementation::insert(data_type(tmp::move(key), tmp::move(value)));
+			return _implementation::insert(data_type(std::move(key), std::move(value)));
 		}
 
 		using _implementation::insert;
@@ -991,7 +991,7 @@ namespace cpprelude
 		void
 		remove(key_type&& key)
 		{
-			_implementation::remove(lookup(data_type(tmp::move(key))));
+			_implementation::remove(lookup(data_type(std::move(key))));
 		}
 
 		using _implementation::remove;
@@ -1005,7 +1005,7 @@ namespace cpprelude
 		iterator
 		lookup(key_type&& key)
 		{
-			return _implementation::lookup(data_type(tmp::move(key)));
+			return _implementation::lookup(data_type(std::move(key)));
 		}
 
 		const_iterator
@@ -1017,7 +1017,7 @@ namespace cpprelude
 		const_iterator
 		lookup(key_type&& key) const
 		{
-			return _implementation::lookup(data_type(tmp::move(key)));
+			return _implementation::lookup(data_type(std::move(key)));
 		}
 
 		using _implementation::lookup;
@@ -1060,12 +1060,12 @@ namespace cpprelude
 	};
 
 	template<typename T,
-			 typename ComparatorType = tmp::default_less_than<T>,
+			 typename ComparatorType = default_less_than<T>,
 			 typename AllocatorT = global_allocator>
 	using tree_set = red_black_tree<T, ComparatorType, AllocatorT>;
 
 	template<typename KeyType, typename ValueType,
-		typename ComparatorType = tmp::default_less_than<details::pair_node<KeyType, ValueType>>,
+		typename ComparatorType = default_less_than<details::pair_node<KeyType, ValueType>>,
 		typename AllocatorT = global_allocator>
 	using tree_map = red_black_map<KeyType, ValueType, ComparatorType, AllocatorT>;
 }

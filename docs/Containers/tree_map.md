@@ -9,7 +9,7 @@
 ```c++
 template<typename KeyType, 
 		typename ValueType,
-		typename ComparatorType = tmp::default_less_than<details::pair_node<KeyType,ValueType>>,
+		typename ComparatorType = default_less_than<details::pair_node<KeyType,ValueType>>,
 		typename AllocatorT = global_allocator>
 using tree_map = red_black_map<KeyType, ValueType, ComparatorType, AllocatorT>;
 ```

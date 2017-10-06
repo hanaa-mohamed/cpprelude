@@ -2,7 +2,6 @@
 #include "cpprelude/defines.h"
 #include "cpprelude/bucket_array.h"
 #include "cpprelude/allocator.h"
-#include "cpprelude/tmp.h"
 
 namespace cpprelude
 {
@@ -23,7 +22,7 @@ namespace cpprelude
 		void
 		emplace(TArgs&& ... args)
 		{
-			_list.emplace_back(tmp::forward<TArgs>(args)...);
+			_list.emplace_back(std::forward<TArgs>(args)...);
 		}
 
 		void
@@ -35,7 +34,7 @@ namespace cpprelude
 		void
 		enqueue(T&& item)
 		{
-			_list.insert_back(tmp::move(item));
+			_list.insert_back(std::move(item));
 		}
 
 		bool

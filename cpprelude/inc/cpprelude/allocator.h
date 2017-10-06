@@ -11,7 +11,7 @@ namespace cpprelude
 		slice<T>
 		alloc(usize count = 1, ubyte alignment = 4)
 		{
-			return cpprelude::alloc<T>(count, alignment);
+			return cpprelude::alloc<T>(count);
 		}
 
 		template<typename T>
@@ -25,7 +25,7 @@ namespace cpprelude
 		void
 		free(slice<T>&& slice_)
 		{
-			cpprelude::free<T>(tmp::move(slice_));
+			cpprelude::free<T>(std::move(slice_));
 		}
 
 		template<typename T>
@@ -39,7 +39,7 @@ namespace cpprelude
 		void
 		realloc(slice<T>&& slice_, usize count)
 		{
-			cpprelude::realloc<T>(tmp::move(slice_), count);
+			cpprelude::realloc<T>(std::move(slice_), count);
 		}
 	};
 
@@ -88,7 +88,7 @@ namespace cpprelude
 		void
 		free(slice<T>& slice_)
 		{
-			linear_allocator::free(tmp::move(slice_));
+			linear_allocator::free(std::move(slice_));
 		}
 
 		template<typename T>
@@ -119,7 +119,7 @@ namespace cpprelude
 		void
 		realloc(slice<T>& slice_, usize count)
 		{
-			linear_allocator::realloc(tmp::move(slice_), count);
+			linear_allocator::realloc(std::move(slice_), count);
 		}
 
 		template<typename T>
@@ -147,13 +147,13 @@ namespace cpprelude
 
 				//copy the data from the old to the new
 				for(usize i = 0; i < limit; ++i)
-					new_slice[i] = tmp::move(slice_[i]);
+					new_slice[i] = std::move(slice_[i]);
 
 				//now free the old
 				linear_allocator::free(slice_);
 
 				//move the new_slice to the old slice
-				slice_ = tmp::move(new_slice);
+				slice_ = std::move(new_slice);
 			}
 		}
 	};

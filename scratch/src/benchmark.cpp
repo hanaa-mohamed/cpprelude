@@ -940,7 +940,7 @@ thread_multi_reader_read_func(
 			if(array->value.empty())
 			{
 				array->read_release(context);
-				std::this_thread::sleep_for(std::chrono::duration<float, std::micro>(10));
+				std::this_thread::sleep_for(std::chrono::duration<usize, std::micro>(10));
 				continue;
 			}
 
@@ -996,7 +996,7 @@ thread_multi_reader_remove_func(
 			else
 			{
 				array->write_release(context);
-				std::this_thread::sleep_for(std::chrono::duration<float, std::micro>(10));
+				std::this_thread::sleep_for(std::chrono::duration<usize, std::micro>(10));
 
 				continue;
 			}

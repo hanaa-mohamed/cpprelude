@@ -2,7 +2,6 @@
 
 #include "cpprelude/defines.h"
 #include "cpprelude/memory.h"
-#include "cpprelude/tmp.h"
 #include "cpprelude/iterator.h"
 #include "cpprelude/allocator.h"
 #include <initializer_list>
@@ -96,7 +95,7 @@ namespace cpprelude
 		slinked_list(slinked_list<T>&& other)
 			:_count(other._count),
 			 _head(other._head),
-			 _allocator(tmp::move(other._allocator))
+			 _allocator(std::move(other._allocator))
 		{
 			other._count = 0;
 			other._head = nullptr;
@@ -149,7 +148,7 @@ namespace cpprelude
 			reset();
 			_count = other._count;
 			_head = other._head;
-			_allocator = tmp::move(other._allocator);
+			_allocator = std::move(other._allocator);
 			other._count = 0;
 			other._head = nullptr;
 
@@ -217,7 +216,7 @@ namespace cpprelude
 			node_type* new_node = _allocator.template alloc<node_type>();
 
 			//copy the data value
-			new (&new_node->data) T(tmp::forward<TArgs>(args)...);
+			new (&new_node->data) T(std::forward<TArgs>(args)...);
 
 			//move the current head as the next to the new node
 			new_node->next = _head;
@@ -251,13 +250,62 @@ namespace cpprelude
 			node_type* new_node = _allocator.template alloc<node_type>();
 
 			//copy the data value
-			new (&new_node->data) T(value);
+			new (&new_node->data) T(std::move(value));
 
 			//move the current head as the next to the new node
 			new_node->next = _head;
 
 			//set the new node as the new head
 			_head = new_node;
+
+			++_count;
+		}
+
+		template<typename ... TArgs>
+		void
+		emplace_after(const iterator& it, TArgs&& ... args)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+
+			//copy the data value
+			new (&new_node->data) T(std::forward<TArgs>(args)...);
+
+			//set the next of new node to the next of the sent iterator
+			new_node->next = it._node->next;
+			//set the new_node as the next of the sent iterator
+			it._node->next = new_node;
+
+			++_count;
+		}
+
+		void
+		insert_after(const iterator& it, const T& value)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+
+			//copy the data value
+			new (&new_node->data) T(value);
+
+			//set the next of new node to the next of the sent iterator
+			new_node->next = it._node->next;
+			//set the new_node as the next of the sent iterator
+			it._node->next = new_node;
+
+			++_count;
+		}
+
+		void
+		insert_after(const iterator& it, T&& value)
+		{
+			node_type* new_node = _allocator.template alloc<node_type>();
+
+			//copy the data value
+			new (&new_node->data) T(std::move(value));
+
+			//set the next of new node to the next of the sent iterator
+			new_node->next = it._node->next;
+			//set the new_node as the next of the sent iterator
+			it._node->next = new_node;
 
 			++_count;
 		}
@@ -381,7 +429,7 @@ namespace cpprelude
 			//move the elements over
 			usize i = 0;
 			for(auto&& value: *this)
-				new (&result[i++]) T(tmp::move(value));
+				new (&result[i++]) T(std::move(value));
 
 			//reset this linked list
 			reset();

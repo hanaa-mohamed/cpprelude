@@ -22,10 +22,10 @@
     #define API
 #endif
 
-#define BYTES(amount) amount
-#define KILOBYTES(amount) BYTES(amount) * 1024LL
-#define MEGABYTES(amount) KILOBYTES(amount) * 1024LL
-#define GIGABYTES(amount) MEGABYTES(amount) * 1024LL
+#define BYTES(amount) (amount)
+#define KILOBYTES(amount) (BYTES(amount) * 1024ULL)
+#define MEGABYTES(amount) (KILOBYTES(amount) * 1024ULL)
+#define GIGABYTES(amount) (MEGABYTES(amount) * 1024ULL)
 
 #define MAX(a, b) a > b ? a : b
 #define MIN(a, b) a > b ? b : a

@@ -30,7 +30,7 @@ namespace cpprelude
 		{}
 
 		stack_array(stack_array&& other, const AllocatorT& allocator)
-			:_array(tmp::move(other._array), allocator), _count(other._count)
+			:_array(std::move(other._array), allocator), _count(other._count)
 		{}
 
 		template<typename ... TArgs>
@@ -38,9 +38,9 @@ namespace cpprelude
 		emplace(TArgs&& ... args)
 		{
 			if (_count == _array.count())
-				_array.emplace_back(tmp::forward<TArgs>(args)...);
+				_array.emplace_back(std::forward<TArgs>(args)...);
 			else
-				_array[_count] = T(tmp::forward<TArgs>(args)...);
+				_array[_count] = T(std::forward<TArgs>(args)...);
 
 			++_count;
 		}
@@ -60,9 +60,9 @@ namespace cpprelude
 		push(T&& item)
 		{
 			if (_count == _array.count())
-				_array.insert_back(tmp::move(item));
+				_array.insert_back(std::move(item));
 			else
-				_array[_count] = tmp::move(item);
+				_array[_count] = std::move(item);
 
 			++_count;
 		}
