@@ -409,6 +409,27 @@ namespace cpprelude
 			_tail->prev = it;
 		}
 
+		void remove(iterator it)
+		{
+			auto cur_node = it._node;
+			auto prev_node = cur_node->prev;
+			auto next_node = cur_node->next;
+
+			if (cur_node == _head->next)
+				_head->next = next_node;
+			else
+				prev_node->next = cur_node->next;
+
+			if (cur_node == _tail->prev)
+				_tail->prev = prev_node;
+			else
+				next_node->prev = cur_node->prev;
+
+			cur_node->data.~T();
+			_allocator.free(make_slice(cur_node));
+			--_count;
+		}
+
 		void
 		reset()
 		{

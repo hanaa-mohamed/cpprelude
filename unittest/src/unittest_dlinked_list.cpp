@@ -553,4 +553,50 @@ TEST_CASE("dlinked_list test", "[dlinked_list]")
 			CHECK(*it != 0);
 		}
 	}
+
+	SECTION("Case 31")
+	{
+		array.insert_front({ 1, 2, 3, 4, 5, 6 });
+
+		auto it = array.begin();
+		array.remove(it);
+		
+		usize i = 2;
+		for (auto it = array.begin(); it != array.end(); ++it)
+		{
+			CHECK(*it == i);
+			++i;
+		}
+	}
+
+	SECTION("Case 32")
+	{
+		array.insert_front({ 1, 2, 3, 4, 5, 6 });
+
+		auto it = array.begin();
+		array.remove(it);
+
+		it = --array.end();
+		array.remove(it);
+
+		usize i = 2;
+		for (auto it = array.begin(); it != array.end(); ++it)
+		{
+			CHECK(*it == i);
+			++i;
+		}
+
+		it = ++(++array.begin());
+		array.remove(it);
+
+		i = 2;
+		for (auto it = array.begin(); it != array.end(); ++it)
+		{
+			if (i == 4)
+				++i;
+			CHECK(*it == i);
+			++i;
+		}
+
+	}
 }
