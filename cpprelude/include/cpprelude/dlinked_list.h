@@ -411,22 +411,15 @@ namespace cpprelude
 
 		void remove(iterator it)
 		{
-			auto cur_node = it._node;
-			auto prev_node = cur_node->prev;
-			auto next_node = cur_node->next;
+			auto node = it._node;
+			auto prev_node = node->prev;
+			auto next_node = node->next;
 
-			if (cur_node == _head->next)
-				_head->next = next_node;
-			else
-				prev_node->next = cur_node->next;
+			prev_node->next = next_node;
+			next_node->prev = prev_node;
 
-			if (cur_node == _tail->prev)
-				_tail->prev = prev_node;
-			else
-				next_node->prev = cur_node->prev;
-
-			cur_node->data.~T();
-			_allocator.free(make_slice(cur_node));
+			node->data.~T();
+			_allocator.free(make_slice(node));
 			--_count;
 		}
 

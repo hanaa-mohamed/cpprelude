@@ -644,7 +644,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		tree_map<usize, std::string> tree;
 		auto append = [](tree_map<usize, std::string>::iterator it, std::string* data) {
 			it.value() += *data;
-			std::cout << it.key() << " " << it.value() <<std::endl;
+			//std::cout << it.key() << " " << it.value() <<std::endl;
 		};
 		//inserting some pairs
 		tree.insert(3, "33");
@@ -655,7 +655,7 @@ TEST_CASE("tree_map test", "[tree_map]")
 		tree[1] = "44";
 		//searching for that key and printing its value
 		auto h = tree.lookup(1);
-		std::cout << h.value() << std::endl;    
+		//std::cout << h.value() << std::endl;    
 		//Applying insert-lambda function by calling inorder_traverse
 		std::string aa = "AA";
 		tree.inorder_traverse(append, &aa);
