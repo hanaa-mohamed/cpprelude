@@ -1,4 +1,4 @@
 #pragma once
 
 void
-benchmark();
+do_benchmark();
