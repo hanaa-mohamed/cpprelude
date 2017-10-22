@@ -40,7 +40,7 @@ namespace cpprelude
 			if (_count == _array.count())
 				_array.emplace_back(std::forward<TArgs>(args)...);
 			else
-				_array[_count] = T(std::forward<TArgs>(args)...);
+				new (_array.data() + _count) T(std::forward<TArgs>(args)...);
 
 			++_count;
 		}
@@ -51,7 +51,7 @@ namespace cpprelude
 			if (_count == _array.count())
 				_array.insert_back(item);
 			else
-				_array[_count] = item;
+				new (_array.data() + _count) T(item);
 
 			++_count;
 		}
@@ -62,7 +62,7 @@ namespace cpprelude
 			if (_count == _array.count())
 				_array.insert_back(std::move(item));
 			else
-				_array[_count] = std::move(item);
+				new (_array.data() + _count) T(std::move(item));
 
 			++_count;
 		}
