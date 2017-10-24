@@ -17,7 +17,7 @@ project "unittest"
 	links {"cpprelude"}
 
 	filter "action:gmake"
-		buildoptions {"-std=c++14"}
+		buildoptions {"-std=c++14", "-Wall"}
 		linkoptions {"-pthread"}
 
 	filter "configurations:debug"

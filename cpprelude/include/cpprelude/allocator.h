@@ -49,13 +49,13 @@ namespace cpprelude
 		usize _alloc_head, _alloc_count;
 
 		linear_allocator()
-			:_alloc_count(0), _alloc_head(0)
+			:_alloc_head(0), _alloc_count(0)
 		{}
 
 		template<typename T>
 		linear_allocator(slice<T> memory)
 			:_memory(reinterpret_cast<ubyte*>(memory.ptr), memory.size),
-			 _alloc_count(0), _alloc_head(0)
+			_alloc_head(0), _alloc_count(0)
 		{}
 
 		~linear_allocator()

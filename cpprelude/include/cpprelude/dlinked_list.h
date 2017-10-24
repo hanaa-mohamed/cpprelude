@@ -28,13 +28,13 @@ namespace cpprelude
 		AllocatorT _allocator;
 
 		dlinked_list(const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
+			:_head(nullptr), _tail(nullptr), _count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 		}
 
 		dlinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
+			:_head(nullptr), _tail(nullptr), _count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 
@@ -43,7 +43,7 @@ namespace cpprelude
 		}
 
 		dlinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
+			:_head(nullptr), _tail(nullptr), _count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 
@@ -52,7 +52,7 @@ namespace cpprelude
 		}
 
 		dlinked_list(const dlinked_list<T>& other)
-			:_count(0), _allocator(other._allocator), _head(nullptr), _tail(nullptr)
+			:_head(nullptr), _tail(nullptr), _count(0), _allocator(other._allocator)
 		{
 			_init_sentinels();
 
@@ -61,7 +61,7 @@ namespace cpprelude
 		}
 
 		dlinked_list(const dlinked_list<T>& other, const AllocatorT& allocator)
-			:_count(0), _allocator(allocator), _head(nullptr), _tail(nullptr)
+			:_head(nullptr), _tail(nullptr), _count(0), _allocator(allocator)
 		{
 			_init_sentinels();
 
@@ -70,9 +70,9 @@ namespace cpprelude
 		}
 
 		dlinked_list(dlinked_list<T>&& other)
-			:_count(other._count),
-			 _head(other._head),
+			:_head(other._head),
 			 _tail(other._tail),
+			 _count(other._count),
 			_allocator(std::move(other._allocator))
 		{
 			other._count = 0;
@@ -81,9 +81,9 @@ namespace cpprelude
 		}
 
 		dlinked_list(dlinked_list<T>&& other, const AllocatorT& allocator)
-			:_count(other._count),
-			 _head(other._head),
+			:_head(other._head),
 			 _tail(other._tail),
+			 _count(other._count),
 			 _allocator(allocator)
 		{
 			other._count = 0;

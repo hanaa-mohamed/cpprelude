@@ -58,8 +58,6 @@ benchmark_dynamic_array(abstract_benchmark* bench, usize limit)
 usize
 benchmark_custom_dynamic_array(abstract_benchmark* bench, usize limit)
 {
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
 	slice<ubyte> mem_block;
 	auto arena_allocator = make_arena_allocator(MEGABYTES(25), mem_block);
 
@@ -109,8 +107,6 @@ benchmark_slinked_list(abstract_benchmark* bench, usize limit)
 usize
 benchmark_custom_slinked_list(abstract_benchmark* bench, usize limit)
 {
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
 	slice<ubyte> mem_block;
 	auto arena_allocator = make_arena_allocator(MEGABYTES(25), mem_block);
 
@@ -160,8 +156,6 @@ benchmark_dlinked_list(abstract_benchmark* bench, usize limit)
 usize
 benchmark_custom_dlinked_list(abstract_benchmark* bench, usize limit)
 {
-	double avg_sec = 0, avg_milli = 0, avg_micro = 0, avg_nano = 0;
-
 	slice<ubyte> mem_block;
 	auto arena_allocator = make_arena_allocator(MEGABYTES(25), mem_block);
 

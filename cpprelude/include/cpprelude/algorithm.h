@@ -199,7 +199,6 @@ namespace cpprelude
 	{
 		dynamic_array<typename iterator_type::data_type> aux(count);
 		iterator_type aux_it = aux.begin();
-		iterator_type end_it = next(begin_it, count);
 		iterator_type tmp_it = begin_it;
 
 		//so you copy the array to the aux 
@@ -392,8 +391,6 @@ namespace cpprelude
 			//convert from relative index of presult to absolute index of it
 			else if ((it_ix + presult.index) > k)
 			{
-				it = it;
-				it_ix = it_ix;
 				it_count = presult.index;
 			}
 			else

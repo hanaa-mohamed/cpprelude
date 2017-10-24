@@ -51,7 +51,7 @@ namespace cpprelude
 
 		void execute() override
 		{
-			T result = proc(this);
+			proc(this);
 		}
 	};
 

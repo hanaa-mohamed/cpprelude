@@ -14,7 +14,7 @@ namespace cpprelude
 		usize _count;
 
 		stack_array(const AllocatorT& allocator = AllocatorT())
-			:_count(0), _array(allocator)
+			: _array(allocator), _count(0)
 		{}
 
 		stack_array(const stack_array&) = default;
@@ -22,7 +22,7 @@ namespace cpprelude
 		stack_array(stack_array&&) = default;
 
 		stack_array(usize count, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _array(count, allocator)
+			:_array(count, allocator), _count(0)
 		{}
 
 		stack_array(const stack_array& other, const AllocatorT& allocator)

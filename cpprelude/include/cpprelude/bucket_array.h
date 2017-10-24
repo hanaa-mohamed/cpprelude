@@ -35,11 +35,11 @@ namespace cpprelude
 		iterator _cap_begin, _cap_end;
 
 		bucket_array(const AllocatorT& allocator = AllocatorT())
-			:_allocator(allocator), _bucket_count(0), _count(0), _map(nullptr)
+			:_map(nullptr), _allocator(allocator), _count(0), _bucket_count(0)
 		{ _init(); }
 
 		bucket_array(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
-			:_allocator(allocator), _bucket_count(0), _count(0), _map(nullptr)
+			:_map(nullptr), _allocator(allocator), _count(0), _bucket_count(0)
 		{
 			_init();
 
@@ -48,7 +48,7 @@ namespace cpprelude
 		}
 
 		bucket_array(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
-			:_allocator(allocator), _bucket_count(0), _count(0), _map(nullptr)
+			:_map(nullptr), _allocator(allocator), _count(0), _bucket_count(0)
 		{
 			_init();
 
@@ -57,7 +57,7 @@ namespace cpprelude
 		}
 
 		bucket_array(const bucket_array& other)
-			:_count(0), _bucket_count(0), _allocator(other._allocator), _map(nullptr)
+			:_map(nullptr), _allocator(other._allocator), _count(0), _bucket_count(0)
 		{
 			_init();
 
@@ -66,7 +66,7 @@ namespace cpprelude
 		}
 
 		bucket_array(const bucket_array& other, const AllocatorT& allocator)
-			:_count(0), _bucket_count(0), _allocator(allocator), _map(nullptr)
+			:_map(nullptr), _allocator(allocator), _count(0), _bucket_count(0)
 		{
 			_init();
 
@@ -75,14 +75,14 @@ namespace cpprelude
 		}
 
 		bucket_array(bucket_array&& other)
-			:_allocator(std::move(other._allocator)),
+			:_map(other._map),
+			_allocator(std::move(other._allocator)),
 			_count(other._count),
 			_bucket_count(other._bucket_count),
-			_cap_begin(std::move(other._cap_begin)),
-			_cap_end(std::move(other._cap_begin)),
 			_begin(std::move(other._begin)),
 			_end(std::move(other._end)),
-			_map(other._map)
+			_cap_begin(std::move(other._cap_begin)),
+			_cap_end(std::move(other._cap_begin))
 		{
 			other._count = 0;
 			other._bucket_count = 0;
@@ -94,14 +94,14 @@ namespace cpprelude
 		}
 
 		bucket_array(bucket_array&& other, const AllocatorT& allocator)
-			:_allocator(allocator),
+			:_map(other._map),
+			 _allocator(allocator),
 			 _count(other._count),
 			 _bucket_count(other._bucket_count),
-			 _cap_begin(std::move(other._cap_begin)),
-			 _cap_end(std::move(other._cap_begin)),
 			 _begin(std::move(other._begin)),
 			 _end(std::move(other._end)),
-			 _map(other._map)
+			 _cap_begin(std::move(other._cap_begin)),
+			 _cap_end(std::move(other._cap_begin))
 		{
 			other._count = 0;
 			other._bucket_count = 0;

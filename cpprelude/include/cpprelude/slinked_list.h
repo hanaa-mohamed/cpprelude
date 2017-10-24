@@ -28,11 +28,11 @@ namespace cpprelude
 		AllocatorT _allocator;
 
 		slinked_list(const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator), _head(nullptr)
+			:_head(nullptr), _count(0), _allocator(allocator)
 		{}
 
 		slinked_list(std::initializer_list<T> list, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator), _head(nullptr)
+			:_head(nullptr), _count(0), _allocator(allocator)
 		{
 			auto it = list.end();
 			it = std::prev(it);
@@ -44,14 +44,14 @@ namespace cpprelude
 		}
 
 		slinked_list(usize count, const T& fill_value, const AllocatorT& allocator = AllocatorT())
-			:_count(0), _allocator(allocator), _head(nullptr)
+			:_head(nullptr), _count(0), _allocator(allocator)
 		{
 			for(usize i = 0; i < count; ++i)
 				insert_front(fill_value);
 		}
 
 		slinked_list(const slinked_list<T>& other)
-			:_count(0), _allocator(other._allocator), _head(nullptr)
+			:_head(nullptr), _count(0), _allocator(other._allocator)
 		{
 			auto* other_it = &other._head;
 			auto* it = &_head;
@@ -72,7 +72,7 @@ namespace cpprelude
 		}
 
 		slinked_list(const slinked_list<T>& other, const AllocatorT& allocator)
-			:_count(0), _allocator(allocator), _head(nullptr)
+			:_head(nullptr), _count(0), _allocator(allocator)
 		{
 			auto* other_it = &other._head;
 			auto* it = &_head;
@@ -93,8 +93,8 @@ namespace cpprelude
 		}
 
 		slinked_list(slinked_list<T>&& other)
-			:_count(other._count),
-			 _head(other._head),
+			:_head(other._head),
+			 _count(other._count),
 			 _allocator(std::move(other._allocator))
 		{
 			other._count = 0;
@@ -102,8 +102,8 @@ namespace cpprelude
 		}
 
 		slinked_list(slinked_list<T>&& other, const AllocatorT& allocator)
-			:_count(other._count),
-			 _head(other._head),
+			:_head(other._head),
+			 _count(other._count),
 			 _allocator(allocator)
 		{
 			other._count = 0;

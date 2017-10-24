@@ -72,8 +72,8 @@ namespace cpprelude
 		}
 
 		dynamic_array(dynamic_array<T, AllocatorT>&& other)
-			:_count(other._count),
-			 _data_block(std::move(other._data_block)),
+			:_data_block(std::move(other._data_block)),
+			 _count(other._count),
 			 _allocator(std::move(other._allocator))
 		{
 			other._count = 0;

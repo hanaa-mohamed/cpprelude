@@ -688,8 +688,6 @@ namespace cpprelude
 		_reserve_rehash(usize old_count)
 		{
 			//here we rehash everything in the old data to the new space
-			usize cap = capacity();
-
 			for(usize i = 0;
 				i < old_count;
 				++i)

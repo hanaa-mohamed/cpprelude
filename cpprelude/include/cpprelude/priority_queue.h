@@ -15,11 +15,11 @@ namespace cpprelude {
 		Comparator _compare;
 
 		priority_queue(Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
-			:_count(0), _array(allocator), _compare(compare_function)
+			:_array(allocator), _count(0), _compare(compare_function)
 		{}
 
 		priority_queue(usize count, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
-			:_count(0), _array(count, allocator), _compare(compare_function)
+			:_array(count, allocator), _count(0), _compare(compare_function)
 		{}
 
 		priority_queue(const priority_queue& other, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
@@ -31,14 +31,14 @@ namespace cpprelude {
 		{}
 
 		priority_queue(std::initializer_list<T> list, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT() )
-			:_count(list.size()), _array(list, allocator), _compare(compare_function)
+			:_array(list, allocator), _count(list.size()), _compare(compare_function)
 		{
 			_heapify();
 		}
 
 		template<typename iterator_type>
 		priority_queue(iterator_type it, usize count, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
-			:_count(count), _array(allocator), _compare(compare_function)
+			:_array(allocator), _count(count), _compare(compare_function)
 		{ 
 			_array.reserve(count);
 			while (count--)
@@ -51,7 +51,7 @@ namespace cpprelude {
 		}
 
 		priority_queue(const dynamic_array<T>& arr, Comparator compare_function = Comparator(), const AllocatorT& allocator = AllocatorT())
-			:_count(arr.count()), _array(arr, allocator), _compare(compare_function)
+			:_array(arr, allocator), _count(arr.count()), _compare(compare_function)
 		{
 			_heapify();
 		}
