@@ -9,7 +9,7 @@ project "cpprelude"
 	includedirs {"include/"}
 
 	filter "action:gmake"
-		buildoptions {"-std=c++14", "-Wall"}
+		buildoptions {"-std=c++14", "-Wall", "-fno-rtti", "-fno-exceptions"}
 		linkoptions {"-pthread"}
 
 	filter "configurations:debug"
