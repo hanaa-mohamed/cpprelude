@@ -2,13 +2,13 @@
 
 #include "cpprelude/defines.h"
 #include "cpprelude/dynamic_array.h"
-#include "cpprelude/allocator.h"
+#include "cpprelude/memory_context.h"
+#include "cpprelude/platform.h"
 #include "cpprelude/string.h"
 #include "cpprelude/memory.h"
 #include "cpprelude/iterator.h"
 
 #include <new>
-#include <iostream>
 
 namespace cpprelude
 {
@@ -22,6 +22,7 @@ namespace cpprelude
 			operator()(const void* ptr, usize len, usize seed)
 			{
 				static_assert(ptr_size == 0, "there's no hash function defined for this architecture pointer size");
+				return 0;
 			}
 		};
 
@@ -136,6 +137,7 @@ namespace cpprelude
 			operator()(T value) const
 			{
 				static_assert(sizeof(T) == 0, "there's no hash function defined for this type");
+				return 0;
 			}
 		};
 
@@ -178,13 +180,13 @@ namespace cpprelude
 	API usize
 	hash_bytes(const void* ptr, usize len, usize seed = 0xc70f6907UL);
 
-	template<typename T>
-	struct hash<string_slice<T>>
+	template<>
+	struct hash<string>
 	{
 		inline usize
-		operator()(const string_slice<T>& str) const
+		operator()(const string& str) const
 		{
-			return hash_bytes(str.data(), str.count() * sizeof(T));
+			return hash_bytes(str.data(), str.size());
 		}
 	};
 
@@ -220,8 +222,7 @@ namespace cpprelude
 
 	template<typename keyType,
 			 typename valueType,
-			 typename hashType = hash<keyType>,
-			 typename AllocatorT = global_allocator>
+			 typename hashType = hash<keyType>>
 	struct hash_array
 	{
 		using key_type = keyType;
@@ -234,14 +235,14 @@ namespace cpprelude
 								const_hash_array_value_iterator<value_type>>;
 		using const_value_view = const_view<const_hash_array_value_iterator<value_type>>;
 
-		dynamic_array<key_type, AllocatorT> _keys;
-		dynamic_array<value_type, AllocatorT> _values;
-		dynamic_array<u8, AllocatorT> _flags;
+		dynamic_array<key_type> _keys;
+		dynamic_array<value_type> _values;
+		dynamic_array<u8> _flags;
 		hash_type _hasher;
 		usize _count;
 
-		hash_array(const AllocatorT& allocator = AllocatorT())
-			:_keys(allocator), _values(allocator), _flags(allocator), _count(0)
+		hash_array(memory_context* context = platform.global_memory)
+			:_keys(context), _values(context), _flags(context), _count(0)
 		{
 			constexpr usize starting_count = 256;
 
@@ -782,6 +783,6 @@ namespace cpprelude
 		}
 	};
 
-	template<typename T, typename hashType = hash<T>, typename AllocatorT = global_allocator>
-	using hash_set = hash_array<T, bool, hashType, AllocatorT>;
+	template<typename T, typename hashType = hash<T>>
+	using hash_set = hash_array<T, bool, hashType>;
 }
