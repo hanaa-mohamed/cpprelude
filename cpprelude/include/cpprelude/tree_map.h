@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cpprelude/defines.h"
+#include "cpprelude/iterator.h"
 #include "cpprelude/memory_context.h"
 #include "cpprelude/platform.h"
 #include "cpprelude/memory.h"
