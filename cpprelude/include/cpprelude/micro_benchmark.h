@@ -6,6 +6,7 @@
 #include "cpprelude/algorithm.h"
 #include "cpprelude/string.h"
 #include <ostream>
+#include <sstream>
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -99,7 +100,7 @@ namespace cpprelude
 		return result;
 	}
 
-	#define CPPRELUDE_BENCHMARK(proc, ...) cpprelude::make_benchmark(#proc, proc, __VA_ARGS__)
+	#define CPPRELUDE_BENCHMARK(proc, ...) cpprelude::make_benchmark(#proc, proc, ## __VA_ARGS__)
 
 	namespace details
 	{
