@@ -125,12 +125,21 @@ namespace cpprelude
 		return _default_file_read(this, data);
 	}
 
-	file
+	result<file, PLATFORM_ERROR>
 	file::open(const string& name, IO_MODE io_mode, OPEN_MODE open_mode)
 	{
 		file out;
 		out.name = name;
-		out.handle = check(platform->file_open(out.name, io_mode, open_mode), "file failed to open"_cs);
+
+		auto result = platform->file_open(out.name, io_mode, open_mode);
+
+		if(result.has_result() && result.ok())
+			out.handle = result;
+		else if(result.has_result())
+			return result;
+		else
+			panic("platform::file_open didn't return a result");
+
 		return out;
 	}
 

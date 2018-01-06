@@ -5,6 +5,8 @@
 #include "cpprelude/file_defs.h"
 #include "cpprelude/string.h"
 #include "cpprelude/io.h"
+#include "cpprelude/result.h"
+#include "cpprelude/platform.h"
 
 namespace cpprelude
 {
@@ -61,7 +63,7 @@ namespace cpprelude
 		API_CPPR usize
 		read(slice<byte>&& data);
 
-		API_CPPR static file
+		API_CPPR static result<file, PLATFORM_ERROR>
 		open(const string& name,
 			 IO_MODE io_mode = IO_MODE::READ_WRITE,
 			 OPEN_MODE open_mode = OPEN_MODE::CREATE_OVERWRITE);
