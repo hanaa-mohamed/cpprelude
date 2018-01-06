@@ -24,13 +24,13 @@ namespace cpprelude
 
 		slice<T> _data_block;
 		usize _count;
-		memory_context *_context;
+		memory_context *_context = platform->global_memory;
 
-		dynamic_array(memory_context* context = platform.global_memory)
+		dynamic_array(memory_context* context = platform->global_memory)
 			:_count(0), _context(context)
 		{}
 
-		dynamic_array(std::initializer_list<T> list, memory_context* context = platform.global_memory)
+		dynamic_array(std::initializer_list<T> list, memory_context* context = platform->global_memory)
 			:_count(list.size()), _context(context)
 		{
 			_data_block = _context->template alloc<T>(_count);
@@ -42,11 +42,11 @@ namespace cpprelude
 			}
 		}
 
-		dynamic_array(usize count, memory_context* context = platform.global_memory)
+		dynamic_array(usize count, memory_context* context = platform->global_memory)
 			:_count(count), _context(context)
 		{ _data_block = _context->template alloc<T>(count); }
 
-		dynamic_array(usize count, const T& fill_value, memory_context* context = platform.global_memory)
+		dynamic_array(usize count, const T& fill_value, memory_context* context = platform->global_memory)
 			:_count(0), _context(context)
 		{
 			expand_back(count, fill_value);
@@ -107,7 +107,7 @@ namespace cpprelude
 		dynamic_array<T>&
 		operator=(const dynamic_array<T>& other)
 		{
-			slice<T> tmp_data_block = _context->template alloc<T>(other._data_block.count());
+			slice<T> tmp_data_block = other._context->template alloc<T>(other._data_block.count());
 			for(usize i = 0; i < other._count; ++i)
 				new (&tmp_data_block[i]) T(other._data_block[i]);
 

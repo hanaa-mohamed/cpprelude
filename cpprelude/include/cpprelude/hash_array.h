@@ -221,6 +221,16 @@ namespace cpprelude
 		}
 	};
 
+	template<>
+	struct hash<rune>
+	{
+		inline usize
+		operator()(rune value) const
+		{
+			return value.data;
+		}
+	};
+
 	template<typename keyType,
 			 typename valueType,
 			 typename hashType = hash<keyType>>
@@ -242,7 +252,7 @@ namespace cpprelude
 		hash_type _hasher;
 		usize _count;
 
-		hash_array(memory_context* context = platform.global_memory)
+		hash_array(memory_context* context = platform->global_memory)
 			:_keys(context), _values(context), _flags(context), _count(0)
 		{
 			constexpr usize starting_count = 256;
@@ -250,6 +260,24 @@ namespace cpprelude
 			_keys.expand_back(starting_count);
 			_values.expand_back(starting_count);
 			_flags.expand_back(starting_count, 0);
+		}
+
+		hash_array(const hash_array& other, memory_context *context)
+			:_keys(other._keys, context),
+			 _values(other._values, context),
+			 _flags(other._flags, context),
+			 _hasher(other._hasher),
+			 _count(other._count)
+		{}
+
+		hash_array(hash_array&& other, memory_context *context)
+			:_keys(std::move(other._keys), context),
+			 _values(std::move(other._values), context),
+			 _flags(std::move(other._flags), context),
+			 _hasher(std::move(other._hasher)),
+			 _count(other._count)
+		{
+			other._count = 0;
 		}
 
 		iterator
