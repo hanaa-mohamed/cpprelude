@@ -33,7 +33,7 @@ namespace cpprelude
 		return out;
 	}
 
-	inline static void
+	[[noreturn]] inline static void
 	panic(const string& msg)
 	{
 		println_err("[panic]: ", msg);
