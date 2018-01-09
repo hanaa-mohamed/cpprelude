@@ -185,10 +185,13 @@ namespace cpprelude
 		substr(rune_iterator begin, rune_iterator end, memory_context *context = nullptr);
 
 		API_CPPR string
-		view(usize start, usize size);
+		view(usize start, usize size) const;
 
 		API_CPPR string
-		view(rune_iterator begin, rune_iterator end);
+		view(rune_iterator begin, rune_iterator end) const;
+
+		API_CPPR bool
+		is_view() const;
 
 		API_CPPR slice<byte>
 		decay();

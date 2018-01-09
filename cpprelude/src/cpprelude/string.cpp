@@ -534,7 +534,7 @@ namespace cpprelude
 	}
 
 	string
-	string::view(usize start, usize size)
+	string::view(usize start, usize size) const
 	{
 		usize start_byte_index = _count_runes_to(_data, start);
 		//it's the index starting from the offsetted ptr so essentially it's a size
@@ -545,12 +545,18 @@ namespace cpprelude
 	}
 
 	string
-	string::view(rune_iterator begin, rune_iterator end)
+	string::view(rune_iterator begin, rune_iterator end) const
 	{
 		usize start_byte_index = begin._ptr - _data.ptr;
 		usize end_byte_size = end._ptr - begin._ptr;
 		auto subslice = _data.view(start_byte_index, end_byte_size + 1);
 		return string(std::move(subslice), nullptr);
+	}
+
+	bool
+	string::is_view() const
+	{
+		return _context == nullptr;
 	}
 
 	slice<byte>

@@ -63,6 +63,11 @@ namespace cpprelude
 			return ptr;
 		}
 
+		operator const T*() const
+		{
+			return ptr;
+		}
+
 		const T&
 		operator[](const usize& index) const
 		{
@@ -95,7 +100,7 @@ namespace cpprelude
 		}
 
 		slice<T>
-		view(usize start = 0)
+		view(usize start = 0) const
 		{
 			usize count = (size - (start * sizeof(T))) / sizeof(T);
 
@@ -103,7 +108,7 @@ namespace cpprelude
 		}
 
 		slice<T>
-		view(usize start, usize count)
+		view(usize start, usize count) const
 		{
 			return slice<T>(ptr+start, count * sizeof(T));
 		}
