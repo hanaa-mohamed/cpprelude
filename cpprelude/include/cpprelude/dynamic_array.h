@@ -111,7 +111,8 @@ namespace cpprelude
 			for(usize i = 0; i < other._count; ++i)
 				new (&tmp_data_block[i]) T(other._data_block[i]);
 
-			_context->free(_data_block);
+			if(_data_block.valid())
+				_context->free(_data_block);
 
 			_data_block = std::move(tmp_data_block);
 			_count = other._count;
@@ -123,10 +124,13 @@ namespace cpprelude
 		dynamic_array<T>&
 		operator=(dynamic_array<T>&& other)
 		{
-			for(usize i = 0; i < _count; ++i)
-				_data_block[i].~T();
+			if(_data_block.valid())
+			{
+				for(usize i = 0; i < _count; ++i)
+					_data_block[i].~T();
 
-			_context->free(_data_block);
+				_context->free(_data_block);
+			}
 
 			_data_block = std::move(other._data_block);
 			_count = other._count;

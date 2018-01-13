@@ -178,8 +178,12 @@ namespace cpprelude
 
 #undef trivial_hash
 
-	API_CPPR usize
-	hash_bytes(const void* ptr, usize len, usize seed = 0xc70f6907UL);
+	inline static usize
+	hash_bytes(const void* ptr, usize len, usize seed = 0xc70f6907UL)
+	{
+		details::_hash_bytes<sizeof(void*)> hasher;
+		return hasher(ptr, len, seed);
+	}
 
 	template<>
 	struct hash<string>
@@ -255,10 +259,10 @@ namespace cpprelude
 		hash_array(memory_context* context = platform->global_memory)
 			:_keys(context), _values(context), _flags(context), _count(0)
 		{
-			constexpr usize starting_count = 8;
+			constexpr usize starting_count = 16;
 
-			_keys.expand_back(starting_count);
-			_values.expand_back(starting_count);
+			_resize_dynamic_array(_keys, starting_count);
+			_resize_dynamic_array(_values, starting_count);
 			_flags.expand_back(starting_count, 0);
 		}
 
@@ -280,6 +284,23 @@ namespace cpprelude
 			other._count = 0;
 		}
 
+		~hash_array()
+		{
+			//reset the count back to the real count
+			usize cap = capacity();
+			for (usize i = 0; i < cap; ++i)
+			{
+				if (_flags[i] == 1)
+				{
+					_keys[i].~key_type();
+					_values[i].~value_type();
+					_flags[i] = 0;
+				}
+			}
+			_keys._count = 0;
+			_values._count = 0;
+		}
+
 		iterator
 		insert(const key_type& key)
 		{
@@ -297,7 +318,14 @@ namespace cpprelude
 			if(_flags[index] == 0)
 			{
 				_flags[index] = 1;
+				new (_keys.data() + index) key_type(key);
+				new (_values.data() + index) value_type();
 				++_count;
+			}
+			else
+			{
+				_keys[index] = key;
+				_values[index] = std::move(value_type());
 			}
 
 			return iterator(_keys.data() + index,
@@ -317,13 +345,18 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = std::move(key);
-
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
 			{
 				_flags[index] = 1;
+				new (_keys.data() + index) key_type(std::move(key));
+				new (_values.data() + index) value_type();
 				++_count;
+			}
+			else
+			{
+				_keys[index] = std::move(key);
+				_values[index] = std::move(value_type());
 			}
 
 			return iterator(_keys.data() + index,
@@ -343,14 +376,19 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = key;
-			_values[index] = value;
 
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
 			{
 				_flags[index] = 1;
+				new (_keys.data() + index) key_type(key);
+				new (_values.data() + index) value_type(value);
 				++_count;
+			}
+			else
+			{
+				_keys[index] = key;
+				_values[index] = value;
 			}
 
 			return iterator(_keys.data() + index,
@@ -370,14 +408,19 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = std::move(key);
-			_values[index] = value;
 
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
 			{
 				_flags[index] = 1;
+				new (_keys.data() + index) key_type(std::move(key));
+				new (_values.data() + index) value_type(value);
 				++_count;
+			}
+			else
+			{
+				_keys[index] = std::move(key);
+				_values[index] = value;
 			}
 
 			return iterator(_keys.data() + index,
@@ -397,14 +440,19 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = key;
-			_values[index] = std::move(value);
 
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
 			{
 				_flags[index] = 1;
+				new (_keys.data() + index) key_type(key);
+				new (_values.data() + index) value_type(std::move(value));
 				++_count;
+			}
+			else
+			{
+				_keys[index] = key;
+				_values[index] = std::move(value);
 			}
 
 			return iterator(_keys.data() + index,
@@ -424,14 +472,18 @@ namespace cpprelude
 			if(index == capacity())
 				return end();
 
-			_keys[index] = std::move(key);
-			_values[index] = std::move(value);
-
 			//if this cell is empty mark it full and increment _count
 			if(_flags[index] == 0)
 			{
 				_flags[index] = 1;
+				new (_keys.data() + index) key_type(std::move(key));
+				new (_values.data() + index) value_type(std::move(value));
 				++_count;
+			}
+			else
+			{
+				_keys[index] = std::move(key);
+				_values[index] = std::move(value);
 			}
 
 			return iterator(_keys.data() + index,
@@ -477,7 +529,7 @@ namespace cpprelude
 			if(_flags[index] == 0)
 			{
 				_keys[index] = key;
-
+				new (_values.data() + index) value_type();
 				_flags[index] = 1;
 				++_count;
 			}
@@ -494,7 +546,7 @@ namespace cpprelude
 			if(_flags[index] == 0)
 			{
 				_keys[index] = std::move(key);
-
+				new (_values.data() + index) value_type();
 				_flags[index] = 1;
 				++_count;
 			}
@@ -565,10 +617,11 @@ namespace cpprelude
 			if(new_count <= cap)
 				return;
 
+			_resize_dynamic_array(_keys, new_count);
+			_resize_dynamic_array(_values, new_count);
+
 			new_count = new_count - cap;
 
-			_keys.expand_back(new_count);
-			_values.expand_back(new_count);
 			_flags.expand_back(new_count, 0);
 
 			_reserve_rehash(cap);
@@ -746,6 +799,7 @@ namespace cpprelude
 			//when remove we must linear probe and find all equal hashes and
 			// relocate them one by one starting from the empty removed cell
 			usize cap = capacity();
+			if(cap == 0) return;
 			usize i, j;
 			i = (index + 1) % cap;
 			j = index;
@@ -782,6 +836,7 @@ namespace cpprelude
 		_find_position(const key_type& key) const
 		{
 			usize cap = capacity();
+			if(cap == 0) return cap;
 			usize hash_value = _hasher(key);
 			usize index = hash_value % cap;
 			usize it = index;
@@ -809,6 +864,14 @@ namespace cpprelude
 			}
 
 			return cap;
+		}
+
+		template<typename T>
+		static void
+		_resize_dynamic_array(dynamic_array<T>& array, usize new_count)
+		{
+			array.reserve(new_count - array.count());
+			array._count = new_count;
 		}
 	};
 
