@@ -25,27 +25,49 @@ namespace cpprelude
 	{
 		u32 data;
 
-		API_CPPR rune();
+		rune()
+			:data(0)
+		{}
 
-		API_CPPR rune(u32 c);
+		rune(u32 c)
+			:data(c)
+		{}
 
-		API_CPPR bool
-		operator==(const rune& other) const;
+		bool
+		operator==(const rune& other) const
+		{
+			return data == other.data;
+		}
 
-		API_CPPR bool
-		operator!=(const rune& other) const;
+		bool
+		operator!=(const rune& other) const
+		{
+			return data != other.data;
+		}
 
-		API_CPPR bool
-		operator<(const rune& other) const;
+		bool
+		operator<(const rune& other) const
+		{
+			return data < other.data;
+		}
 
-		API_CPPR bool
-		operator>(const rune& other) const;
+		bool
+		operator>(const rune& other) const
+		{
+			return data > other.data;
+		}
 
-		API_CPPR bool
-		operator<=(const rune& other) const;
+		bool
+		operator<=(const rune& other) const
+		{
+			return data <= other.data;
+		}
 
-		API_CPPR bool
-		operator>=(const rune& other) const;
+		bool
+		operator>=(const rune& other) const
+		{
+			return data >= other.data;
+		}
 	};
 
 	inline static usize
@@ -68,30 +90,118 @@ namespace cpprelude
 	{
 		const byte *_ptr = nullptr;
 
-		API_CPPR rune_iterator(const byte* ptr);
+		rune_iterator(const byte* ptr)
+			:_ptr(ptr)
+		{}
 
-		API_CPPR rune_iterator&
-		operator++();
+		rune_iterator&
+		operator++()
+		{
+			i8 data = *_ptr;
+			if(data == 0)
+				return *this;
 
-		API_CPPR rune_iterator
-		operator++(int);
+			++_ptr;
+			while(*_ptr)
+			{
+				if((*_ptr & 0xC0) == 0x80)
+					++_ptr;
+				else
+					break;
+			}
+			return *this;
+		}
 
-		API_CPPR rune_iterator&
-		operator--();
+		rune_iterator
+		operator++(int)
+		{
+			if(*_ptr == 0)
+				return *this;
+			
+			auto result = *this;
+			++_ptr;
+			while(*_ptr)
+			{
+				if((*_ptr & 0xC0) == 0x80)
+					++_ptr;
+				else
+					break;
+			}
+			return result;
+		}
 
-		API_CPPR rune_iterator
-		operator--(int);
+		rune_iterator&
+		operator--()
+		{
+			++_ptr;
+			while(*_ptr)
+			{
+				if((*_ptr & 0xC0) == 0x80)
+					++_ptr;
+				else
+					break;
+			}
+			return *this;
+		}
 
-		API_CPPR bool
-		operator==(const rune_iterator& other) const;
+		rune_iterator
+		operator--(int)
+		{
+			auto result = *this;
+			++_ptr;
+			while(*_ptr)
+			{
+				if((*_ptr & 0xC0) == 0x80)
+					++_ptr;
+				else
+					break;
+			}
+			return result;
+		}
 
-		API_CPPR bool
-		operator!=(const rune_iterator& other) const;
+		bool
+		operator==(const rune_iterator& other) const
+		{
+			return _ptr == other._ptr;
+		}
 
-		API_CPPR rune
-		operator*() const;
+		bool
+		operator!=(const rune_iterator& other) const
+		{
+			return _ptr != other._ptr;
+		}
 
-		API_CPPR operator const byte*() const;
+		rune
+		operator*() const
+		{
+			if (_ptr == nullptr || *_ptr == 0)
+				return rune(0);
+
+			const byte* ptr = _ptr;
+
+			byte result[sizeof(rune)] = {0};
+			u8 ix = 0;
+			result[ix] = *ptr;
+
+			++ix;
+			++ptr;
+			while(*ptr)
+			{
+				if ((*ptr & 0xC0) == 0x80)
+					result[ix] = *ptr;
+				else
+					break;
+				++ptr;
+				++ix;
+			}
+
+			return *reinterpret_cast<rune*>(result);
+		}
+
+		operator const byte*() const
+		{
+			return _ptr;
+		}
 	};
 
 	struct string
