@@ -255,7 +255,7 @@ namespace cpprelude
 		hash_array(memory_context* context = platform->global_memory)
 			:_keys(context), _values(context), _flags(context), _count(0)
 		{
-			constexpr usize starting_count = 256;
+			constexpr usize starting_count = 8;
 
 			_keys.expand_back(starting_count);
 			_values.expand_back(starting_count);
