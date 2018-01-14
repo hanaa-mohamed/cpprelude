@@ -410,7 +410,6 @@ namespace cpprelude
 		return scan_bin(trait, str);
 	}
 
-
 	inline static usize
 	scan_str(io_trait *trait, cpprelude::string& str)
 	{
@@ -420,22 +419,7 @@ namespace cpprelude
 	}
 
 	inline static usize
-	scan_str(bufin_trait *trait, cpprelude::string& str)
-	{
-		auto result = trait->read(str._data.view_bytes(0, str._data.size - 1));
-		str._data[result] = 0;
-		return result;
-	}
-
-
-	inline static usize
 	scan_str(io_trait *trait, cpprelude::string&& str)
-	{
-		return scan_str(trait, str);
-	}
-
-	inline static usize
-	scan_str(bufin_trait *trait, cpprelude::string&& str)
 	{
 		return scan_str(trait, str);
 	}

@@ -9,6 +9,9 @@
 #include "cpprelude/string.h"
 #include <cinttypes>
 #include <cstdio>
+#include <cwctype>
+#include <cstdlib>
+#include <cerrno>
 
 namespace cpprelude
 {
@@ -263,6 +266,261 @@ namespace cpprelude
 
 
 	//section(scan_str)
+	//helper function to parse a u64 from the bufin_trait
+	inline static bool
+	_find_text_chunk(bufin_trait *trait, usize &first_character, usize &last_character)
+	{
+		usize result = 0;
+		usize requested_size = 0;
+		usize last_requested_size = 0;
+		usize buffer_index = 0;
+
+		first_character = -1;
+		last_character = -1;
+
+		constexpr usize INCREMENT_SIZE = 40;
+
+		while(last_character == -1)
+		{
+			auto avaialable_buffer = trait->peek(requested_size);
+			//if we failed to get already available data from the buffer then we increase the size and try again
+			if(!avaialable_buffer.valid() && requested_size == 0)
+			{
+				requested_size += INCREMENT_SIZE;
+				continue;
+			}
+
+			//if we didn't get any new information then we terminate with false
+			if (last_requested_size == avaialable_buffer.size)
+			{
+				if (first_character != -1)
+				{
+					last_character = avaialable_buffer.size;
+					if (avaialable_buffer[last_character - 1] == 0)
+						--last_character;
+					return true;
+				}
+				return false;
+			}
+
+			string view(avaialable_buffer.view_bytes(buffer_index), nullptr);
+			auto view_it = view.begin();
+			//get the first non whitespace character
+			while(view_it != view.end())
+			{
+				auto c = *view_it;
+				if(first_character == -1)
+				{
+					if(!std::iswspace(c.data))
+						first_character = view_it._ptr - avaialable_buffer.ptr;
+				}
+				else
+				{
+					if(std::iswspace(c.data))
+					{
+						last_character = view_it._ptr - avaialable_buffer.ptr;
+						break;
+					}
+				}
+				
+				++view_it;
+			}
+
+			last_requested_size = avaialable_buffer.size;
+			requested_size += INCREMENT_SIZE;
+		}
+
+		return true;
+	}
+
+	inline static usize
+	_scan_u64(bufin_trait *trait, u64& value, int base)
+	{
+		usize first_character, last_character;
+		//try get text chunk if we didn't find then we fail and return 0
+		if(!_find_text_chunk(trait, first_character, last_character))
+			return 0;
+
+		auto avaialable_buffer = trait->peek();
+		auto marked_buffer = avaialable_buffer.view_bytes(first_character, last_character - first_character);
+		
+		const char* begin = marked_buffer.ptr;
+		char* end = marked_buffer.ptr + marked_buffer.size;
+
+		//we cannot parse negative numbers
+		if(*begin == '-')
+			return 0;
+
+		u64 tmp_value = std::strtoull(begin, &end, base);
+
+		if(errno == ERANGE)
+			return 0;
+
+		value = tmp_value;
+
+		return last_character;
+	}
+
+	inline static usize
+	_scan_i64(bufin_trait *trait, i64& value, int base)
+	{
+		usize first_character, last_character;
+		//try get text chunk if we didn't find then we fail and return 0
+		if(!_find_text_chunk(trait, first_character, last_character))
+			return 0;
+
+		auto avaialable_buffer = trait->peek();
+		auto marked_buffer = avaialable_buffer.view_bytes(first_character, last_character - first_character);
+		
+		const char* begin = marked_buffer.ptr;
+		char* end = marked_buffer.ptr + marked_buffer.size;
+
+		i64 tmp_value = std::strtoll(begin, &end, base);
+
+		if(errno == ERANGE)
+			return 0;
+
+		value = tmp_value;
+
+		return last_character;
+	}
+
+	inline static usize
+	_scan_r32(bufin_trait *trait, r32& value)
+	{
+		usize first_character, last_character;
+		//try get text chunk if we didn't find then we fail and return 0
+		if(!_find_text_chunk(trait, first_character, last_character))
+			return 0;
+
+		auto avaialable_buffer = trait->peek();
+		auto marked_buffer = avaialable_buffer.view_bytes(first_character, last_character - first_character);
+		
+		const char* begin = marked_buffer.ptr;
+		char* end = marked_buffer.ptr + marked_buffer.size;
+
+		r32 tmp_value = std::strtof(begin, &end);
+
+		if(errno == ERANGE)
+			return 0;
+
+		value = tmp_value;
+
+		return last_character;
+	}
+
+	inline static usize
+	_scan_r64(bufin_trait *trait, r64& value)
+	{
+		usize first_character, last_character;
+		//try get text chunk if we didn't find then we fail and return 0
+		if(!_find_text_chunk(trait, first_character, last_character))
+			return 0;
+
+		auto avaialable_buffer = trait->peek();
+		auto marked_buffer = avaialable_buffer.view_bytes(first_character, last_character - first_character);
+		
+		const char* begin = marked_buffer.ptr;
+		char* end = marked_buffer.ptr + marked_buffer.size;
+
+		r64 tmp_value = std::strtod(begin, &end);
+
+		if(errno == ERANGE)
+			return 0;
+
+		value = tmp_value;
+
+		return last_character;
+	}
+
+	#define SCAN_STR_SIGNED(TYPE)									\
+	inline static usize												\
+	scan_str(bufin_trait *trait, TYPE& value)						\
+	{																\
+		i64 tmp_value = 0;											\
+		auto parsed_size = _scan_i64(trait, tmp_value, 10);			\
+		if(parsed_size == 0) return 0;								\
+		if (tmp_value < std::numeric_limits<TYPE>::lowest() ||		\
+			tmp_value > std::numeric_limits<TYPE>::max())			\
+		{															\
+			return 0;												\
+		}															\
+		value = static_cast<TYPE>(tmp_value);						\
+		return trait->skip(parsed_size);							\
+	}
+
+	SCAN_STR_SIGNED(byte)
+	SCAN_STR_SIGNED(i8)
+	SCAN_STR_SIGNED(i16)
+	SCAN_STR_SIGNED(i32)
+	SCAN_STR_SIGNED(i64)
+
+	#undef SCAN_STR_SIGNED
+
+	#define SCAN_STR_UNSIGNED(TYPE)									\
+	inline static usize												\
+	scan_str(bufin_trait *trait, TYPE& value)						\
+	{																\
+		u64 tmp_value = 0;											\
+		auto parsed_size = _scan_u64(trait, tmp_value, 10);			\
+		if(parsed_size == 0) return 0;								\
+		if(tmp_value > std::numeric_limits<TYPE>::max())			\
+			return 0;												\
+		value = static_cast<TYPE>(tmp_value);						\
+		return trait->skip(parsed_size);							\
+	}
+
+	SCAN_STR_UNSIGNED(u8)
+	SCAN_STR_UNSIGNED(u16)
+	SCAN_STR_UNSIGNED(u32)
+	SCAN_STR_UNSIGNED(u64)
+
+	#undef SCAN_STR_UNSIGNED
+
+	inline static usize
+	scan_str(bufin_trait *trait, r32& value)
+	{
+		r32 tmp_value = 0;
+		auto parsed_size = _scan_r32(trait, tmp_value);
+		if(parsed_size == 0) return 0;
+		value = tmp_value;
+		return trait->skip(parsed_size);
+	}
+
+	inline static usize
+	scan_str(bufin_trait *trait, r64& value)
+	{
+		r64 tmp_value = 0;
+		auto parsed_size = _scan_r64(trait, tmp_value);
+		if(parsed_size == 0) return 0;
+		value = tmp_value;
+		return trait->skip(parsed_size);
+	}
+
+	inline static usize
+	scan_str(bufin_trait *trait, cpprelude::string& str)
+	{
+		usize first_character, last_character;
+		//try get text chunk if we didn't find then we fail and return 0
+		if(!_find_text_chunk(trait, first_character, last_character))
+			return 0;
+
+		auto avaialable_buffer = trait->peek();
+		auto marked_buffer = avaialable_buffer.view_bytes(first_character, last_character - first_character);
+
+		str._context->template realloc<byte>(str._data, marked_buffer.size + 1);
+		copy_slice(str._data, marked_buffer);
+		str._data[marked_buffer.size] = 0;
+
+		return trait->skip(last_character);
+	}
+
+	inline static usize
+	scan_str(bufin_trait *trait, cpprelude::string&& str)
+	{
+		return scan_str(trait, str);
+	}
+
 
 	//section(vscans)
 	//vscans = variadic scan string
@@ -285,7 +543,11 @@ namespace cpprelude
 		usize result = 0, tmp = 0;
 		tmp = scan_str(trait, std::forward<TFirst>(first_arg));
 		if (tmp == 0)
+		{
+			println_err("[panic]: ", "vscanf failed");
+			platform->dump_callstack();
 			return 0;
+		}
 		result += tmp;
 		result += vscans(trait, std::forward<TArgs>(args)...);
 		return result;
@@ -298,7 +560,11 @@ namespace cpprelude
 		usize result = 0, tmp = 0;
 		tmp = scan_str(trait, std::forward<TFirst>(first_arg));
 		if (tmp == 0)
+		{
+			println_err("[panic]: ", "vscanf failed");
+			platform->dump_callstack();
 			return 0;
+		}
 		result += tmp;
 		result += vscans(trait, std::forward<TArgs>(args)...);
 		return result;
@@ -459,5 +725,19 @@ namespace cpprelude
 	concat(TArgs&& ... args)
 	{
 		return vconcat(platform->global_memory, std::forward<TArgs>(args)...);
+	}
+
+	//string view
+	inline static memory_stream
+	view_string_as_memory_stream(const string& str)
+	{
+		auto string_data = str._data;
+		return memory_stream(std::move(string_data), nullptr);
+	}
+
+	inline static memory_stream
+	copy_string_as_memory_stream(const string& str, memory_context *context = platform->global_memory)
+	{
+		return memory_stream(str._data, context);
 	}
 }

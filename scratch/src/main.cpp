@@ -1,7 +1,11 @@
 ﻿#include "benchmark.h"
 #include <stdio.h>
-#include "cpprelude/hash_array.h"
+#include <cpprelude/hash_array.h>
+#include <cpprelude/fmt.h>
+#include <cpprelude/bufio.h>
+#include <cpprelude/stream.h>
 #include <unordered_map>
+using namespace cpprelude;
 
 // struct screamer {
 // 	screamer()
@@ -42,6 +46,14 @@
 int
 main(int argc, char** argv)
 {
+	auto stream = view_string_as_memory_stream("123 -3456 Mostafa Saad"_cs);
+	buf_reader reader(stream);
+	u8 se=0, se2=0;
+	string first_name, last_name;
+	auto d = vscans(reader, se, se2, first_name, last_name);
+
+	d = scan(se, se2, first_name, last_name);
+	println(se, ", ", se2, ", ", first_name, ", ", last_name);
 	// using namespace cpprelude;
 	// {
 	// 	hash_array<usize, screamer> as;

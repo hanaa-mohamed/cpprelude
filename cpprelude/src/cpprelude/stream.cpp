@@ -165,7 +165,8 @@ namespace cpprelude
 	{
 		_size = 0;
 		_cursor = 0;
-		_context->template free<byte>(_data);
+		if(_context && _data.valid())
+			_context->template free<byte>(_data);
 	}
 
 	usize
