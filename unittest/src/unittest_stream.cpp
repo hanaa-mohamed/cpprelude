@@ -45,7 +45,7 @@ TEST_CASE("memory_stream test", "[memory_stream]")
 		CHECK(stream.cursor() == 0);
 
 		int y = 1;
-		CHECK(vscanb(stream, y) == sizeof(int));
+		CHECK(vscanb(stream, y) == 1);
 		CHECK(y == x);
 
 		CHECK(stream.cursor() == 4);
@@ -106,7 +106,7 @@ TEST_CASE("file_stream test", "[file_stream]")
 			CHECK(stream.cursor() == 0);
 
 			int y = 1;
-			CHECK(vscanb(stream, y) == sizeof(int));
+			CHECK(vscanb(stream, y) == 1);
 
 			CHECK(y == x);
 

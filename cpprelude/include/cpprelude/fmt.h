@@ -259,7 +259,7 @@ namespace cpprelude
 	vscanb(bufin_trait *trait, TFirst&& first_arg, TArgs&& ... args)
 	{
 		usize result = 0;
-		result += static_cast<usize>(scan_bin(trait, std::forward<TFirst>(first_arg)));
+		result += static_cast<usize>(scan_bin(trait, std::forward<TFirst>(first_arg)) > 0);
 		result += vscanb(trait, std::forward<TArgs>(args)...);
 		return result;
 	}
@@ -433,6 +433,13 @@ namespace cpprelude
 		return end - avaialable_buffer.ptr;
 	}
 
+	inline static usize
+	scan_str(bufin_trait *trait, byte& value)
+	{
+		value = *trait->peek(1).ptr;
+		return trait->skip(sizeof(byte));
+	}
+
 	#define SCAN_STR_SIGNED(TYPE)									\
 	inline static usize												\
 	scan_str(bufin_trait *trait, TYPE& value)						\
@@ -449,7 +456,6 @@ namespace cpprelude
 		return trait->skip(parsed_size);							\
 	}
 
-	SCAN_STR_SIGNED(byte)
 	SCAN_STR_SIGNED(i8)
 	SCAN_STR_SIGNED(i16)
 	SCAN_STR_SIGNED(i32)

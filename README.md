@@ -41,3 +41,6 @@ For Philosophy and coding standard please refer to this [link](https://moustapha
 ## How to contribute
 
 Feel free to fork and create pull requests at any time. It would be nice if you involved any one of us with you from the start to guide you, or maybe discuss your idea itself (Developers e-mails are up above).
+
+## Thanks
+	- [Ahmed Hesham](a.hesham.kamal@gmail.com) for adding Visual Studio debug visualizer.
