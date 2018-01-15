@@ -6,9 +6,9 @@ It contains algorithms, containers, memory management stuff ... etc.
 
 Developed by:
 
-**[Moustapha Saad Abdel-hameed](moustapha.saad.abdelhamed@gmail.com)**
+**[Moustapha Saad Abdel-hameed](mailto:moustapha.saad.abdelhamed@gmail.com)**
 
-**[Nora Abdel-hameed](nora.abdelhameed@gmail.com)**
+**[Nora Abdel-hameed](mailto:nora.abdelhameed@gmail.com)**
 
 **CPPrelude** version 1.0.0 is released under the GNU Lesser General Public License version 3.
 
@@ -43,4 +43,4 @@ For Philosophy and coding standard please refer to this [link](https://moustapha
 Feel free to fork and create pull requests at any time. It would be nice if you involved any one of us with you from the start to guide you, or maybe discuss your idea itself (Developers e-mails are up above).
 
 ## Thanks
-- [Ahmed Hesham](a.hesham.kamal@gmail.com) for adding Visual Studio debug visualizer.
+- [Ahmed Hesham](mailto:a.hesham.kamal@gmail.com) for adding Visual Studio debug visualizer.
