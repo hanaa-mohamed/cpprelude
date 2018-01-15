@@ -67,7 +67,7 @@ bm_dynamic_array(workbench* bench, usize limit)
 usize
 bm_custom_dynamic_array(workbench* bench, usize limit)
 {
-	memory_watcher w();
+	memory_watcher w;
 
 	arena.free_all();
 	dynamic_array<usize> array(arena.context());

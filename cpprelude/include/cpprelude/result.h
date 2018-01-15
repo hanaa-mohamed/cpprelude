@@ -90,5 +90,49 @@ namespace cpprelude
 		{
 			return _status != CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
 		}
+
+		E
+		unwrap_error()
+		{
+			assert(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR);
+			_status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
+			return std::move(error);
+		}
+
+		T
+		unwrap_value()
+		{
+			assert(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE);
+			_status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
+			return std::move(value);
+		}
 	};
+
+	template<typename T, typename E>
+	inline static result<T, E>
+	result_success(const T& value)
+	{
+		return result<T, E>(value);
+	}
+
+	template<typename T, typename E>
+	inline static result<T, E>
+	result_success(T&& value)
+	{
+		return result<T, E>(std::move(value));
+	}
+
+	template<typename T, typename E>
+	inline static result<T, E>
+	result_error(const E& err)
+	{
+		return result<T, E>(err);
+	}
+
+	template<typename T, typename E>
+	inline static result<T, E>
+	result_error(E&& err)
+	{
+		return result<T, E>(std::move(err));
+	}
 }

@@ -197,6 +197,67 @@ namespace cpprelude
 		return result;
 	}
 
+	//section(locks)
+	API_CPPR void
+	_acquire_print_lock();
+
+	API_CPPR void
+	_release_print_lock();
+
+	API_CPPR void
+	_acquire_print_err_lock();
+
+	API_CPPR void
+	_release_print_err_lock();
+
+
+	//section(print)
+	template<typename ... TArgs>
+	inline static usize
+	print(TArgs&& ... args)
+	{
+		usize result = 0;
+		_acquire_print_lock();
+		result += vprints(cppr_out, std::forward<TArgs>(args)...);
+		_release_print_lock();
+		return result;
+	}
+
+	template<typename ... TArgs>
+	inline static usize
+	print_err(TArgs&& ... args)
+	{
+		usize result = 0;
+		_acquire_print_err_lock();
+		result += vprints(cppr_err, std::forward<TArgs>(args)...);
+		_release_print_err_lock();
+		return result;
+	}
+
+
+	//section(println)
+	template<typename ... TArgs>
+	inline static usize
+	println(TArgs&& ... args)
+	{
+		usize result = 0;
+		_acquire_print_lock();
+		result += vprints(cppr_out, std::forward<TArgs>(args)..., "\n");
+		_release_print_lock();
+		return result;
+	}
+
+	template<typename ... TArgs>
+	inline static usize
+	println_err(TArgs&& ... args)
+	{
+		usize result = 0;
+		_acquire_print_err_lock();
+		result += vprints(cppr_err, std::forward<TArgs>(args)..., "\n");
+		_release_print_err_lock();
+		return result;
+	}
+
 
 	//section(scan)
 	//section(scan_bin)
@@ -270,7 +331,6 @@ namespace cpprelude
 	inline static bool
 	_find_text_chunk(bufin_trait *trait, usize &first_character, usize &last_character)
 	{
-		usize result = 0;
 		usize requested_size = 0;
 		usize last_requested_size = 0;
 		usize buffer_index = 0;
@@ -576,67 +636,6 @@ namespace cpprelude
 		return result;
 	}
 
-
-	//section(locks)
-	API_CPPR void
-	_acquire_print_lock();
-
-	API_CPPR void
-	_release_print_lock();
-
-	API_CPPR void
-	_acquire_print_err_lock();
-
-	API_CPPR void
-	_release_print_err_lock();
-
-
-	//section(print)
-	template<typename ... TArgs>
-	inline static usize
-	print(TArgs&& ... args)
-	{
-		usize result = 0;
-		_acquire_print_lock();
-		result += vprints(cppr_out, std::forward<TArgs>(args)...);
-		_release_print_lock();
-		return result;
-	}
-
-	template<typename ... TArgs>
-	inline static usize
-	print_err(TArgs&& ... args)
-	{
-		usize result = 0;
-		_acquire_print_err_lock();
-		result += vprints(cppr_err, std::forward<TArgs>(args)...);
-		_release_print_err_lock();
-		return result;
-	}
-
-
-	//section(println)
-	template<typename ... TArgs>
-	inline static usize
-	println(TArgs&& ... args)
-	{
-		usize result = 0;
-		_acquire_print_lock();
-		result += vprints(cppr_out, std::forward<TArgs>(args)..., "\n");
-		_release_print_lock();
-		return result;
-	}
-
-	template<typename ... TArgs>
-	inline static usize
-	println_err(TArgs&& ... args)
-	{
-		usize result = 0;
-		_acquire_print_err_lock();
-		result += vprints(cppr_err, std::forward<TArgs>(args)..., "\n");
-		_release_print_err_lock();
-		return result;
-	}
 
 	template<typename ... TArgs>
 	inline static usize

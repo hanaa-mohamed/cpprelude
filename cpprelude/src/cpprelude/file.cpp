@@ -136,11 +136,11 @@ namespace cpprelude
 		if(result.has_result() && result.ok())
 			out.handle = result;
 		else if(result.has_result())
-			return result;
+			return result.unwrap_error();
 		else
 			panic("platform::file_open didn't return a result");
 
-		return out;
+		return result_success<file, PLATFORM_ERROR>(std::move(out));
 	}
 
 	bool
