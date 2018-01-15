@@ -544,6 +544,18 @@ namespace cpprelude
 	#undef SCAN_STR_UNSIGNED
 
 	inline static usize
+	scan_str(bufin_trait *trait, void*& value)
+	{
+		u64 tmp_value = 0;
+		auto parsed_size = _scan_u64(trait, tmp_value, 16);
+		if(parsed_size == 0) return 0;
+		if(tmp_value > std::numeric_limits<usize>::max())
+			return 0;
+		value = reinterpret_cast<void*>(tmp_value);
+		return trait->skip(parsed_size);
+	}
+
+	inline static usize
 	scan_str(bufin_trait *trait, r32& value)
 	{
 		r32 tmp_value = 0;
