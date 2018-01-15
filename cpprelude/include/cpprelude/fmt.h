@@ -249,7 +249,7 @@ namespace cpprelude
 	vscanb(io_trait *trait, TFirst&& first_arg, TArgs&& ... args)
 	{
 		usize result = 0;
-		result += scan_bin(trait, std::forward<TFirst>(first_arg));
+		result += static_cast<usize>(scan_bin(trait, std::forward<TFirst>(first_arg)) > 0);
 		result += vscanb(trait, std::forward<TArgs>(args)...);
 		return result;
 	}
@@ -259,7 +259,7 @@ namespace cpprelude
 	vscanb(bufin_trait *trait, TFirst&& first_arg, TArgs&& ... args)
 	{
 		usize result = 0;
-		result += scan_bin(trait, std::forward<TFirst>(first_arg));
+		result += static_cast<usize>(scan_bin(trait, std::forward<TFirst>(first_arg)));
 		result += vscanb(trait, std::forward<TArgs>(args)...);
 		return result;
 	}
@@ -358,7 +358,7 @@ namespace cpprelude
 
 		value = tmp_value;
 
-		return last_character;
+		return end - avaialable_buffer.ptr;
 	}
 
 	inline static usize
@@ -382,7 +382,7 @@ namespace cpprelude
 
 		value = tmp_value;
 
-		return last_character;
+		return end - avaialable_buffer.ptr;
 	}
 
 	inline static usize
@@ -406,7 +406,7 @@ namespace cpprelude
 
 		value = tmp_value;
 
-		return last_character;
+		return end - avaialable_buffer.ptr;
 	}
 
 	inline static usize
@@ -430,7 +430,7 @@ namespace cpprelude
 
 		value = tmp_value;
 
-		return last_character;
+		return end - avaialable_buffer.ptr;
 	}
 
 	#define SCAN_STR_SIGNED(TYPE)									\
@@ -548,7 +548,7 @@ namespace cpprelude
 			platform->dump_callstack();
 			return 0;
 		}
-		result += tmp;
+		result += static_cast<usize>(tmp > 0);
 		result += vscans(trait, std::forward<TArgs>(args)...);
 		return result;
 	}
@@ -565,7 +565,7 @@ namespace cpprelude
 			platform->dump_callstack();
 			return 0;
 		}
-		result += tmp;
+		result += static_cast<usize>(tmp > 0);
 		result += vscans(trait, std::forward<TArgs>(args)...);
 		return result;
 	}

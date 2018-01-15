@@ -46,11 +46,11 @@ using namespace cpprelude;
 int
 main(int argc, char** argv)
 {
-	auto stream = view_string_as_memory_stream("123 -3456 Mostafa Saad"_cs);
+	auto stream = view_string_as_memory_stream("123, 465"_cs);
 	buf_reader reader(stream);
-	u8 se=0, se2=0;
+	u64 se=0, se2=0;
 	string first_name, last_name;
-	auto d = vscans(reader, se, se2, first_name, last_name);
+	auto d = vscans(reader, se, se2);
 
 	d = scan(se, se2, first_name, last_name);
 	println(se, ", ", se2, ", ", first_name, ", ", last_name);
