@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <type_traits>
 
 namespace cpprelude
 {
@@ -17,62 +18,119 @@ namespace cpprelude
 		};
 		CPPR_RESULT_STATUS _status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
 
-		result(const T& val)
+		template<typename TCond = T>
+		result(const T& val, typename std::enable_if<std::is_copy_constructible<TCond>::value>::type* = nullptr)
 			:value(val), _status(CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
 		{}
 
-		result(T&& val)
+		template<typename TCond = T>
+		result(T&& val, typename std::enable_if<std::is_move_constructible<TCond>::value>::type* = nullptr)
 			:value(std::move(val)), _status(CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
 		{}
 
-		result(const E& err)
+		template<typename ECond = E>
+		result(const E& err, typename std::enable_if<std::is_copy_constructible<ECond>::value>::type* = nullptr)
 			:error(err), _status(CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
 		{}
 
-		result(E&& err)
+		template<typename ECond = E>
+		result(E&& err, typename std::enable_if<std::is_move_constructible<ECond>::value>::type* = nullptr)
 			:error(std::move(err)), _status(CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
 		{}
 
-		result(const result&) = delete;
-
-		result&
-		operator=(const result&) = delete;
-
-		result(result&& other)
+		template<typename TCond = T, typename ECond = E>
+		result (const result& other,
+				typename std::enable_if<
+				(std::is_copy_constructible<TCond>::value && std::is_copy_constructible<ECond>::value)
+				>::type* = nullptr)
+			:_status(other._status)
 		{
 			if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
-				value = std::move(other.value);
+				::new (&value) T(other.value);
 			else if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
-				error = std::move(other.error);
+				::new (&error) E(other.error);
 		}
 
-		result&
+		template<typename TCond = T, typename ECond = E>
+		typename std::enable_if<
+			(std::is_copy_assignable<TCond>::value && std::is_copy_assignable<ECond>::value),
+			result<TCond, ECond>>::type&
+		operator=(const result& other)
+		{
+			if(other._status == _status)
+			{
+				if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
+					value = other.value;
+				else if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
+					error = other.error;
+			}
+			else
+			{
+				reset();
+
+				_status = other._status;
+				if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
+					::new (&value) T(other.value);
+				else if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
+					::new (&error) E(other.error);
+			}
+
+			return *this;
+		}
+
+		template<typename TCond = T, typename ECond = E>
+		result (result&& other,
+				typename std::enable_if<
+				(std::is_move_constructible<TCond>::value && std::is_move_constructible<ECond>::value)
+				>::type* = nullptr)
+			:_status(other._status)
+		{
+			if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
+				::new (&value) T(std::move(other.value));
+			else if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
+				::new (&error) E(std::move(other.error));
+		}
+
+		template<typename TCond = T, typename ECond = E>
+		typename std::enable_if<
+			(std::is_move_assignable<TCond>::value && std::is_move_assignable<ECond>::value),
+			result<TCond, ECond>>::type&
 		operator=(result&& other)
 		{
-			if (_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
-				value = std::move(other.value);
-			else if (_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
-				error = std::move(other.error);
+			if(other._status == _status)
+			{
+				if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
+					value = std::move(other.value);
+				else if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
+					error = std::move(other.error);
+			}
+			else
+			{
+				reset();
+
+				_status = other._status;
+				if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
+					::new (&value) T(std::move(other.value));
+				else if(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
+					::new (&error) E(std::move(other.error));
+			}
+
 			return *this;
 		}
 
 		~result()
 		{
-			if (_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
-				value.~T();
-			else if (_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
-				error.~E();
-			_status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
+			reset();
 		}
 
-		operator T()
+		operator T&&()
 		{
 			assert(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE);
 			_status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
 			return std::move(value);
 		}
 
-		operator E()
+		operator E&&()
 		{
 			assert(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR);
 			_status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
@@ -91,7 +149,7 @@ namespace cpprelude
 			return _status != CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
 		}
 
-		E
+		E&&
 		unwrap_error()
 		{
 			assert(_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR);
@@ -99,12 +157,22 @@ namespace cpprelude
 			return std::move(error);
 		}
 
-		T
+		T&&
 		unwrap_value()
 		{
 			assert(_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE);
 			_status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
 			return std::move(value);
+		}
+
+		void
+		reset()
+		{
+			if (_status == CPPR_RESULT_STATUS::CPPR_RESULT_VALUE)
+				value.~T();
+			else if (_status == CPPR_RESULT_STATUS::CPPR_RESULT_ERROR)
+				error.~E();
+			_status = CPPR_RESULT_STATUS::CPPR_RESULT_NONE;
 		}
 	};
 

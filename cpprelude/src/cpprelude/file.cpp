@@ -133,14 +133,14 @@ namespace cpprelude
 
 		auto result = platform->file_open(out.name, io_mode, open_mode);
 
-		if(result.has_result() && result.ok())
+		if (result.has_result() && result.ok())
 			out.handle = result;
-		else if(result.has_result())
-			return result.unwrap_error();
+		else if (result.has_result())
+			return result;
 		else
 			panic("platform::file_open didn't return a result");
 
-		return result_success<file, PLATFORM_ERROR>(std::move(out));
+		return out;
 	}
 
 	bool
