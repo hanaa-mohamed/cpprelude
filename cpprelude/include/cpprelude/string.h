@@ -133,11 +133,11 @@ namespace cpprelude
 		rune_iterator&
 		operator--()
 		{
-			++_ptr;
+			--_ptr;
 			while(*_ptr)
 			{
 				if((*_ptr & 0xC0) == 0x80)
-					++_ptr;
+					--_ptr;
 				else
 					break;
 			}
@@ -148,11 +148,11 @@ namespace cpprelude
 		operator--(int)
 		{
 			auto result = *this;
-			++_ptr;
+			--_ptr;
 			while(*_ptr)
 			{
 				if((*_ptr & 0xC0) == 0x80)
-					++_ptr;
+					--_ptr;
 				else
 					break;
 			}
