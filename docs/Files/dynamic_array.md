@@ -310,7 +310,7 @@ Returns whether the container is empty or not.
 - **Returns:** whether the container is empty or not.
 
 ```C++
-if(my_list.empty())
+if(my_array.empty())
 	...
 ```
 
@@ -328,7 +328,7 @@ Returns an iterator to the front of the container.
 - **Returns:** an iterator to the front of the container.
 
 ```C++
-my_list.front();
+my_array.front();
 ```
 
 
@@ -345,7 +345,7 @@ Returns an iterator to the back of the container.
 - **Returns:** an iterator to the back of the container.
 
 ```C++
-my_list.back();
+my_array.back();
 ```
 
 
@@ -362,7 +362,7 @@ Returns an iterator to the begin of the container.
 - **Returns:** an iterator to the begin of the container.
 
 ```C++
-my_list.begin();
+my_array.begin();
 ```
 
 
@@ -376,7 +376,7 @@ Returns a const iterator to the begin of the container.
 - **Returns:** a const iterator to the begin of the container.
 
 ```C++
-my_list.cbegin();
+my_array.cbegin();
 ```
 
 
@@ -393,7 +393,7 @@ Returns an iterator to the end of the container.
 - **Returns:** an iterator to the end of the container.
 
 ```C++
-my_list.end();
+my_array.end();
 ```
 
 
@@ -407,7 +407,7 @@ Returns a const iterator to the end of the container.
 - **Returns:** a const iterator to the end of the container.
 
 ```C++
-my_list.cend();
+my_array.cend();
 ```
 
 
@@ -421,7 +421,7 @@ Returns a slice to the underlying data and invalidates the container.
 - **Returns:** a slice to the underlying data.
 
 ```C++
-slice<i32> data = my_list.decay();
+slice<i32> data = my_array.decay();
 ```
 
 
@@ -435,5 +435,5 @@ Returns a slice to the underlying data which is laid continuously in memory and 
 - **Returns:** a slice to the underlying data which is laid continuously in memory.
 
 ```C++
-slice<i32> data = my_list.decay_continuous();
+slice<i32> data = my_array.decay_continuous();
 ```
