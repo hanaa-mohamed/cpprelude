@@ -417,7 +417,8 @@ namespace cpprelude
 			_tail->prev = it;
 		}
 
-		void remove(iterator it)
+		void
+		remove(iterator it)
 		{
 			auto node = it._node;
 			auto prev_node = node->prev;

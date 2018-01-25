@@ -1,94 +1,99 @@
-# File `bucket_array.h`
+# File `dlinked_list.h`
 
-## Struct `bucket_array`
+## Struct `dlinked_list`
 ```C++
-template<typename T, usize bucket_size = details::default_size(sizeof(T))>
-struct bucket_array;
+template<typename T>
+struct dlinked_list;
 ```
-This is an array of buckets that allocates memory in buckets not in nodes.
+A double linked list data structure
 
-1. **T**: types in the objects in the container.
-2. **bucket_size**: the count of objects inside one bucket.
-
-```C++
-bucket_array<i32> my_array;
-```
+1. **T**: elements data type of the container.
 
 
 ### Typedef `iterator`
 ```C++
-using iterator = bucket_array_iterator<T, bucket_size>;
+using iterator = bidirectional_iterator<T>;
 ```
-Iterator type of this container.
+An Iterator type of the container.
 
 
 ### Typedef `const_iterator`
 ```C++
-using const_iterator = const_bucket_array_iterator<T, bucket_size>;
+using const_iterator = const_bidirectional_iterator<T>;
 ```
-Const iterator type of this container.
+A Const iterator type of the container.
 
 
 ### Typedef `data_type`
 ```C++
 using data_type = T;
 ```
-Data type of the container.
+The data type of the elements inside the container.
 
 
-### Constructor `bucket_array`
+### Typedef `node_type`
 ```C++
-bucket_array(memory_context* context = platform->global_memory);
+using node_type = details::double_node<T>;
 ```
-1. **context**: memory context to use as allocator by default it will use the platform default memory allocator.
+The node type of the container.
+
+
+### Constructor `dlinked_list`
+```C++
+dlinked_list(memory_context* context = platform->global_memory);
+```
+
+1. **context**: the memory context to use inside this container.
 
 ```C++
-bucket_array<i32> my_array(my_allocator);
+dlinked_list<i32> my_list(my_context);
 ```
 
 
-### Constructor `bucket_array`
+### Constructor `dlinked_list`
 ```C++
-bucket_array(std::initializer_list<T> list, memory_context* context = platform->global_memory);
+dlinked_list(std::initializer_list<T> list, memory_context* context = platform->global_memory);
 ```
+
 1. **list**: initializer list to start the container with.
 2. **context**: memory context to use as allocator by default it will use the platform default memory allocator.
 
 ```C++
-bucket_array<i32> my_array({1, 2, 3, 4});
+dlinked_list<i32> my_list({1, 2, 3, 4});
 ```
 
 
-### Constructor `bucket_array`
+### Constructor `dlinked_list`
 ```C++
-bucket_array(usize count, const T& fill_value, memory_context* context = platform->global_memory);
+dlinked_list(usize count, const T& fill_value, memory_context* context = platform->global_memory);
 ```
+
 1. **count**: starting count of elements inside the container.
 2. **fill_value**: the value used to fill the starting count.
 3. **context**: memory context to use as allocator by default it will use the platform default memory allocator.
 
 ```C++
-bucket_array<i32> my_array(10, 0);
+dlinked_list<i32> my_list(10, 0);
 ```
 
 
-### Constructor `bucket_array`
+### Constructor `dlinked_list`
 ```C++
-bucket_array(const bucket_array& other, memory_context* context);
+dlinked_list(const dlinked_list<T>& other, memory_context* context);
 ```
-Copies another bucket array and changes the context to the provided one.
+Copies another dlinked list and changes the context to the provided one.
 
-1. **other**: bucket array to copy.
+1. **other**: dlinked list to copy.
 2. **context**: memory context to use as allocator.
 
 
-### Constructor `bucket_array`
+### Constructor `dlinked_list`
 ```C++
-bucket_array(bucket_array&& other, memory_context* context);
+dlinked_list(dlinked_list<T>&& other, memory_context* context);
 ```
-Moves another bucket array and changes the context to the provided one.
+Moves another dlinked list and changes the context to the provided one.
 
-1. **other**: bucket array to move.
+1. **other**: dlinked list to move.
 2. **context**: memory context to use as allocator.
 
 
@@ -102,42 +107,14 @@ Returns the count of elements in the container.
 - **Returns:** returns the count of this container.
 
 ```C++
-usize c = my_array.count();
-```
-
-
-### Function `capacity`
-```C++
-usize
-capacity() const;
-```
-Returns the capacity of elements in the container.
-
-- **Returns:** returns the capacity of this container.
-
-```C++
-usize c = my_array.capacity();
-```
-
-
-### Function `reserve`
-```C++
-void
-reserve(usize new_count);
-```
-Makes sure that the container has the capacity to hold the new count.
-
-1. **new_count**: the count of elements to reserve.
-
-```C++
-my_array.reserve(10);
+usize c = my_list.count();
 ```
 
 
 ### Function `expand_front`
 ```C++
 void
-expand_front(usize additional_count, const T& fill_value);
+expand_front(usize additional_count, const T& fill_value)
 ```
 Expands the array from the front of the container.
 
@@ -145,7 +122,7 @@ Expands the array from the front of the container.
 2. **fill_value**: the value used to fill the expanded count.
 
 ```C++
-my_array.expand_front(10, 0);
+my_list.expand_front(10, 0);
 ```
 
 
@@ -160,7 +137,7 @@ Expands the array from the back of the container.
 2. **fill_value**: the value used to fill the expanded count.
 
 ```C++
-my_array.expand_back(10, 0);
+my_list.expand_back(10, 0);
 ```
 
 
@@ -174,7 +151,7 @@ Shrinks the container from the front.
 1. **shrinkage_count**: the count to shrink the container with.
 
 ```C++
-my_array.shrink_front(5);
+my_list.shrink_front(5);
 ```
 
 
@@ -188,7 +165,7 @@ Shrinks the container from the back.
 1. **shrinkage_count**: the count to shrink the container with.
 
 ```C++
-my_array.shrink_back(5);
+my_list.shrink_back(5);
 ```
 
 
@@ -218,7 +195,7 @@ Inserts the provided list of elements at the front of the container.
 1. **list**: list of elements to insert.
 
 ```C++
-my_array.insert_front({1, 2, 3, 4});
+my_list.insert_front({1, 2, 3, 4});
 ```
 
 
@@ -226,7 +203,6 @@ my_array.insert_front({1, 2, 3, 4});
 ```C++
 void
 insert_front(const T& value);
-
 
 void
 insert_front(T&& value);
@@ -244,14 +220,14 @@ my_array.insert_front(4);
 ```C++
 template<typename ... TArgs>
 void
-emplace_front(TArgs&& ... args);
+emplace_front(TArgs&& ... args)
 ```
 Constructs an element inplace at the front of the container.
 
 1. **args**: arguments to pass the constructor of `T`.
 
 ```C++
-my_array.emplace_front(2);
+my_list.emplace_front(2);
 ```
 
 
@@ -265,7 +241,7 @@ Inserts the provided list of elements at the back of the container.
 1. **list**: list of elements to insert.
 
 ```C++
-my_array.insert_back({1, 2, 3, 4});
+my_list.insert_back({1, 2, 3, 4});
 ```
 
 
@@ -273,7 +249,6 @@ my_array.insert_back({1, 2, 3, 4});
 ```C++
 void
 insert_back(const T& value);
-
 
 void
 insert_back(T&& value);
@@ -283,7 +258,7 @@ Inserts the given element at the back of the container.
 1. **value**: value to insert.
 
 ```C++
-my_array.insert_back(4);
+my_list.insert_back(4);
 ```
 
 
@@ -291,14 +266,80 @@ my_array.insert_back(4);
 ```C++
 template<typename ... TArgs>
 void
-emplace_back(TArgs&& ... args);
+emplace_back(TArgs&& ... args)
 ```
 Constructs an element inplace at the back of the container.
 
 1. **args**: arguments to pass the constructor of `T`.
 
 ```C++
-my_array.emplace_back(2);
+my_list.emplace_back(2);
+```
+
+
+### Function `emplace_after`
+```C++
+template<typename ... TArgs>
+void
+emplace_after(const iterator& it, TArgs&& ... args);
+```
+Constructs an element inplace after the element pointed to by the iterator.
+
+1. **it**: iterator to place the element after.
+2. **args**: arguments to pass the constructor of `T`.
+
+```C++
+my_list.emplace_after(my_list.begin(), 2);
+```
+
+
+### Function `insert_after`
+```C++
+void
+insert_after(const iterator& it, const T& value);
+
+void
+insert_after(const iterator& it, T&& value);
+```
+Inserts the given element after the element pointed to by the iterator.
+
+1. **value**: value to insert.
+
+```C++
+my_list.insert_after(my_list.begin(), 4);
+```
+
+
+### Function `emplace_before`
+```C++
+template<typename ... TArgs>
+void
+emplace_before(const iterator& it, TArgs&& ... args);
+```
+Constructs an element inplace before the element pointed to by the iterator.
+
+1. **it**: iterator to place the element before.
+2. **args**: arguments to pass the constructor of `T`.
+
+```C++
+my_list.emplace_before(my_list.begin(), 2);
+```
+
+
+### Function `insert_before`
+```C++
+void
+insert_before(const iterator& it, const T& value);
+
+void
+insert_before(const iterator& it, T&& value);
+```
+Inserts the given element before the element pointed to by the iterator.
+
+1. **value**: value to insert.
+
+```C++
+my_list.insert_before(my_list.begin(), 4);
 ```
 
 
@@ -312,7 +353,7 @@ Removes the count of elements from the front of the container.
 1. **removal_count**: count of elements to remove.
 
 ```C++
-my_array.remove_front(4);
+my_list.remove_front(4);
 ```
 
 
@@ -326,7 +367,20 @@ Removes the count of elements from the back of the container.
 1. **removal_count**: count of elements to remove.
 
 ```C++
-my_array.remove_back(4);
+my_list.remove_back(4);
+```
+
+
+### Function `remove`
+```C++
+void remove(iterator it);
+```
+Removes the element pointed to by the iterator.
+
+1. **it**: iterator of the element to remove.
+
+```C++
+my_list.remove(my_list.begin());
 ```
 
 
@@ -335,22 +389,10 @@ my_array.remove_back(4);
 void
 reset();
 ```
-Resets the container thus removing all the elements inside it and freeing the memory.
+Resets and removes all the elements in the container.
 
 ```C++
-my_array.reset();
-```
-
-
-### Function `clear`
-```C++
-void
-clear();
-```
-Clears the elements of this container.
-
-```C++
-my_array.clear();
+my_list.reset();
 ```
 
 
@@ -364,7 +406,7 @@ Returns whether the container is empty or not.
 - **Returns:** whether the container is empty or not.
 
 ```C++
-if(my_array.empty())
+if(my_list.empty())
 	...
 ```
 
@@ -382,7 +424,7 @@ Returns an iterator to the front of the container.
 - **Returns:** an iterator to the front of the container.
 
 ```C++
-my_array.front();
+my_list.front();
 ```
 
 
@@ -399,7 +441,7 @@ Returns an iterator to the back of the container.
 - **Returns:** an iterator to the back of the container.
 
 ```C++
-my_array.back();
+my_list.back();
 ```
 
 
@@ -416,7 +458,7 @@ Returns an iterator to the begin of the container.
 - **Returns:** an iterator to the begin of the container.
 
 ```C++
-my_array.begin();
+my_list.begin();
 ```
 
 
@@ -430,7 +472,7 @@ Returns a const iterator to the begin of the container.
 - **Returns:** a const iterator to the begin of the container.
 
 ```C++
-my_array.cbegin();
+my_list.cbegin();
 ```
 
 
@@ -447,7 +489,7 @@ Returns an iterator to the end of the container.
 - **Returns:** an iterator to the end of the container.
 
 ```C++
-my_array.end();
+my_list.end();
 ```
 
 
@@ -461,7 +503,7 @@ Returns a const iterator to the end of the container.
 - **Returns:** a const iterator to the end of the container.
 
 ```C++
-my_array.cend();
+my_list.cend();
 ```
 
 
@@ -475,7 +517,7 @@ Returns a slice to the underlying data and invalidates the container.
 - **Returns:** a slice to the underlying data.
 
 ```C++
-slice<i32> data = my_array.decay();
+slice<i32> data = my_list.decay();
 ```
 
 
@@ -489,5 +531,5 @@ Returns a slice to the underlying data which is laid continuously in memory and 
 - **Returns:** a slice to the underlying data which is laid continuously in memory.
 
 ```C++
-slice<i32> data = my_array.decay_continuous();
+slice<i32> data = my_list.decay_continuous();
 ```
