@@ -94,7 +94,7 @@ count() const;
 ```
 Returns the count of elements in the container.
 
-- **Returns:** returns the count of this container.
+- **Returns:** returns the count of elements this container.
 
 ```C++
 usize c = my_array.count();

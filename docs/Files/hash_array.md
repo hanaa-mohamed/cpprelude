@@ -390,3 +390,10 @@ Returns a const view of the values of the container.
 for(const auto& value: my_array.cvalues())
 	...
 ```
+
+## Typedef `hash_set`
+```C++
+template<typename T, typename hashType = hash<T>>
+using hash_set = hash_array<T, bool, hashType>;
+```
+A Hash set is a wrapper around the hash array.
