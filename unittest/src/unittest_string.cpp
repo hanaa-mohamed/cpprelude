@@ -24,7 +24,7 @@
  		string a(u8"mostafa");
  		string b;
 
- 		for(auto c: b)
+ 		for(auto _: b)
  			CHECK(false);
 
  		CHECK(a.empty() == false);
@@ -47,7 +47,7 @@
  		string a(u8"مصطفى");
  		string b;
 
- 		for(auto c: b)
+ 		for(auto _: b)
  			CHECK(false);
 
  		CHECK(a.empty() == false);

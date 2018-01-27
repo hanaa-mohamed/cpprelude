@@ -341,7 +341,7 @@ namespace cpprelude
 					break;
 			}
 
-			handle._linux_handle = open(filename.data(), flags);
+			handle._linux_handle = open(filename.data(), flags, S_IRWXU);
 
 			if(handle._linux_handle == -1)
 			{

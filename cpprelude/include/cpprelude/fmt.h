@@ -335,12 +335,12 @@ namespace cpprelude
 		usize last_requested_size = 0;
 		usize buffer_index = 0;
 
-		first_character = -1;
-		last_character = -1;
+		first_character = static_cast<usize>(-1);
+		last_character = static_cast<usize>(-1);
 
 		constexpr usize INCREMENT_SIZE = 40;
 
-		while(last_character == -1)
+		while(last_character == static_cast<usize>(-1))
 		{
 			auto avaialable_buffer = trait->peek(requested_size);
 			//if we failed to get already available data from the buffer then we increase the size and try again
@@ -353,7 +353,7 @@ namespace cpprelude
 			//if we didn't get any new information then we terminate with false
 			if (last_requested_size == avaialable_buffer.size)
 			{
-				if (first_character != -1)
+				if (first_character != static_cast<usize>(-1))
 				{
 					last_character = avaialable_buffer.size;
 					if (avaialable_buffer[last_character - 1] == 0)
@@ -369,7 +369,7 @@ namespace cpprelude
 			while(view_it != view.end())
 			{
 				auto c = *view_it;
-				if(first_character == -1)
+				if(first_character == static_cast<usize>(-1))
 				{
 					if(!std::iswspace(c.data))
 						first_character = view_it._ptr - avaialable_buffer.ptr;

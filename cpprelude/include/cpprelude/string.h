@@ -179,7 +179,9 @@ namespace cpprelude
 
 			const byte* ptr = _ptr;
 
-			byte result[sizeof(rune)] = {0};
+			// byte result[sizeof(rune)] = {0};
+			rune result_rune = 0;
+			byte* result = (byte*)&result_rune.data;
 			u8 ix = 0;
 			result[ix] = *ptr;
 
@@ -195,7 +197,7 @@ namespace cpprelude
 				++ix;
 			}
 
-			return *reinterpret_cast<rune*>(result);
+			return result_rune;
 		}
 
 		operator const byte*() const
