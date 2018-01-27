@@ -25,9 +25,9 @@ namespace cpprelude
 		read(slice<byte>&& data);
 	};
 
-	API_CPPR extern io_trait* cppr_out;
-	API_CPPR extern io_trait* cppr_err;
-	API_CPPR extern io_trait* cppr_in;
+	API_CPPR extern io_trait* cppr_stdout;
+	API_CPPR extern io_trait* cppr_stderr;
+	API_CPPR extern io_trait* cppr_stdin;
 
 	//make sure std io is initialized
 	API_CPPR void

@@ -273,7 +273,7 @@ namespace cpprelude
 		_init_stdio();
 		//ensure that the platform is initialized
 		_init_platform();
-		static buf_reader _buf_stdin(cppr_in);
+		static buf_reader _buf_stdin(cppr_stdin);
 		return _buf_stdin;
 	}
 
@@ -284,7 +284,7 @@ namespace cpprelude
 		_init_stdio();
 		//ensure that the platform is initialized
 		_init_platform();
-		static buf_writer _buf_stdout(cppr_out);
+		static buf_writer _buf_stdout(cppr_stdout);
 		return _buf_stdout;
 	}
 
@@ -295,7 +295,7 @@ namespace cpprelude
 		_init_stdio();
 		//ensure that the platform is initialized
 		_init_platform();
-		static buf_writer _buf_stderr(cppr_err);
+		static buf_writer _buf_stderr(cppr_stderr);
 		return _buf_stderr;
 	}
 

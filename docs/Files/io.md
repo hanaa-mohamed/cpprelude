@@ -40,20 +40,20 @@ usize read_size = trait->read(data);
 
 ## Variable `cppr_out`
 ```C++
-API_CPPR extern io_trait* cppr_out;
+API_CPPR extern io_trait* cppr_stdout;
 ```
 The standard output trait.
 
 
 ## Variable `cppr_err`
 ```C++
-API_CPPR extern io_trait* cppr_err;
+API_CPPR extern io_trait* cppr_stderr;
 ```
 The standard error trait.
 
 
 ## Variable `cppr_in`
 ```C++
-API_CPPR extern io_trait* cppr_in;
+API_CPPR extern io_trait* cppr_stdin;
 ```
 The standard input trait.

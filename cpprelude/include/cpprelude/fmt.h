@@ -218,7 +218,7 @@ namespace cpprelude
 	{
 		usize result = 0;
 		_acquire_print_lock();
-		result += vprints(cppr_out, std::forward<TArgs>(args)...);
+		result += vprints(cppr_stdout, std::forward<TArgs>(args)...);
 		_release_print_lock();
 		return result;
 	}
@@ -229,7 +229,7 @@ namespace cpprelude
 	{
 		usize result = 0;
 		_acquire_print_err_lock();
-		result += vprints(cppr_err, std::forward<TArgs>(args)...);
+		result += vprints(cppr_stderr, std::forward<TArgs>(args)...);
 		_release_print_err_lock();
 		return result;
 	}
@@ -242,7 +242,7 @@ namespace cpprelude
 	{
 		usize result = 0;
 		_acquire_print_lock();
-		result += vprints(cppr_out, std::forward<TArgs>(args)..., "\n");
+		result += vprints(cppr_stdout, std::forward<TArgs>(args)..., "\n");
 		_release_print_lock();
 		return result;
 	}
@@ -253,7 +253,7 @@ namespace cpprelude
 	{
 		usize result = 0;
 		_acquire_print_err_lock();
-		result += vprints(cppr_err, std::forward<TArgs>(args)..., "\n");
+		result += vprints(cppr_stderr, std::forward<TArgs>(args)..., "\n");
 		_release_print_err_lock();
 		return result;
 	}

@@ -147,16 +147,16 @@ namespace cpprelude
 		return &_stdin;
 	}
 
-	io_trait* cppr_out = _init_stdout();
-	io_trait* cppr_err = _init_stderr();
-	io_trait* cppr_in  = _init_stdin();
+	io_trait* cppr_stdout = _init_stdout();
+	io_trait* cppr_stderr = _init_stderr();
+	io_trait* cppr_stdin  = _init_stdin();
 
 	//make sure std io is initialized
 	void
 	_init_stdio()
 	{
-		cppr_out = _init_stdout();
-		cppr_in = _init_stdin();
-		cppr_err = _init_stderr();
+		cppr_stdout = _init_stdout();
+		cppr_stdin = _init_stdin();
+		cppr_stderr = _init_stderr();
 	}
 }
