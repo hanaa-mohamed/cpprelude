@@ -354,7 +354,7 @@ namespace cpprelude
 	{
 		//remove the last null from the string when printing it
 		byte *ptr = str._data.ptr;
-		usize size = _strlen(ptr, str._data.size);
+		usize size = str._data.size - 1;
 
 		return trait->write(make_slice<byte>(ptr, size));
 	}
@@ -364,7 +364,7 @@ namespace cpprelude
 	{
 		//remove the last null from the string when printing it
 		byte *ptr = str._data.ptr;
-		usize size = _strlen(ptr, str._data.size);
+		usize size = str._data.size - 1;
 
 		return trait->write(make_slice<byte>(ptr, size));
 	}
