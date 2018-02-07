@@ -528,7 +528,7 @@ namespace cpprelude
 			//if not found then create and init one
 			if(_flags[index] == 0)
 			{
-				_keys[index] = key;
+				new (_keys.data() + index) key_type(key);
 				new (_values.data() + index) value_type();
 				_flags[index] = 1;
 				++_count;
@@ -545,7 +545,7 @@ namespace cpprelude
 			//if not found then create and init one
 			if(_flags[index] == 0)
 			{
-				_keys[index] = std::move(key);
+				new (_keys.data() + index) key_type(std::move(key));
 				new (_values.data() + index) value_type();
 				_flags[index] = 1;
 				++_count;

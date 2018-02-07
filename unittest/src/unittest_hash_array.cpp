@@ -164,7 +164,8 @@ TEST_CASE("hash_array test", "[hash_array]")
 	{
 		hash_array<string, usize> str_hash;
 
-		str_hash["abcd"] = 1;
+		string key = "abcd";
+		str_hash[key] = 1;
 		str_hash["ab"] = 1;
 		str_hash["ba"] = 1;
 		str_hash["dcba"] = 1;
