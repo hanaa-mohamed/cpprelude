@@ -174,5 +174,33 @@ TEST_CASE("hash_array test", "[hash_array]")
 
 		CHECK(str_hash.empty() == false);
 		CHECK(str_hash.count() == 6);
+
+		hash_array<string, usize> str_hash2(str_hash);
+		CHECK(str_hash.empty() == false);
+		CHECK(str_hash.count() == 6);
+
+		CHECK(str_hash2.empty() == false);
+		CHECK(str_hash2.count() == 6);
+
+		hash_array<string, usize> str_hash3(std::move(str_hash2));
+		CHECK(str_hash2.empty() == true);
+		CHECK(str_hash2.count() == 0);
+
+		CHECK(str_hash3.empty() == false);
+		CHECK(str_hash3.count() == 6);
+
+		hash_array<string, usize> str_hash4 = str_hash3;
+		CHECK(str_hash3.empty() == false);
+		CHECK(str_hash3.count() == 6);
+
+		CHECK(str_hash4.empty() == false);
+		CHECK(str_hash4.count() == 6);
+
+		hash_array<string, usize> str_hash5 = std::move(str_hash3);
+		CHECK(str_hash3.empty() == true);
+		CHECK(str_hash3.count() == 0);
+
+		CHECK(str_hash5.empty() == false);
+		CHECK(str_hash5.count() == 6);
 	}
 }

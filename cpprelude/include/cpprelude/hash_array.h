@@ -266,6 +266,71 @@ namespace cpprelude
 			_flags.expand_back(starting_count, 0);
 		}
 
+		hash_array(const hash_array& other)
+			:_keys(other._keys._context),
+			 _values(other._values._context),
+			 _flags(other._flags),
+			 _hasher(other._hasher),
+			 _count(other._count)
+		{
+			_resize_dynamic_array(_keys, other._keys.count());
+			_resize_dynamic_array(_values, other._values.count());
+
+			for(usize i = 0; i < _flags.count(); ++i)
+			{
+				if(_flags[i] != 0)
+				{
+					::new (_keys.data() + i) key_type(other._keys[i]);
+					::new (_values.data() + i) value_type(other._values[i]);
+				}
+			}
+		}
+
+		hash_array&
+		operator=(const hash_array& other)
+		{
+			clear();
+			reserve(other.capacity());
+
+			for(usize i = 0; i < other.count(); ++i)
+			{
+				if(other._flags[i] != 0)
+				{
+					_flags[i] = 1;
+					++_count;
+					::new (_keys.data() + i) key_type(other._keys[i]);
+					::new (_values.data() + i) value_type(other._values[i]);
+				}
+			}
+
+			return *this;
+		}
+
+		hash_array(hash_array&& other)
+			:_keys(std::move(other._keys)),
+			 _values(std::move(other._values)),
+			 _flags(std::move(other._flags)),
+			 _hasher(std::move(other._hasher)),
+			 _count(other._count)
+		{
+			other._count = 0;
+		}
+
+		hash_array&
+		operator=(hash_array&& other)
+		{
+			_reset();
+			
+			_keys = std::move(other._keys);
+			_values = std::move(other._values);
+			_flags = std::move(other._flags);
+			_hasher = std::move(other._hasher);
+			_count = other._count;
+
+			other._count = 0;
+			return *this;
+		}
+
 		hash_array(const hash_array& other, memory_context *context)
 			:_keys(other._keys, context),
 			 _values(other._values, context),
@@ -286,19 +351,7 @@ namespace cpprelude
 
 		~hash_array()
 		{
-			//reset the count back to the real count
-			usize cap = capacity();
-			for (usize i = 0; i < cap; ++i)
-			{
-				if (_flags[i] == 1)
-				{
-					_keys[i].~key_type();
-					_values[i].~value_type();
-					_flags[i] = 0;
-				}
-			}
-			_keys._count = 0;
-			_values._count = 0;
+			_reset();
 		}
 
 		iterator
@@ -864,6 +917,24 @@ namespace cpprelude
 			}
 
 			return cap;
+		}
+
+		void
+		_reset()
+		{
+			//reset the count back to the real count
+			usize cap = capacity();
+			for (usize i = 0; i < cap; ++i)
+			{
+				if (_flags[i] == 1)
+				{
+					_keys[i].~key_type();
+					_values[i].~value_type();
+					_flags[i] = 0;
+				}
+			}
+			_keys._count = 0;
+			_values._count = 0;
 		}
 
 		template<typename T>
